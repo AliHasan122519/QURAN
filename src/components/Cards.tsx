@@ -92,3 +92,24 @@ export const GenericCard = memo(function GenericCard({ doc, matchType, matchedTe
     </article>
   );
 });
+
+/** text with its Qur'anic phrases (﴿ ﴾) set in the Qur'an font; the rest in the app font */
+function Rich({ text, words }: { text: string; words: Set<string> }) {
+  return <>{text.split(/(﴿[^﴾]*﴾)/).map((seg, i) => (seg.startsWith('﴿') ? <span key={i} className="quran-inline"><Highlight text={seg} words={words} /></span> : <Highlight key={i} text={seg} words={words} />))}</>;
+}
+
+/** «الكتب»: the symbol (heading), then «ورد = …» (what is reported about it), and a «وجه الشبه» button that opens the reason when there is one */
+export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTerm, words }: P) {
+  const [open, setOpen] = useState(false);
+  return (
+    <article className="verse-card" data-src="book" data-match={matchType}>
+      <div className="card-top">
+        <div className="card-ref"><div className="t">{doc.ref}</div></div>
+        <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
+      </div>
+      <p dir="rtl" className="meaning-text"><b className="warad">ورد =</b> <Rich text={doc.text} words={words} /></p>
+      {doc.explanation && <button type="button" className="sharh" aria-expanded={open} onClick={() => setOpen((o) => !o)}>وجه الشبه<ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : undefined }} /></button>}
+      {doc.explanation && open && <div dir="rtl" className="wajh"><p><Rich text={doc.explanation} words={words} /></p></div>}
+    </article>
+  );
+});

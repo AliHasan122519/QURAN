@@ -19,6 +19,7 @@ const yieldUI = () => new Promise<void>((r) => setTimeout(r, 0));
 export class Engine {
   private idx = new Map<SourceId, Idx>();
   private kinds = new Map<SourceId, Kind>();
+  private refFirst = new Set<SourceId>();           // tabs whose entries are ranked first when the searched word is in the entry's heading (the symbol)
   private skel = new Map<string, Set<string>>();   // stem/skeleton key -> vocabulary words
   private vocab = new Map<string, number>();       // word -> document frequency (all sources)
   private sorted: string[] = [];
@@ -30,8 +31,8 @@ export class Engine {
   docsOf(src: SourceId) { return this.idx.get(src)?.docs ?? []; }
 
   /** Build the index for one source. Yields to the UI every few thousand documents. */
-  async addSource(src: SourceId, docs: Doc[], kind: Kind) {
-    this.kinds.set(src, kind);
+  async addSource(src: SourceId, docs: Doc[], kind: Kind, opts?: { refFirst?: boolean }) {
+    this.kinds.set(src, kind); if (opts?.refFirst) this.refFirst.add(src);
     const isQ = kind === 'quran';
     const ix: Idx = { src, docs, norm: new Array(docs.length), normB: new Array(docs.length), post: new Map() };
     for (let i = 0; i < docs.length; i++) {
@@ -225,6 +226,14 @@ export class Engine {
     const r = this.search(raw, { sources: new Set([src]), expand: 'always' });
     let direct = r.hits.filter((h) => h.type === 'literal' || h.type === 'normalized' || h.type === 'textual').sort((a, b) => a.ord - b.ord);
     if (r.terms.length > 1) { const contiguous = direct.filter((h) => h.score >= 750); if (contiguous.length) direct = contiguous; }   // a phrase: prefer the words in sequence
+    if (this.refFirst.has(src)) {                                    // «الجن» first shows the entries filed under the heading about the jinn
+      const core = (w: string) => normalize(w).replace(/^(?:وال|فال|بال|لل|ال|و)/, '');
+      const qs = r.terms.map(core).filter((w) => w.length >= 2);
+      const inRef = (id: string) => { const rf = this.byId.get(id)?.ref; if (!rf || !qs.length) return false; const ws = tokens(normalize(rf)).map(core); return qs.every((q) => ws.some((w) => w === q || (q.length >= 3 && w.length >= 3 && (w.startsWith(q) || q.startsWith(w))))); };
+      // then the entries where the word comes early (the symbol itself: «ومن رأى ملكاً…») before those that only mention it in passing
+      const early = (id: string) => { const ws = tokens(normalize(this.byId.get(id)?.text ?? '')).map(core); return qs.length && qs.every((q) => { const k = ws.findIndex((w) => w === q || (q.length >= 3 && w.length >= 3 && (w.startsWith(q) || q.startsWith(w)))); return k >= 0 && k <= 7; }) ? 0 : 1; };
+      const ranked = direct.map((h) => ({ h, f: inRef(h.id) ? 0 : 1, e: early(h.id) })); ranked.sort((a, b) => a.f - b.f || a.e - b.e || a.h.ord - b.h.ord); direct = ranked.map((x) => x.h);
+    }
     let extra = r.hits.filter((h) => h.type === 'derived' || h.type === 'semantic').sort((a, b) => a.ord - b.ord);
     if (direct.length >= 5 || r.terms.length > 1) extra = [];      // expansion: only when direct matches are few, and only for a single word (it is root-based)
     const all = [...direct, ...extra]; const shown = all.slice(0, MAX_RESULTS);

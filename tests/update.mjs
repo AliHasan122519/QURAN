@@ -45,7 +45,7 @@ const search = async (id, q) => { await page.locator(`#tab-${id}`).click(); awai
 
 // A) nothing new in the repository: the app runs on its bundled content
 publish(); await page.goto(BASE + '/'); await ready();
-log('A: no update → the 4 bundled tabs', JSON.stringify(await tabs()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية']));
+log('A: no update → the 5 bundled tabs', JSON.stringify(await tabs()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية', 'الكتب']));
 
 // B) the MCP server adds a new reference + corrects a verse; the app (reopened) receives both
 await tool('add_tab', { id: 'adhkar', label: 'الأذكار', entries: [{ ref: 'ذكر الصباح', text: 'سبحان الله وبحمده سبحان الله العظيم' }, { ref: 'دعاء', text: 'اللهم أعني على ذكرك وشكرك وحسن عبادتك', explanation: 'دعاء مأثور' }] });

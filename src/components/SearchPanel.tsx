@@ -4,7 +4,7 @@ import type { Engine } from '../lib/engine';
 import type { Kind, Lookup, SourceId, Tab } from '../lib/types';
 import { ICONS } from './icons';
 import { toAr } from '../lib/format';
-import { VerseCard, HadithCard, GenericCard, PoemCard } from './Cards';
+import { VerseCard, HadithCard, GenericCard, PoemCard, MeaningCard } from './Cards';
 
 export type SourceState = 'loading' | 'ready' | 'absent' | 'error';
 
@@ -48,7 +48,7 @@ export function SearchPanel({ tab, engine, state, retry }: { tab: Tab; engine: E
       {failed && <div className="err" role="alert">تعذّر إتمام البحث الآن. الرجاء المحاولة مرة أخرى بعد قليل.</div>}
       {state === 'absent' && <div className="soft" role="status"><cfg.Icon size={26} /><p>هذا القسم غير متاح حالياً.</p></div>}
       {(waiting || busy) && !res && <Skeleton />}
-      {!busy && state === 'ready' && res && <Results res={res} kind={tab.kind} empty={cfg.empty} />}
+      {!busy && state === 'ready' && res && <Results res={res} kind={tab.kind} card={tab.card} empty={cfg.empty} />}
       {!res && !busy && !waiting && state === 'ready' && <div className="soft"><cfg.Icon size={28} className="gold" /><p>ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.</p></div>}
     </div>
   );
@@ -58,7 +58,7 @@ function Skeleton() {
   return <div className="space" aria-hidden="true">{[0, 1, 2].map((i) => <div className="verse-card pulse" key={i} style={{ animationDelay: `${i * 120}ms` }}><div className="sk w32" /><div className="sk" /><div className="sk w11" /><div className="sk w3" /></div>)}</div>;
 }
 
-function Results({ res, kind, empty }: { res: Lookup; kind: Kind; empty: string }) {
+function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: 'meaning'; empty: string }) {
   if (!res.results.length) {
     return <div className="soft" role="status">{empty}{res.expansion?.terms.length ? <div className="also">تم البحث أيضاً عن: {res.expansion.terms.slice(0, 8).join('، ')}</div> : null}</div>;
   }
@@ -70,7 +70,7 @@ function Results({ res, kind, empty }: { res: Lookup; kind: Kind; empty: string 
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
       {res.results.map((r) => {
-        return kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
+        return kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : card === 'meaning' ? <MeaningCard key={r.doc.id} {...r} words={res.highlight} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
       })}
     </div>
   );

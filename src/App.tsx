@@ -37,7 +37,7 @@ export function App() {
           const docs = await loadTab(t, c);
           if (dead) return;
           if (!docs) { set('absent'); continue; }
-          await eng.addSource(t.id, docs, t.kind); await eng.finalize(); set('ready');
+          await eng.addSource(t.id, docs, t.kind, { refFirst: t.card === 'meaning' }); await eng.finalize(); set('ready');
         } catch { set('error'); }
       }
       if (dead) return;

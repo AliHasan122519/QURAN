@@ -14,9 +14,9 @@ const browser = await chromium.launch(); const ctx = await browser.newContext({ 
 const errors = [], requests = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errors.push('console: ' + m.text().slice(0, 160)); }); page.on('request', (r) => requests.push(r.url()));
 const toNum = (s) => +String(s).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
-const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'الألفية الوردية' };
+const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'الألفية الوردية', books: 'الكتب' };
 const panel = (t) => page.locator(`#panel-${t}`);
-const go = async () => { await page.goto(URL_); await page.waitForFunction(() => document.querySelector('#panel-quran button.go') && !document.querySelector('#panel-quran .pulse'), null, { timeout: 30000 }); await page.waitForFunction(() => document.querySelectorAll('.tab').length === 4); await page.waitForTimeout(1800); };
+const go = async () => { await page.goto(URL_); await page.waitForFunction(() => document.querySelector('#panel-quran button.go') && !document.querySelector('#panel-quran .pulse'), null, { timeout: 30000 }); await page.waitForFunction(() => document.querySelectorAll('.tab').length === 5); await page.waitForTimeout(1800); };
 const search = async (t, q) => { await page.getByRole('tab', { name: TAB[t] }).click(); await panel(t).locator('input').fill(q); await panel(t).locator('button.go').click(); await panel(t).locator('article, .soft').first().waitFor({ timeout: 20000 }); await page.waitForTimeout(350); };
 const cards = (t) => panel(t).locator('article.verse-card');
 const stats = async (t) => (await panel(t).locator('.stats').first().innerText().catch(() => '')).replace(/\s+/g, ' ');
@@ -27,7 +27,7 @@ await page.screenshot({ path: 'tests/screenshots/home.png' });
 // ---------- structure = the original ----------
 const h1 = await page.locator('h1').innerText(); log('مطابقة الأصل', 'العنوان «الباحث القرآني»', h1.trim() === 'الباحث القرآني');
 log('مطابقة الأصل', 'الشارة العلوية ونص التعريف كما في الأصل', (await page.locator('.badge-top').innerText()).includes('بحث نصّي دقيق مع توسعة دلالية اشتقاقية') && (await page.locator('.hero p').innerText()).includes('منصّة بحث شرعي في القرآن الكريم والسنة النبوية الصحيحة'));
-log('مطابقة الأصل', 'أربعة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية']));
+log('مطابقة الأصل', 'خمسة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية، الكتب', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية', 'الكتب']));
 log('مطابقة الأصل', 'نص الإرشاد والتلميح لتبويب القرآن كما في الأصل', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب كلمة أو عبارة قرآنية… مثال: مفتاح، الصبر، الرحمة' && (await panel('quran').locator('.hint').innerText()).includes('البحث يبدأ مطابقاً لرسم المصحف'));
 log('مطابقة الأصل', 'الحالة الأولى: «ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.»', (await panel('quran').locator('.soft').innerText()).includes('ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.'));
 const extras = await page.evaluate(() => ({ links: document.querySelectorAll('a[href]').length, checks: document.querySelectorAll('input[type=checkbox], select').length, nav: document.querySelectorAll('nav, header nav').length, fav: [...document.querySelectorAll('button:not(.theme-toggle)')].some((b) => /المفضلة|السجل|الفلاتر|للأعلى|مشاركة|^نسخ|تغيير الخلفية|الوضع/.test(b.innerText + (b.getAttribute('aria-label') || ''))) }));
@@ -64,7 +64,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -88,6 +88,16 @@ log('الألفية الوردية', 'جزء من اسم الباب «الخيل
 log('الألفية الوردية', 'اسم الباب غير مضبوط «اختلاج الأعضاء» أو «الأعضاء» ← باب اختلاج الأعضاء (٦٢)', await chapterCase('الأعضاء', 'باب في اختلاج الأعضاء', 62));
 log('الألفية الوردية', '«الباب الثالث عشر» ← باب المصحف وقراءة القرآن (٨٢)', await chapterCase('الباب الثالث عشر', 'باب في المصحف وقراءة القرآن', 82));
 await search('alfiya', 'الأسد'); log('الألفية الوردية', 'لفظ ليس اسم باب «الأسد» ← بحث عادي لا عرض باب', !(await panel('alfiya').locator('.sect-title').count()));
+// ---------- الكتب: ورد = … وزر «وجه الشبه» ----------
+await search('books', 'الجن'); { const tx = await panel('books').innerText(); const c0 = cards('books').first();
+  log('الكتب', '«الجن» ← بطاقات «ورد = …» ومنها ما تحت عنوان الجن أولاً', (await cards('books').count()) > 0 && /ورد =/.test(await c0.innerText()) && /الجن/.test(await c0.locator('.card-ref').innerText()), (await c0.locator('.card-ref').innerText()).slice(0, 60));
+  log('الكتب', 'المصطلح يُفرَّغ من حقل البحث بعد البحث', (await panel('books').locator('input').inputValue()) === ''); }
+await search('books', 'طوبى'); { const btn = panel('books').locator('button.sharh', { hasText: 'وجه الشبه' }).first();
+  log('الكتب', 'زر «وجه الشبه» تحت النتيجة التي ذكر الكتاب سببها', (await btn.count()) === 1);
+  await btn.click(); const w = panel('books').locator('.wajh').first();
+  log('الكتب', 'الضغط على الزر يُظهر وجه الشبه (بنصّ الآية بخط Amiri Quran)', (await w.isVisible()) && /وجه الشبه/.test(await w.innerText()) && /Amiri Quran/.test(await w.locator('.quran-inline').first().evaluate((el) => getComputedStyle(el).fontFamily)));
+  log('الكتب', 'بقية النص بخط Dubai', /Dubai/.test(await panel('books').locator('.meaning-text').first().evaluate((el) => getComputedStyle(el).fontFamily))); }
+log('الكتب', 'لا اسم كتاب ولا مؤلف في الواجهة', !/الإشارات في علم العبارات|خليل بن شاهين|ابن شاهين/.test(await page.evaluate(() => document.body.innerText)));
 // ---------- الوضع الداكن / الفاتح ----------
 const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
 const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();
