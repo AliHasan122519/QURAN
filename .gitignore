@@ -1,9 +1,10 @@
-public/content/
-node_modules/
-dist/
-dist-artifact/
-artifact/
+*.keystore.local
+__pycache__/
+android/.gradle/
 android/app/build/
 android/build/
-android/.gradle/
-*.keystore.local
+artifact/
+dist-artifact/
+dist/
+node_modules/
+public/content/

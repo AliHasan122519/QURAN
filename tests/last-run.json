@@ -1,19 +1,19 @@
 {
- "at": "2026-11-18T18:53:49.938Z",
+ "at": "2026-11-18T19:11:24.367Z",
  "axe": {
   "الصفحة الرئيسية (قرآن)": [],
   "السنة النبوية": []
  },
  "meta": {
   "quran_ayat": 6236,
-  "jami_entries": 10037,
-  "jami_excluded_noise": 29,
+  "jami_entries": 10014,
+  "jami_excluded_noise": 46,
   "jami_pages": 592,
   "jami_tiers": {
    "v": 3086,
-   "h": 3665,
-   "m": 2342,
-   "l": 944
+   "h": 3657,
+   "m": 2339,
+   "l": 932
   },
   "jami_verified_pages": 178,
   "alfiya_verses": 1051,
@@ -27,7 +27,7 @@
    "group": "الأداء",
    "name": "جاهزية الصفحة والفهرس بعد التحميل",
    "pass": true,
-   "detail": "2269 ms"
+   "detail": "2278 ms"
   },
   {
    "group": "مطابقة الأصل",

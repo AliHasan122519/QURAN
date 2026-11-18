@@ -14,12 +14,22 @@ LETTER_NAMES = {'ا':'الهمزة','ب':'الباء','ت':'التاء','ث':'ا
 q = json.load(open(f'{R}/quran-cloud-quran.json', encoding='utf8'))
 surahs = [{'n': s['id'], 'name': s['name'], 'tr': s['transliteration'], 'type': s['type'], 'count': s['total_verses']} for s in q]
 qa = [[s['id'], v['id'], v['text']] for s in q for v in s['verses']]
+# The text is verified against the official digital text of the King Fahd Complex (KFGQPC Hafs v18, data/ref/hafsData_v18.json); where it differs the official text is used.
+_k = json.load(open('data/ref/hafsData_v18.json', encoding='utf8'))
+_K = {(r['sora'], r['aya_no']): re.sub('[\u00a0\u200f ]*[\u0660-\u0669]+\\s*$', '', r['aya_text']).strip() for r in _k}
+assert len(_K) == 6236 and all((x[0], x[1]) in _K for x in qa), 'verse numbering differs from the official text'
+_n = lambda t: t.replace('\u0640', '')
+_fixed = 0
+for x in qa:
+    if _n(x[2]) != _n(_K[(x[0], x[1])]): x[2] = _K[(x[0], x[1])]; _fixed += 1
+print('verses replaced by the official KFGQPC text:', _fixed)
 CL.publish('quran', 'القرآن الكريم', 'quran', {'surahs': surahs, 'a': qa}, len(qa))
 # Jami' al-Saghir
 j = json.load(open(f'{R}/jami_parsed.json', encoding='utf8'))
 # Unreadable OCR noise (stray characters / symbol soup) is kept out of the search data but saved for review in data/jami_excluded.json.
 AR_WORD = re.compile(r'^[\u0621-\u064A\u064B-\u065F\u0670]{2,}[،,.؛:؟!»«"()\-]*$')
 def is_noise(r):
+    if 'noise_by_reference' in r.get('flags', []): return True   # matches nothing in the digital text and has no takhrij
     toks = r['t'].split()
     if not toks: return True
     q = sum(1 for t in toks if AR_WORD.match(t)) / len(toks)
