@@ -1,0 +1,7 @@
+{
+  "appId": "com.alboheth.quran",
+  "appName": "الباحث القرآني",
+  "webDir": "dist",
+  "android": { "allowMixedContent": false },
+  "server": { "androidScheme": "https" }
+}

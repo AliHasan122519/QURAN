@@ -1,0 +1,38 @@
+{
+ "data/ocr": {
+  "matched_words": 195,
+  "reference_words": 228,
+  "word_accuracy": 0.855,
+  "per_page": {
+   "40": 0.851,
+   "7": 0.867
+  }
+ },
+ "data/ocr_best": {
+  "matched_words": 184,
+  "reference_words": 228,
+  "word_accuracy": 0.807,
+  "per_page": {
+   "40": 0.78,
+   "7": 0.883
+  }
+ },
+ "data/ocr_500": {
+  "matched_words": 204,
+  "reference_words": 228,
+  "word_accuracy": 0.895,
+  "per_page": {
+   "40": 0.887,
+   "7": 0.917
+  }
+ },
+ "data/ocr_selected": {
+  "matched_words": 204,
+  "reference_words": 228,
+  "word_accuracy": 0.895,
+  "per_page": {
+   "40": 0.887,
+   "7": 0.917
+  }
+ }
+}

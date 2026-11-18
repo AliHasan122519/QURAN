@@ -1,0 +1,10 @@
+{
+  "name": "quran-search-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server that edits the content of the Quran-search app on GitHub",
+  "bin": { "quran-search-mcp": "stdio.js" },
+  "scripts": { "start": "node stdio.js", "test": "node test.mjs", "deploy": "wrangler deploy" },
+  "devDependencies": { "wrangler": "^3.90.0" }
+}

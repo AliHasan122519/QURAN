@@ -1,0 +1,44 @@
+{
+ "schema": 1,
+ "version": 1,
+ "updated": "2026-11-18T16:08:03Z",
+ "apk": {
+  "versionCode": 0,
+  "url": "",
+  "notes": ""
+ },
+ "tabs": [
+  {
+   "id": "quran",
+   "label": "القرآن الكريم",
+   "kind": "quran",
+   "file": "quran.json",
+   "sha256": "d8bf841b3888dd28df49d00e0ddf4fd38e1996f266a17f0e1cae7c975dd16614",
+   "count": 6236
+  },
+  {
+   "id": "jami",
+   "label": "السنة النبوية",
+   "kind": "hadith",
+   "file": "jami.json",
+   "sha256": "e372db8bc9879426507e94e44add463bb962c8a9886f46f6e55040466ad2878a",
+   "count": 10037
+  },
+  {
+   "id": "amthal",
+   "label": "الأمثال",
+   "kind": "generic",
+   "file": null,
+   "sha256": null,
+   "count": 0
+  },
+  {
+   "id": "alfiya",
+   "label": "الألفية الوردية",
+   "kind": "poem",
+   "file": "alfiya.json",
+   "sha256": "ef23eb141c1189e3f3ebb687d81cf70477b308d2f5db55a57312f0d8133f37ca",
+   "count": 1051
+  }
+ ]
+}
