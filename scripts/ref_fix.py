@@ -28,8 +28,9 @@ def vdist(a, b):
 def strip_p(w): return w.strip(PUNCT) or w
 def clean_ref(text):
     t = re.sub(r'\(\s*\d+\s*\)', ' ', text); t = t.replace('"', ' ').replace('«', ' ').replace('»', ' ')
-    t = re.sub(r'\s+(حرف\s+\S+|فصل\s+في\s+(\S+\s+){0,7}\S+)$', '', t)                     # the chapter heading that follows the last hadith of a chapter is not part of it
-    return [strip_p(w) for w in t.split() if strip_p(w).strip(PUNCT)]
+    t = re.sub(r'\*\s*\d*\s*\*', ' ', t)                                                   # «* 2 *»: the digital edition's own marker
+    t = re.sub(r'\s+(حرف\s+\S+|فصل\s*:?\s*في\s+(\S+\s+){0,7}\S+)\s*$', '', t)                     # the chapter heading that follows the last hadith of a chapter is not part of it
+    return [strip_p(w) for w in t.split() if strip_p(w).strip(PUNCT) and strip_p(w) not in ('-', '–', '—')]
 class RefFixer:
     def __init__(self, ref, book_texts, extra_texts=()):
         self.ref = {int(k): clean_ref(v) for k, v in ref.items()}
@@ -80,7 +81,7 @@ class RefFixer:
             if prev is not None: c += max(0, self.bg[(prev, w)] - own[(prev, w)])
             if nxt is not None: c += max(0, self.bg[(w, nxt)] - own[(w, nxt)])
             return c
-        out = []; end_a = 0; changes = []
+        out = []; end_a = 0; changes = []; forced = None
         def choose(x, y, prev, nxt, j):
             kx, ky = L(x), L(y)
             if kx == ky:                                                  # the same word: the spelling that the book uses (ى/ي, hamza seats…)
@@ -106,6 +107,17 @@ class RefFixer:
                     if w != x: changes.append((x, w))
                     out.append(w)
                 end_a = i2
+            elif tag == 'replace' and j2 == len(kb) and A[i1].startswith('(') and not verified and j2 - j1 <= ins_max:
+                # the takhrij opens right where the book text still has words: those words are what the reading dropped at the end of the hadith
+                out += [self.surface(t) for t in B[j1:j2]]; changes.append(('', ' '.join(B[j1:j2]))); end_a = i1; forced = i1
+            elif tag == 'replace' and j2 == len(kb) and i2 - i1 > j2 - j1 and A[i1 + (j2 - j1)].startswith('('):
+                # the last word of the hadith differs and the takhrij follows in the same unmatched stretch: align the hadith words one for one, the rest is the takhrij
+                m = j2 - j1
+                for d in range(m):
+                    w = choose(A[i1 + d], B[j1 + d], kb[j1 + d - 1] if j1 + d else None, None, j1 + d)
+                    if w != A[i1 + d]: changes.append((A[i1 + d], w))
+                    out.append(w)
+                end_a = i1 + m; forced = i1 + m
             elif tag == 'replace':
                 if i2 - i1 == j2 - j1:
                     for d in range(i2 - i1):
@@ -141,4 +153,5 @@ class RefFixer:
             for tag, i1, i2, j1, j2 in ops:
                 if tag == 'insert' and j2 == len(kb): last = i1
         if last is None: last = end_a
+        if forced is not None: last = forced
         return out, A[last:], {'ratio': ratio, 'changes': changes, 'cut': last}

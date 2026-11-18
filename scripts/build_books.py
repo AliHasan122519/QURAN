@@ -71,10 +71,40 @@ def why(t):
         r = tidy(m.group(1)).rstrip(' .')
         if len(r) >= 6: out.append('وجه الشبه: ما في ' + r)
     return '. '.join(dict.fromkeys(out)) + ('.' if out else '')
+
+NOTE = re.compile(r'\[[^\]]*(?:لعله|لعل |دار الحديث|فليراجع|هكذا|في الأصل|في المخطوط|في المطبوع|سقط|ساقط|كذا في|النسخة|ظ:)[^\]]*\]')
+def balance(t):
+    """removes the brackets that have no partner (a quotation cut by the book's page break, an editor's stray mark)"""
+    for o, c in (('(', ')'), ('«', '»'), ('﴿', '﴾'), ('[', ']')):
+        st = []; bad = set()
+        for k, ch in enumerate(t):
+            if ch == o: st.append(k)
+            elif ch == c:
+                if st: st.pop()
+                else: bad.add(k)
+        bad |= set(st)
+        if bad: t = ''.join(ch for k, ch in enumerate(t) if k not in bad)
+    return t
+def finalize(t):
+    t = re.sub(r'[\u200B-\u200F\u202A-\u202E\uFEFF]', '', t)
+    t = re.sub(r'PageV\d+P\d+|@QB@|@QE@|@\w{1,4}@', ' ', t)
+    t = NOTE.sub(' ', t)
+    t = re.sub(r'@\s*\d+\s*[أب]?\s*@', ' ', t); t = t.replace('^', ' ').replace('\\', ' ').replace('_', ' ').replace('|', ' '); t = re.sub(r'\s%\s', ' ... ', t); t = re.sub(r'\s\*\s', ' ', t)
+    t = re.sub(r'(?<=[\u0621-\u064A])\d{1,3}(?=[\s.،:)؛])', '', t); t = re.sub(r'\s,\s?', '، ', t)
+    t = re.sub(r'\[([^\[\]]{1,60})\]', r'\1', t)                  # an editor's supplement «[عليهما السلام]» keeps its words
+    t = re.sub(r'\(\s*\d{1,3}\s*\)', ' ', t); t = re.sub(r'(?<=[\u0621-\u064A])\d{1,3}\)', ')', t)      # footnote numbers
+    parts = re.split(r'(﴿[^﴾]*﴾)', t)
+    t = ''.join(p if p.startswith('﴿') else p.replace('\u0640', '') for p in parts)     # tatweel is kept only inside the Qur'an text
+    t = re.sub(r'\s+([،؛:.؟!)])', r'\1', t); t = re.sub(r'\(\s+', '(', t)
+    t = re.sub(r'([،؛:؟])(?=[\u0621-\u064A])', r'\1 ', t); t = re.sub(r'\.{4,}', '...', t)
+    t = balance(t)
+    t = re.sub(r'^[)﴾»\]\s]+', '', t); t = re.sub(r'[(﴿«\[\s]+$', '', t)
+    return re.sub(r'\s+', ' ', t).strip()
 rows = []
 for e in E:
-    t = tidy(re.sub(r'﴿((?:و?من|و?إن) رأى)﴾', r'\1', re.sub(r':\s*:', ':', paren_verses(fix_verses(e['text'])))))
+    t = finalize(tidy(re.sub(r'﴿((?:و?من|و?إن) رأى)﴾', r'\1', re.sub(r':\s*:', ':', paren_verses(fix_verses(e['text']))))))
     if len(t) < 25: continue
-    rows.append([e['ref'], t, why(t)])
+    ref = '' if e['ref'] == 'PARATEXT' else finalize(e['ref'])
+    rows.append([ref, t, finalize(why(t))])
 CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'placeholder': 'اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})
 print(stat, 'with reason:', sum(1 for r in rows if r[2]), 'of', len(rows))

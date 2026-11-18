@@ -5,5 +5,20 @@ import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
 E = json.load(open('data/amthal/amthal_parsed.json', encoding='utf8'))
-rows = [[e['chapter'], e['proverb'], e['explanation']] for e in E if e['proverb'].strip()]
+import re
+def fix_expl(t):
+    t = re.sub(r'(?<=[.»:؛])\s+\d{1,3}\s*$', '', t.strip())            # a footnote number of the printed book left at the end
+    t = re.sub(r'\s+([:،؛؟])', r'\1', t); return re.sub(r'\s+', ' ', t).strip()
+FIX = {                                                                       # quotation marks the digital text left unpaired (checked against the sentence)
+    'الجوز محرف عن الزوج': [('زوج أمك.»', 'زوج أمك.')],
+    'يضرب للكناية عن المدة القليلة': [('فيها كلا ولا وقد شاع', 'فيها كلا ولا» وقد شاع')],
+    'ويروى: «الكتكوت»': [('افتخار ا.ه. والشهاب', 'افتخار ا.ه.» والشهاب'), ('الألبا: 8 «', 'الألبا: «')],
+    'لأن معاشرة مثله تحمل على الظن': [('المريب المتهم.» وفي', 'المريب المتهم. وفي')]}
+def fix_row(e):
+    x = fix_expl(e['explanation'])
+    for k, subs in FIX.items():
+        if x.startswith(k):
+            for a, b in subs: x = x.replace(a, b, 1)
+    return x
+rows = [[e['chapter'], re.sub(r'\s+([:،؛؟])', r'\1', e['proverb']).strip(), fix_row(e)] for e in E if e['proverb'].strip()]
 CL.publish('amthal', 'الأمثال', 'generic', {'h': rows}, len(rows))

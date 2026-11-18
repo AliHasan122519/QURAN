@@ -39,6 +39,7 @@ json.dump([{'page': r['page'], 'text': r['t'], 'takhrij': r['k']} for r in exclu
 j = [r for r in j if r.get('verified') or not is_noise(r)]
 rows = []
 for r in j:
+    for f_ in ('t', 'k'): r[f_] = re.sub(r'[\u200B-\u200F\u202A-\u202E\uFEFF]', '', r[f_])
     L = first_letter(r['t'])
     tier = 'v' if r.get('verified') else ('h' if r['cov'] >= 0.9 else ('m' if r['cov'] >= 0.75 else 'l'))
     rows.append([r['page'], L, r['t'], r['k'], r['sym'], r['g'], tier, 1 if r['mahla'] else 0, r.get('n') or 0])

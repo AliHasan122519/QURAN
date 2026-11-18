@@ -19,11 +19,38 @@ def decode_k(k):
     return syms, grade
 import difflib
 st = collections.Counter(); used = collections.Counter()
+def apply_verified(r, nn, min_ratio):
+    """A hand-verified entry (typed from the printed page by eye) is NOT altered by the digital text: its words, its matn/takhrij boundary, its takhrij and its
+    number stay exactly as typed. (An earlier version let the digital text move the boundary of such entries; the digital text sometimes runs two hadith
+    together, and that damaged correct entries.) Only the agreement ratio is recorded."""
+    out = F.fix(r['t'].split(), nn, policy='ref', visual=True, verified=True)
+    if out is None or out[2]['ratio'] < min_ratio: return False
+    st['checked'] += 1; used[nn] += 1; r['ref_ratio'] = round(out[2]['ratio'], 3)
+    toks = r['t'].split(); cut = out[2]['cut']
+    # one exception: an entry typed with NO takhrij at all, whose text runs on after the last word of the digital hadith (the source names and narrator were typed
+    # without brackets): what follows the end of the digital text is the takhrij
+    mr = difflib.SequenceMatcher(None, [R.L(t) for t in toks[:cut]], [R.L(t) for t in F.ref[nn]], autojunk=False).ratio() if cut else 0
+    if not r['k'].strip() and mr >= 0.8 and 0 < cut < len(toks) and len(toks) - cut <= 25:
+        r['k'] = ' '.join(toks[cut:]); r['t'] = ' '.join(toks[:cut]); r['sym'], r['g'] = decode_k(r['k']); r['flags'] = r.get('flags', []) + ['takhrij_split_by_reference']; st['verified_takhrij_split'] += 1
+    return True
+REFV = collections.Counter(R.L(w) for ws in F.ref.values() for w in ws)           # the digital text's own vocabulary
+def ok_slip(o, n):
+    if o == n: return False
+    lo, ln = R.L(o), R.L(n)
+    if not lo or not ln or REFV[lo] > 0 or REFV[ln] < 3: return False
+    return difflib.SequenceMatcher(None, lo, ln).ratio() >= 0.6 and abs(len(lo) - len(ln)) <= 1
 def apply(r, nn, toks, min_ratio):
     """correct entry r with the digital text of hadith nn; returns True when it was applied"""
-    out = F.fix(toks, nn, policy='ref', visual=True, verified=bool(r.get('verified')))
+    if r.get('verified'): return apply_verified(r, nn, min_ratio)
+    out = F.fix(toks, nn, policy='ref', visual=True, verified=False)
     if out is None or out[2]['ratio'] < min_ratio: return False
     matn, tail, info = out
+    if info['cut'] >= len(toks) and r['k'].strip():
+        # the alignment swallowed the whole takhrij into the hadith text: keep the takhrij as read and correct only the hadith words
+        t_toks = r['t'].split(); out2 = F.fix(t_toks, nn, policy='ref', visual=True, verified=False)
+        if out2 is None: return False
+        matn, tail, info = out2; matn = list(matn) + list(tail); toks = t_toks + r['k'].split(); info = dict(info); info['cut'] = len(t_toks)
+        st['takhrij_kept'] += 1
     st['checked'] += 1; used[nn] += 1
     old_t = r['t']; new_t = ' '.join(matn); new_k = ' '.join(toks[info['cut']:])
     if new_t != old_t or new_k != r['k']:
@@ -91,7 +118,7 @@ for i in range(len(rows) - 1):
     if a.get('_gone') or b.get('_gone') or not a.get('n') or a['n'] not in F.ref or a.get('verified') or b.get('verified'): continue
     if not ('not_in_reference' in b.get('flags', []) or b.get('n') == a['n']): continue
     ta = (a['t'] + ' ' + a['k']).split(); tb = (b['t'] + ' ' + b['k']).split()
-    if not tb or len(tb) > 40: continue
+    if not tb or len(tb) > 40 or b.get('sym') or b.get('g'): continue                # a second entry that carries a takhrij of its own is a hadith, not a fragment
     base = ratio_of(a['t'].split(), a['n']); both = ratio_of((a['t'] + ' ' + b['t']).split(), a['n'])
     if both >= base + 0.04 and both >= 0.6:
         a['t'] = a['t'] + ' ' + b['t']; a['k'] = (b['k'] if b['k'] else a['k']); a['sym'], a['g'] = decode_k(a['k']) if a['k'] else ([], '')
@@ -154,12 +181,41 @@ for i, r in enumerate(rows):
             r['t'] = ' '.join(F.ref[4533]); r['k'] = rows[j]['k']; r['sym'], r['g'] = rows[j]['sym'], rows[j]['g']
             r['flags'] = r.get('flags', []) + ['text_from_reference']; rows[j]['flags'] = rows[j].get('flags', []) + ['noise_by_reference']; joined2 += 1
 print('numbers shared by two entries: joined', joined2, ', second dropped', dropped2)
+SYMS = set(J.SYMBOLS) | {'4', '3', '5', '6', '2'}
+def is_sym(t): return t in SYMS or t in J.SYM_FIX
+def fix_k(k):
+    """brackets of the takhrij that the line reader doubled or dropped. Seen on the printed pages: the opening «(» (and sometimes the ٥ = ه of «(ه)») is
+    what the reader loses at the start of the line. No symbol or word is ever invented except that lost «ه» of a takhrij that begins with a bare «)»."""
+    k = re.sub(r'\s+', ' ', k.strip())
+    if not k: return k
+    k = re.sub(r'\)\)+', ')', k); k = re.sub(r'(?<![\w(])رض\)', '(ض)', k)
+    if k.startswith(')'): k = '(ه' + k                                           # «) عن جابر (صح)» -> «(ه) عن جابر (صح)»
+    m = re.match(r'^([^()]*?)\)', k)
+    if m and '(' not in m.group(1):                                              # the first closing bracket has no opening one before it
+        toks = m.group(1).split()
+        if toks and all(is_sym(t) for t in toks): k = '(' + k                    # «ه ك) عن علي» -> «(ه ك) عن علي»
+        elif toks: k = k[:m.end() - 1] + k[m.end():]                              # «الحكيم) عن أبي هريرة»: a stray bracket
+    m = re.match(r'^\(\s*([^()\s]+)\s*\(', k)                                   # «(مالك (حم ق 4) …»: a stray opening bracket before a name
+    if m and not is_sym(m.group(1)): k = k[1:].lstrip()
+    k = re.sub(r'\(((?:\S+ )*?\S+) (?=(?:عن|وابن|والضياء|وأبو)\b)', lambda m: '(' + m.group(1) + ') ' if all(is_sym(t) for t in m.group(1).split()) else m.group(0), k)   # «(طس عن ابن عمر» -> «(طس) عن ابن عمر»
+    k = re.sub(r'(?<=[^\s(]) ((?:صح ح|صح|ح|ض))\)\s*$', r' (\1)', k)             # «عن ابن عمر صح)» -> «عن ابن عمر (صح)»
+    # unmatched brackets that remain are removed (an opening one at the very end is a cut grade «(ض» -> «(ض)»)
+    if k.count('(') > k.count(')') and re.search(r'\(\s*(?:صح ح|صح|ح|ض)\s*$', k): k += ')'
+    st = []; bad = set()
+    for i, ch in enumerate(k):
+        if ch == '(': st.append(i)
+        elif ch == ')':
+            if st: st.pop()
+            else: bad.add(i)
+    bad |= set(st); k = ''.join(ch for i, ch in enumerate(k) if i not in bad)
+    return re.sub(r'\s+', ' ', k).strip()
 # entries the machine reading missed or merged: read by eye from the printed pages (data/jami_manual_fixes.json)
 fx = json.load(open('data/jami_manual_fixes.json', encoding='utf8')); fixed_groups = 0
 for grp_ in fx['groups']:
     rep = set(grp_['replace']); idx = [i for i, r in enumerate(rows) if r.get('n') in rep and 'noise_by_reference' not in r.get('flags', []) and not r.get('verified')]
     if len(idx) != len(rep): print('manual fix skipped, rows not found for', sorted(rep)); continue
     first = grp_['entries'][0]['n']
+    if not rep and any(r.get('n') == first and 'noise_by_reference' not in r.get('flags', []) for r in rows): continue                # that number is already present (typed from the page): nothing to add
     pos = min(idx) if idx else next((i for i, r in enumerate(rows) if (r.get('n') or 0) > first), len(rows))
     base = rows[idx[0]] if idx else rows[max(pos - 1, 0)]
     new = []
@@ -169,6 +225,9 @@ for grp_ in fx['groups']:
     rows = [r for i, r in enumerate(rows) if i not in set(idx) and i != pos] if False else rows
     keep = [r for i, r in enumerate(rows) if i not in set(idx)]
     ins = pos - sum(1 for i in idx if i < pos)
+    nums = {e['n'] for e in grp_['entries']}
+    dropped = [r for r in keep if r.get('n') in nums and not r.get('verified')]                      # the other half of a hadith the reading split: the entry typed from the page replaces it
+    keep = [r for r in keep if not (r.get('n') in nums and not r.get('verified'))]; ins -= sum(1 for r in dropped if rows.index(r) < pos) if dropped else 0
     rows = keep[:ins] + new + keep[ins:]; fixed_groups += 1
 for n_, k_ in fx['takhrij_only'].items():
     for r in rows:
@@ -177,6 +236,24 @@ for r in rows:
     if not r.get('n') and not r.get('verified'): r['flags'] = r.get('flags', []) + ['noise_by_reference']   # unnumbered and matching nothing
 for r in rows:
     if (r.get('n') or 0) > 10031 and not r.get('verified'): r['flags'] = r.get('flags', []) + ['noise_by_reference']   # the author's closing note, not a hadith
+for r in rows:
+    n_ = r.get('n')
+    if n_ in set(fx.get('digits_removed', [])) and not r.get('verified'): r['t'] = re.sub(r'\s\d{1,3}(?=\s)', '', r['t']); r['flags'] = r.get('flags', []) + ['footnote_digit_removed']
+    if n_ in set(fx.get('strip_hash', [])): r['t'] = r['t'].replace('#', '').strip()
+for it in fx.get('set', []):
+    hit = [r for r in rows if r.get('n') == it['n'] and 'noise_by_reference' not in r.get('flags', [])]
+    if len(hit) != 1: print('manual set skipped', it['n'], len(hit)); continue
+    r = hit[0]
+    if 't' in it: r['t'] = it['t']
+    if 'k' in it: r['k'] = it['k']
+    r['sym'], r['g'] = decode_k(r['k']) if r['k'] else ([], ''); r['flags'] = r.get('flags', []) + ['manual_from_image']; r['verified'] = True
+for it in fx.get('word_fixes', []):
+    hit = [r for r in rows if r.get('n') == it['n'] and 'noise_by_reference' not in r.get('flags', [])]
+    if len(hit) == 1 and it['old'] in hit[0]['t']: hit[0]['t'] = hit[0]['t'].replace(it['old'], it['new'], 1); hit[0]['flags'] = hit[0].get('flags', []) + ['word_fixed_by_eye']
+    else: print('word fix skipped', it)
+for r in rows:
+    nk = fix_k(r['k'])
+    if nk != r['k']: r['k'] = nk; r['sym'], r['g'] = decode_k(nk) if nk else ([], ''); r['flags'] = r.get('flags', []) + ['takhrij_brackets_fixed']
 print('manual groups applied:', fixed_groups, 'of', len(fx['groups']))
 dups = [n for n, c in collections.Counter(r['n'] for r in rows if r.get('n')).items() if c > 1]
 print(dict(st)); print('numbers used by more than one entry:', len(dups), dups[:15])

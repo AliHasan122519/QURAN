@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 43,
- "updated": "2026-11-18T22:54:10Z",
+ "version": 95,
+ "updated": "2026-11-18T23:16:53Z",
  "apk": {
   "versionCode": 29917377,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -21,7 +21,7 @@
    "label": "السنة النبوية",
    "kind": "hadith",
    "file": "jami.json",
-   "sha256": "2d9a73dd5b52f377c97284be4542d03b9cbb51d1b3acaaa6d0b6639b1fa9c21f",
+   "sha256": "e430fc7c36b73b5ed4cbaad3a95385b8e698d333245296378279d4b8d4bc30a0",
    "count": 10031
   },
   {
@@ -29,7 +29,7 @@
    "label": "الأمثال",
    "kind": "generic",
    "file": "amthal.json",
-   "sha256": "e770cfbfd41fe5914576e2cd99c8182dfc6ebfb2a94483c82b9e45cdba213141",
+   "sha256": "9a62f37a06b576b76eb11e276cf6439f42153ff8909065275fe28c3fabf8a0fb",
    "count": 3174
   },
   {
@@ -45,8 +45,8 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "e9037696720b97ba75a057629d9817ab70a52606274d6f3a74bc98c5325ce833",
-   "count": 28376,
+   "sha256": "dc3ff1e9ab94ccc13316043469bdd04bb2e4cfa2f5e148a9d1abb2a6fb77a623",
+   "count": 28237,
    "card": "meaning",
    "placeholder": "اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء",
    "hint": "اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه."

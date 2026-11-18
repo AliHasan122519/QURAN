@@ -6,10 +6,24 @@ ATTR = re.compile(r'(?:(?<=\s)|^)(?:\(?وقال\)?|\(?قال\)?|\(?وعن\)?|\(?
 SENT = re.compile(r'(?<=[.؟])\s+(?=(?:ومن|من|وإن|ومن رأى|وكل)\s)|(?<=\S)\s+(?=ومن رأى\s)')
 def split_clauses(t):
     cuts = {0}
+    # never cut inside a quoted verse ﴿ ﴾, a «…» quotation, or a parenthesis that opened before the cut
+    depth = [0] * (len(t) + 1); vd = 0; pd = 0; gd = 0
+    for k, ch in enumerate(t):
+        if ch == '﴿': vd += 1
+        elif ch == '﴾': vd = max(0, vd - 1)
+        elif ch == '«': gd += 1
+        elif ch == '»': gd = max(0, gd - 1)
+        elif ch == '(': pd += 1
+        elif ch == ')': pd = max(0, pd - 1)
+        depth[k] = (vd, gd, pd)
     for rx in (OPEN, ATTR, SENT):
         for m in rx.finditer(t):
             s = m.start() if rx is not SENT else m.end()
-            if s > 0: cuts.add(s)
+            if s <= 0 or s >= len(t): continue
+            vd_, gd_, pd_ = depth[s - 1]
+            if vd_ or gd_: continue
+            if pd_ and not (rx is OPEN and t[s] == '(' and pd_ == 0): continue
+            cuts.add(s)
     pos = sorted(cuts); parts = [t[a:b].strip() for a, b in zip(pos, pos[1:] + [len(t)])]
     out = []
     for p in parts:                                  # a fragment too short to stand alone is joined to the one before it
