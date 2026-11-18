@@ -38,7 +38,15 @@ npx wrangler secret put GITHUB_TOKEN   # توكن fine-grained: هذا المس�
 npx wrangler secret put MCP_SECRET     # نص عشوائي طويل (٣٢ حرفاً فأكثر): openssl rand -hex 24
 npx wrangler deploy                    # يطبع الرابط https://quran-search-mcp.<حسابك>.workers.dev
 ```
-**٥) الإضافة إلى Claude.** Settings ← Connectors ← *Add custom connector* ← الرابط: `https://quran-search-mcp.<حسابك>.workers.dev/mcp/<MCP_SECRET>` (الجزء الأخير هو سرّك؛ لا تشاركه).
+
+## نشر الـMCP من الجوال فقط (بلا حاسوب) — Netlify
+`mcp-server/` فيه دالة Netlify جاهزة (`functions/mcp.mjs`). على الجوال ومن المتصفح فقط:
+1. **توكن GitHub:** github.com ← صورتك ← Settings ← (أسفل القائمة) Developer settings ← Personal access tokens ← Fine-grained tokens ← Generate new token. المستودع: *Only select repositories* ← `QURAN`. الصلاحية: Repository permissions ← **Contents: Read and write**. انسخ التوكن.
+2. **Netlify:** app.netlify.com ← Add new project ← Import an existing project ← GitHub ← اختر `QURAN`. في الإعدادات: **Base directory = `mcp-server`** وباقي الحقول كما هي ← Deploy.
+3. **المتغيرات:** Project configuration ← Environment variables ← أضف: `GITHUB_TOKEN` (الصق التوكن، وفعّل *Contains secret values*) و`MCP_SECRET` (نص عشوائي من ٣٢ حرفاً فأكثر) و`GITHUB_REPO` = `AliHasan122519/QURAN` و`GITHUB_BRANCH` = `main`. ثم Deploys ← Trigger deploy ← Deploy project.
+4. **الإضافة إلى Claude:** من المتصفح (وضع «موقع سطح المكتب») claude.ai ← Settings ← Connectors ← Add custom connector ← الرابط `https://<اسم-موقعك>.netlify.app/mcp/<MCP_SECRET>`.
+
+**٥) الإضافة إلى Claude (طريق Cloudflare).** Settings ← Connectors ← *Add custom connector* ← الرابط: `https://quran-search-mcp.<حسابك>.workers.dev/mcp/<MCP_SECRET>` (الجزء الأخير هو سرّك؛ لا تشاركه).
 بديل محلي (Claude Desktop / Claude Code): `GITHUB_TOKEN=… GITHUB_REPO=owner/name node mcp-server/stdio.js` كخادم stdio.
 
 ## أدوات الـMCP

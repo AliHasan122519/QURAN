@@ -1,0 +1,8 @@
+# Netlify site for the MCP server only (set «Base directory» = mcp-server when importing the repository).
+[build]
+  publish = "public"
+  command = "echo no build step"
+
+[functions]
+  directory = "functions"
+  node_bundler = "esbuild"

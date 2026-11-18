@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { createServer, githubClient } from './core.js';
 import worker from './worker.js';
+import netlifyFn from './functions/mcp.mjs';
 
 const files = new Map(); for (const f of readdirSync('content')) if (f.endsWith('.json')) files.set('content/' + f, readFileSync('content/' + f, 'utf8'));
 let commits = 0; const head = { sha: 'c0' }; const pending = new Map();
@@ -75,4 +76,9 @@ check('worker: bearer token also accepted', (await post('/mcp', { jsonrpc: '2.0'
 check('worker: notification → 202', (await post('/mcp/' + env.MCP_SECRET, { jsonrpc: '2.0', method: 'notifications/initialized' })).status === 202);
 check('worker: GET → 405', (await worker.fetch(new Request('https://w.example/mcp/' + env.MCP_SECRET), env)).status === 405);
 check('worker: short secret refused', (await worker.fetch(new Request('https://w.example/mcp/abc', { method: 'POST', body: '{}' }), { MCP_SECRET: 'abc' })).status === 500);
+// Netlify Function wrapper: reads its settings from process.env
+process.env.MCP_SECRET = 'y'.repeat(32); process.env.GITHUB_TOKEN = 't'; process.env.GITHUB_REPO = 'o/r';
+const nf = await netlifyFn(new Request('https://site.netlify.app/mcp/' + 'y'.repeat(32), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'ping' }) }));
+check('netlify function: correct secret → JSON-RPC result', nf.status === 200 && (await nf.json()).result !== undefined);
+check('netlify function: wrong secret → 404', (await netlifyFn(new Request('https://site.netlify.app/mcp/nope', { method: 'POST', body: '{}' }))).status === 404);
 console.log(`\nSUMMARY: ${pass}/${pass + fail} passed`); process.exit(fail ? 1 : 0);
