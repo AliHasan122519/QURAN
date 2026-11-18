@@ -3,7 +3,7 @@ name: Check content
 # Runs on every change of content/ (including the ones made through the MCP server) and on the MCP server's own code.
 on:
   push:
-    paths: ['content/**', 'mcp-server/**', 'scripts/validate_content.mjs']
+    paths: ['content/**', 'mcp-server/**', 'scripts/**', 'tests/content_cli.mjs']
   pull_request:
     paths: ['content/**', 'mcp-server/**']
 
@@ -16,3 +16,4 @@ jobs:
         with: { node-version: 22 }
       - run: node scripts/validate_content.mjs
       - run: node mcp-server/test.mjs
+      - run: node tests/content_cli.mjs
