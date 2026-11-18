@@ -30,8 +30,8 @@ log('مطابقة الأصل', 'الشارة العلوية ونص التعري�
 log('مطابقة الأصل', 'أربعة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية']));
 log('مطابقة الأصل', 'نص الإرشاد والتلميح لتبويب القرآن كما في الأصل', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب كلمة أو عبارة قرآنية… مثال: مفتاح، الصبر، الرحمة' && (await panel('quran').locator('.hint').innerText()).includes('البحث يبدأ مطابقاً لرسم المصحف'));
 log('مطابقة الأصل', 'الحالة الأولى: «ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.»', (await panel('quran').locator('.soft').innerText()).includes('ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.'));
-const extras = await page.evaluate(() => ({ links: document.querySelectorAll('a[href]').length, checks: document.querySelectorAll('input[type=checkbox], select').length, nav: document.querySelectorAll('nav, header nav').length, fav: [...document.querySelectorAll('button')].some((b) => /المفضلة|السجل|الفلاتر|للأعلى|مشاركة|^نسخ|تغيير الخلفية|الوضع/.test(b.innerText + (b.getAttribute('aria-label') || ''))) }));
-log('مطابقة الأصل', 'لا فلاتر ولا مفضلة ولا سجل ولا قوائم ولا روابط ولا أزرار إضافية', extras.links === 0 && extras.checks === 0 && extras.nav === 0 && !extras.fav, JSON.stringify(extras));
+const extras = await page.evaluate(() => ({ links: document.querySelectorAll('a[href]').length, checks: document.querySelectorAll('input[type=checkbox], select').length, nav: document.querySelectorAll('nav, header nav').length, fav: [...document.querySelectorAll('button:not(.theme-toggle)')].some((b) => /المفضلة|السجل|الفلاتر|للأعلى|مشاركة|^نسخ|تغيير الخلفية|الوضع/.test(b.innerText + (b.getAttribute('aria-label') || ''))) }));
+log('مطابقة الأصل', 'لا فلاتر ولا مفضلة ولا سجل ولا قوائم ولا روابط ولا أزرار إضافية (عدا زر الوضع الداكن/الفاتح المطلوب)', extras.links === 0 && extras.checks === 0 && extras.nav === 0 && !extras.fav, JSON.stringify(extras));
 const geo = await page.evaluate(() => { const g = (s) => document.querySelector(s).getBoundingClientRect(); const c = (s, p) => getComputedStyle(document.querySelector(s))[p]; return { inputH: g('#q-quran').height, inputR: c('#q-quran', 'borderRadius'), btnH: g('#panel-quran button.go').height, btnR: c('#panel-quran button.go', 'borderRadius'), tabR: c('.tab', 'borderRadius'), tabsR: c('.tabs', 'borderRadius') }; });
 log('مطابقة الأصل', 'مقاسات عناصر التحكم كما في الأصل (حقل ٥٦px/١٦، زر ٤٠px/١٢، تبويب ١٢، حاوية ١٦)', Math.round(geo.inputH) === 56 && geo.inputR === '16px' && Math.round(geo.btnH) === 40 && geo.btnR === '12px' && geo.tabR === '12px' && geo.tabsR === '16px', JSON.stringify(geo));
 const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage); log('الخلفية', 'خلفية الصفحة الجديدة (تدرجات + نقش هندسي)', /radial-gradient/.test(bg) && /url\(/.test(bg) && /linear-gradient/.test(bg));
@@ -81,6 +81,22 @@ log('الألفية الوردية', 'كتابة «ظ» ← باب حرف الظ
 log('الألفية الوردية', 'كتابة «أ» ← باب حرف الألف (٦ أبيات)', await letterCase('أ', 'باب حرف الألف', 6));
 log('الألفية الوردية', 'كتابة «ي» ← باب حرف الياء بلا أبيات الخاتمة (٢٨ بيتاً)', await letterCase('ي', 'باب حرف الياء', 28));
 await search('alfiya', 'الواو'); log('الألفية الوردية', 'لفظ من أكثر من حرف ← بحث كالمعتاد لا عرض باب', !(await panel('alfiya').innerText()).includes('باب حرف') || (await panel('alfiya').locator('.pill').count()) > 0);
+// ---------- الوضع الداكن / الفاتح ----------
+const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
+const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();
+log('الوضع الداكن/الفاتح', 'زر في الزاوية العلوية يبدّل بين الداكن والفاتح', (th0 === "dark" || th0 === "light") && th1 !== th0 && (await page.locator('.theme-toggle').getAttribute('aria-label')).includes('التبديل إلى'));
+log('الوضع الداكن/الفاتح', 'الاختيار يُحفَظ ويبقى بعد إعادة التحميل', await (async () => { await page.reload(); await page.waitForTimeout(1500); return (await themeNow()) === th1; })());
+const bgOf = () => page.evaluate(() => getComputedStyle(document.querySelector('.sheet')).backgroundColor + '|' + getComputedStyle(document.querySelector('.hero h1')).color);
+const bgA = await bgOf(); await page.locator('.theme-toggle').click(); const bgB = await bgOf();
+log('الوضع الداكن/الفاتح', 'لون الصفحة والعنوان يتغيّران فعلاً عند التبديل', bgA !== bgB, bgA + ' → ' + bgB);
+if ((await themeNow()) !== 'dark') await page.locator('.theme-toggle').click();
+log('الوضع الداكن', 'عنوان «الباحث القرآني» أبيض في الوضع الداكن', (await page.evaluate(() => getComputedStyle(document.querySelector('.hero h1')).color)) === 'rgb(255, 255, 255)');
+await page.evaluate(axeSrc); const axeDark = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id));
+log('الوضع الداكن', 'بلا مخالفات وصول/تباين (axe)', axeDark.length === 0, axeDark.join(' '));
+if ((await themeNow()) !== 'light') await page.locator('.theme-toggle').click();
+await page.evaluate(axeSrc); const axeLight = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id));
+log('الوضع الفاتح', 'بلا مخالفات وصول/تباين (axe)', axeLight.length === 0, axeLight.join(' '));
+
 // ---------- proverbs (data file optional) ----------
 await page.getByRole('tab', { name: TAB.amthal }).click(); await page.waitForTimeout(300);
 log('الأمثال', 'التبويب موجود كالأصل ويُصرِّح بعدم توفر بياناته بدل تقديم نتائج وهمية', (await panel('amthal').innerText()).includes('غير متاح') && (await panel('amthal').locator('button.go').isDisabled()) && (await panel('amthal').locator('article').count()) === 0);

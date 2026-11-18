@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles, Download } from 'lucide-react';
 import { ICONS } from './components/icons';
+import { ThemeToggle } from './components/ThemeToggle';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
 import type { Kind, Manifest, SourceId } from './lib/types';
@@ -48,6 +49,7 @@ export function App() {
   const tabs = manifest?.tabs ?? [{ id: 'quran', label: 'القرآن الكريم', kind: 'quran' as Kind, file: null, sha256: null }];
   return (
     <main className="page">
+      <ThemeToggle />
       <header className="hero">
         <div className="hero-in">
           <div className="badge-top"><Sparkles size={14} />بحث نصّي دقيق مع توسعة دلالية اشتقاقية</div>

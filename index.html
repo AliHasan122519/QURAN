@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="منصّة بحث عربي دقيق في القرآن الكريم والسنة النبوية والألفية الوردية." />
   <meta name="theme-color" content="#041412" />
+  <script>
+    /* applies the saved theme (or the system preference) before the first paint, so the page never flashes the wrong colours */
+    (function () { var t = null; try { t = localStorage.getItem('qs-theme'); } catch (e) {}
+      if (t !== 'dark' && t !== 'light') t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+      var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', t === 'dark' ? '#041412' : '#f6efdc'); })();
+  </script>
   <title>الباحث القرآني والسنة النبوية — Sunnah Sense Finder</title>
   <link rel="icon" type="image/png" href="./favicon.png" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />

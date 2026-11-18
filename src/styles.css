@@ -17,9 +17,21 @@
   --muted: oklch(93% .02 85); --muted-foreground: oklch(45% .03 150);
   --gold: oklch(72% .13 78); --destructive: oklch(55% .2 25); --border: oklch(86% .03 85); --input: oklch(90% .025 85); --ring: oklch(55% .08 158);
   --font: "Dubai", "Segoe UI", Tahoma, sans-serif; --font-quran: "Amiri Quran", serif;
-  /* the page itself is dark; the content sheet and everything on it keeps the original's light look */
-  --page-dark: #04120f; --on-dark: #eaf5f1; --on-dark-2: #a9c7bd;
+  /* page colours (outside the content sheet) — LIGHT theme, the default */
+  --page-dark: #f4ecd8; --page-mid: #f4ecd8; --on-dark: #1b3a30; --on-dark-2: #46665a; --h1: #0c4a3a;
+  --badge-text: #7a5a14; --badge-bg: rgba(255, 255, 255, .55); --badge-border: rgba(160, 120, 30, .45); --orn: #a07a1c;
+  --glow1: rgba(30, 170, 140, .18); --glow2: rgba(217, 180, 90, .26); --glow3: rgba(30, 150, 125, .14); --pg1: #f8f2e1; --pg2: #f1e8d0; --pg3: #f5edd8; --sheet-shadow: rgba(60, 50, 20, .28);
   color-scheme: light;
+}
+/* DARK theme: the whole page and the content sheet turn dark */
+html[data-theme="dark"] {
+  --background: oklch(21% .03 168); --parchment: oklch(25% .03 168); --card: oklch(24% .03 168); --secondary: oklch(29% .03 168); --secondary-foreground: oklch(90% .03 160);
+  --foreground: oklch(92% .02 95); --ink: oklch(96% .02 95); --muted: oklch(29% .025 168); --muted-foreground: oklch(76% .035 160);
+  --primary: oklch(72% .12 162); --primary-foreground: oklch(17% .03 165); --border: oklch(38% .03 168); --input: oklch(30% .03 168); --ring: oklch(72% .1 162);
+  --page-dark: #04120f; --page-mid: #052019; --on-dark: #eaf5f1; --on-dark-2: #a9c7bd; --h1: #fff;
+  --badge-text: #efd28d; --badge-bg: rgba(255, 255, 255, .06); --badge-border: rgba(225, 190, 106, .5); --orn: #e1be6a;
+  --glow1: rgba(30, 170, 140, .34); --glow2: rgba(217, 180, 90, .13); --glow3: rgba(30, 150, 125, .22); --pg1: #03100d; --pg2: #062a22; --pg3: #04201a; --sheet-shadow: rgba(0, 0, 0, .65);
+  color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -33,32 +45,32 @@ h1, p, ul { margin: 0; } button { cursor: pointer; color: inherit; background: n
 /* ===================================== BACKGROUND (new) ===================================== */
 body {
   background-image:
-    radial-gradient(1100px 620px at 88% -6%, rgba(30, 170, 140, .34), transparent 62%),
-    radial-gradient(900px 560px at 6% 4%, rgba(217, 180, 90, .13), transparent 64%),
-    radial-gradient(1200px 700px at 50% 112%, rgba(30, 150, 125, .22), transparent 60%),
+    radial-gradient(1100px 620px at 88% -6%, var(--glow1), transparent 62%),
+    radial-gradient(900px 560px at 6% 4%, var(--glow2), transparent 64%),
+    radial-gradient(1200px 700px at 50% 112%, var(--glow3), transparent 60%),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><g fill='none' stroke='%23e1be6a' stroke-opacity='.10' stroke-width='1'><path d='M48 7l9 13.5 16-1.2-1.2 16L84 44l-12.2 8.7 1.2 16-16-1.2L48 81l-9-13.5-16 1.2 1.2-16L12 44l12.2-8.7-1.2-16 16 1.2z'/><circle cx='48' cy='44' r='8'/></g></svg>"),
-    linear-gradient(180deg, #03100d 0%, #062a22 46%, #04201a 100%);
+    linear-gradient(180deg, var(--pg1) 0%, var(--pg2) 46%, var(--pg3) 100%);
   background-repeat: no-repeat, no-repeat, no-repeat, repeat, no-repeat;
   background-size: 100% 900px, 100% 900px, 100% 900px, 96px 96px, 100% 100%;
   background-position: 0 0, 0 0, 50% 100%, 0 0, 0 0;
 }
-html { background: #03100d; min-height: 100%; }
+html { background: var(--page-dark); min-height: 100%; }
 .page { display: block; min-height: 100vh; }
 
 /* ===================================== header ===================================== */
 .hero-in { max-width: 56rem; margin-inline: auto; padding: 4rem 1rem 3.4rem; text-align: center; }
-.badge-top { display: inline-flex; align-items: center; gap: .5rem; border-radius: 999px; border: 1px solid rgba(225, 190, 106, .5); background: rgba(255, 255, 255, .06); padding: .375rem 1rem; font-size: .75rem; color: #efd28d; backdrop-filter: blur(6px); }
-.hero h1 { margin-top: 1.5rem; font-size: 3rem; line-height: 1.25; color: #fff; -webkit-text-fill-color: #fff; }
+.badge-top { display: inline-flex; align-items: center; gap: .5rem; border-radius: 999px; border: 1px solid var(--badge-border); background: var(--badge-bg); padding: .375rem 1rem; font-size: .75rem; color: var(--badge-text); backdrop-filter: blur(6px); }
+.hero h1 { margin-top: 1.5rem; font-size: 3rem; line-height: 1.25; color: var(--h1); -webkit-text-fill-color: var(--h1); }
 @media (min-width: 640px) { .hero h1 { font-size: 3.75rem; } }
 .hero p { max-width: 36rem; margin: .9rem auto 0; font-size: 1rem; line-height: 1.9; color: var(--on-dark-2); text-wrap: balance; }
 @media (min-width: 640px) { .hero p { font-size: 1.125rem; } }
 .ornament-divider { position: relative; width: 12rem; height: 1px; margin: 2rem auto 0; background: linear-gradient(to left, transparent, rgba(225, 190, 106, .75), transparent); }
-.ornament-divider::after { content: "❋"; position: absolute; top: -.7rem; inset-inline-start: 50%; transform: translate(50%); padding: 0 .5rem; font-size: .85rem; color: #e1be6a; background: #052019; }
+.ornament-divider::after { content: "❋"; position: absolute; top: -.7rem; inset-inline-start: 50%; transform: translate(50%); padding: 0 .5rem; font-size: .85rem; color: var(--orn); background: var(--page-mid); }
 
 /* ===================================== content sheet (original look, on ivory) ===================================== */
 .sheet { position: relative; max-width: 56rem; margin: -1.2rem auto 0; width: calc(100% - 2rem); padding: 2rem 1.5rem 2.5rem; border-radius: 1.75rem; color: var(--foreground);
   background: radial-gradient(700px 360px at 0% 0%, color-mix(in oklch, var(--gold) 14%, transparent), transparent 60%), radial-gradient(700px 360px at 100% 100%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 60%), var(--background);
-  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .65), 0 0 0 1px rgba(225, 190, 106, .35) inset, 0 0 0 7px rgba(255, 255, 255, .04); }
+  box-shadow: 0 40px 80px -30px var(--sheet-shadow), 0 0 0 1px rgba(225, 190, 106, .35) inset, 0 0 0 7px rgba(255, 255, 255, .04); }
 @media (max-width: 520px) { .sheet { padding: 1.25rem .9rem 1.75rem; border-radius: 1.25rem; } }
 .tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: .25rem; max-width: 44rem; margin: 0 auto 2rem; padding: .375rem; border-radius: 1rem; border: 1px solid color-mix(in oklch, var(--gold) 35%, var(--border)); background: color-mix(in oklch, var(--card) 70%, transparent); }
 .tab { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .625rem .25rem; border-radius: .75rem; font-size: .875rem; color: var(--muted-foreground); transition: background .15s, color .15s; white-space: nowrap; }
@@ -123,3 +135,9 @@ html { background: #03100d; min-height: 100%; }
 .sect-title { font-size: 1.15rem; color: var(--gold); }
 
 .apk-notice { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: 0 auto 1.25rem; max-width: 44rem; padding: .7rem 1rem; border-radius: .9rem; border: 1px solid color-mix(in oklch, var(--gold) 55%, var(--border)); background: color-mix(in oklch, var(--gold) 14%, var(--card)); color: var(--foreground); font-size: .92rem; text-decoration: none; }
+
+/* ===================================== theme toggle ===================================== */
+.theme-toggle { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top, 0px) + .75rem); inset-inline-end: .75rem; display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+  color: var(--h1); background: var(--badge-bg); border: 1px solid var(--badge-border); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .5); transition: transform .15s, background .15s; }
+.theme-toggle:hover { transform: scale(1.06); } .theme-toggle:active { transform: scale(.96); }
+html[data-theme="dark"] .theme-toggle { color: #efd28d; }
