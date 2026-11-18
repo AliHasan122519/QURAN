@@ -31,7 +31,8 @@ jobs:
 
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 17 }
-      - uses: android-actions/setup-android@v3
+      # the hosted ubuntu runner already has the Android SDK (ANDROID_HOME) with licences accepted
+      - run: echo "ANDROID_HOME=$ANDROID_HOME" && ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Use the signing key from repository secrets (if set)
