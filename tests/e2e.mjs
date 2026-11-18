@@ -80,7 +80,14 @@ log('الألفية الوردية', 'كتابة «و» ← باب حرف الو
 log('الألفية الوردية', 'كتابة «ظ» ← باب حرف الظاء (بيت واحد)', await letterCase('ظ', 'باب حرف الظاء', 1));
 log('الألفية الوردية', 'كتابة «أ» ← باب حرف الألف (٦ أبيات)', await letterCase('أ', 'باب حرف الألف', 6));
 log('الألفية الوردية', 'كتابة «ي» ← باب حرف الياء بلا أبيات الخاتمة (٢٨ بيتاً)', await letterCase('ي', 'باب حرف الياء', 28));
-await search('alfiya', 'الواو'); log('الألفية الوردية', 'لفظ من أكثر من حرف ← بحث كالمعتاد لا عرض باب', !(await panel('alfiya').innerText()).includes('باب حرف') || (await panel('alfiya').locator('.pill').count()) > 0);
+await search('alfiya', 'الواو'); log('الألفية الوردية', 'اسم الحرف كاملاً «الواو» ← باب حرف الواو', (await panel('alfiya').innerText()).includes('باب حرف الواو') && (await cards('alfiya').count()) === 2);
+const chapterCase = async (q, title, count) => { await search('alfiya', q); const tx = await panel('alfiya').innerText(); return tx.includes(title) && (await cards('alfiya').count()) === count && (await panel('alfiya').locator('.pill').count()) === 0; };
+log('الألفية الوردية', 'البحث «الشجر» ← أبيات باب الشجر والثمار فقط (٢٣)', await chapterCase('الشجر', 'باب في الشجر والثمار', 23));
+log('الألفية الوردية', 'جمع تكسير «الأشجار» يُفهم أنه الباب نفسه', await chapterCase('الأشجار', 'باب في الشجر والثمار', 23));
+log('الألفية الوردية', 'جزء من اسم الباب «الخيل» ← باب الخيل (١٣)', await chapterCase('الخيل', 'باب في الخيل', 13));
+log('الألفية الوردية', 'اسم الباب غير مضبوط «اختلاج الأعضاء» أو «الأعضاء» ← باب اختلاج الأعضاء (٦٢)', await chapterCase('الأعضاء', 'باب في اختلاج الأعضاء', 62));
+log('الألفية الوردية', '«الباب الثالث عشر» ← باب المصحف وقراءة القرآن (٨٢)', await chapterCase('الباب الثالث عشر', 'باب في المصحف وقراءة القرآن', 82));
+await search('alfiya', 'الأسد'); log('الألفية الوردية', 'لفظ ليس اسم باب «الأسد» ← بحث عادي لا عرض باب', !(await panel('alfiya').locator('.sect-title').count()));
 // ---------- الوضع الداكن / الفاتح ----------
 const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
 const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();

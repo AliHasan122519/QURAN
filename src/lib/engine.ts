@@ -183,8 +183,45 @@ export class Engine {
     return { query: raw, directCount: docs.length, semanticCount: 0, expansion: null, section: `باب ${title}`, highlight: new Set(),
       results: docs.map((doc, i) => ({ hit: { id: doc.id, src, ord: i, score: 0, type: 'literal' as MatchType }, doc, matchType: 'نصي' as const, matchedTerm: '' })), capped: false };
   }
+  /** al-Alfiya: a query that names a chapter («الشجر» → «باب في الشجر والثمار», «اختلاج الأعضاء», «الباب الثالث عشر»…) shows that chapter's verses only,
+   *  even when the chapter name is not typed exactly: every content word of the query must be a word of the chapter title (article, clitic, plural and
+   *  pronoun-suffix tolerant). Queries that are not chapter names are searched normally. */
+  chapterSection(src: SourceId, raw: string): Lookup | null {
+    const STOP = new Set(['باب', 'الباب', 'حرف', 'في', 'ما', 'وما', 'من', 'به', 'بها', 'لحق', 'يتصل', 'ونحوه', 'ونحوها', 'واشباهها', 'واشباه', 'وغيره', 'فيمن', 'عن', 'الي', 'على']);
+    const core = (w: string): string => {
+      let t = normalize(w);
+      for (const c of ['وال', 'فال', 'بال', 'كال', 'ولل', 'لل', 'ال']) if (t.startsWith(c) && t.length - c.length >= 2) { t = t.slice(c.length); break; }
+      if (t.length > 3 && t.startsWith('و')) t = t.slice(1);
+      for (const x of ['هم', 'ها', 'هن', 'كم', 'ات', 'ين', 'ون']) if (t.length - x.length >= 3 && t.endsWith(x)) { t = t.slice(0, -x.length); break; }
+      if (t.length > 3 && /[ةهى]$/.test(t)) t = t.slice(0, -1);
+      return t;
+    };
+    const words = (s: string) => tokens(normalize(s)).filter((w) => !STOP.has(w) && !STOP.has(core(w))).map(core).filter((w) => w.length >= 2);
+    // broken plurals (أشجار ↔ شجر, طيور ↔ طير): compare also with the long vowels / leading alef dropped
+    const forms = (w: string) => [w, w.replace(/ا/g, ''), w.replace(/و/g, ''), w.replace(/^[أإا]/, '').replace(/ا/g, '')].filter((x) => x.length >= 3);
+    const same = (a: string, b: string) => a === b || forms(a).some((x) => forms(b).includes(x));
+    const q = words(raw); if (!q.length || q.length > 5) return null;
+    const docs = this.docsOf(src); const seen = new Map<string, { title: string; ord: number }>();
+    docs.forEach((d, i) => { if (d.chapter && !seen.has(d.chapter)) seen.set(d.chapter, { title: d.chapter, ord: i }); });
+    let best: string[] = []; let bestScore = 0;
+    for (const { title } of seen.values()) {
+      const parts = title.split(' — '); const topic = words(parts[parts.length - 1]); const ordinal = parts.length > 1 ? words(parts[0]) : [];
+      let score = 0;
+      const has = (b: string[], x: string) => b.some((y) => same(x, y));
+      const eq = (a: string[], b: string[]) => a.length === b.length && a.every((x) => has(b, x));
+      if (ordinal.length && eq(q, ordinal)) score = 3;                       // «الباب الثالث عشر»
+      else if (topic.length && eq(q, topic)) score = 2.5;                    // the whole chapter name
+      else if (q.every((w) => has(topic, w))) score = 1 + q.length / topic.length;   // some of its words: the better-covered chapter wins
+      if (score > bestScore + 1e-9) { best = [title]; bestScore = score; } else if (score && Math.abs(score - bestScore) < 1e-9) best.push(title);
+    }
+    if (!best.length) return null;
+    const set = new Set(best); const picked = docs.filter((d) => d.chapter && set.has(d.chapter));
+    const label = (t: string) => { const l = t.split(' — ').pop()!; return /^(باب|خاتمة)/.test(l) ? l : `باب ${l}`; };
+    return { query: raw, directCount: picked.length, semanticCount: 0, expansion: null, section: best.map(label).join(' · '), highlight: new Set(),
+      results: picked.map((doc, i) => ({ hit: { id: doc.id, src, ord: i, score: 0, type: 'literal' as MatchType }, doc, matchType: 'نصي' as const, matchedTerm: '' })), capped: false };
+  }
   lookup(src: SourceId, raw: string): Lookup {
-    if (this.kinds.get(src) === 'poem') { const s = this.letterSection(src, raw); if (s) return s; }
+    if (this.kinds.get(src) === 'poem') { const s = this.letterSection(src, raw) ?? this.chapterSection(src, raw); if (s) return s; }
     const r = this.search(raw, { sources: new Set([src]), expand: 'always' });
     let direct = r.hits.filter((h) => h.type === 'literal' || h.type === 'normalized' || h.type === 'textual').sort((a, b) => a.ord - b.ord);
     if (r.terms.length > 1) { const contiguous = direct.filter((h) => h.score >= 750); if (contiguous.length) direct = contiguous; }   // a phrase: prefer the words in sequence
