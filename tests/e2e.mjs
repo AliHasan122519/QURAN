@@ -90,7 +90,7 @@ log('الألفية الوردية', '«الباب الثالث عشر» ← ب�
 await search('alfiya', 'الأسد'); log('الألفية الوردية', 'لفظ ليس اسم باب «الأسد» ← بحث عادي لا عرض باب', !(await panel('alfiya').locator('.sect-title').count()));
 // ---------- الكتب: ورد = … وزر «وجه الشبه» ----------
 await search('books', 'الجن'); { const tx = await panel('books').innerText(); const c0 = cards('books').first();
-  log('الكتب', '«الجن» ← بطاقات «ورد = …» ومنها ما تحت عنوان الجن أولاً', (await cards('books').count()) > 0 && /ورد =/.test(await c0.innerText()) && /الجن/.test(await c0.locator('.card-ref').innerText()), (await c0.locator('.card-ref').innerText()).slice(0, 60));
+  log('الكتب', '«الجن» ← بطاقات «الجن = …» (اسم ما بُحث عنه لا «ورد») ومنها ما تحت عنوان الجن أولاً', (await cards('books').count()) > 0 && /^\s*الجن =/m.test(await c0.locator('.meaning-text').innerText()) && !/ورد/.test(await c0.innerText()) && /الجن/.test(await c0.locator('.card-ref').innerText()), (await c0.locator('.card-ref').innerText()).slice(0, 60));
   log('الكتب', 'المصطلح يُفرَّغ من حقل البحث بعد البحث', (await panel('books').locator('input').inputValue()) === ''); }
 await search('books', 'طوبى'); { const btn = panel('books').locator('button.sharh', { hasText: 'وجه الشبه' }).first();
   log('الكتب', 'زر «وجه الشبه» تحت النتيجة التي ذكر الكتاب سببها', (await btn.count()) === 1);

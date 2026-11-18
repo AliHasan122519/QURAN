@@ -98,16 +98,26 @@ function Rich({ text, words }: { text: string; words: Set<string> }) {
   return <>{text.split(/(﴿[^﴾]*﴾)/).map((seg, i) => (seg.startsWith('﴿') ? <span key={i} className="quran-inline"><Highlight text={seg} words={words} /></span> : <Highlight key={i} text={seg} words={words} />))}</>;
 }
 
-/** «الكتب»: the symbol (heading), then «ورد = …» (what is reported about it), and a «وجه الشبه» button that opens the reason when there is one */
-export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTerm, words }: P) {
-  const [open, setOpen] = useState(false);
+/** The label before «=»: the word that was searched; when the entry words it differently («الملائكة» for «ملك») the entry's own word that matched. */
+function labelFor(text: string, query: string, words: Set<string>): string {
+  const q = query.trim(); const qn = normalize(q).split(' ').filter(Boolean);
+  const toks = text.split(/\s+/).map((t) => t.replace(/^[^\u0621-\u064A]+|[^\u0621-\u064A\u064B-\u065F\u0670]+$/g, '')).filter(Boolean);
+  const nt = toks.map((t) => normalize(t));
+  if (q && qn.every((w) => nt.includes(w) || nt.some((t) => t.length > w.length && (t === 'ال' + w || /^[وفبلك]?ال?/.test(t) && t.replace(/^(?:وال|فال|بال|لل|ال|و|ف|ب|ل|ك)/, '') === w)))) return q;     // the searched word is in the entry as typed
+  const hit = toks.find((t) => { const a = normalize(t); return words.has(a) || words.has(normalizeB(t)); });
+  return (hit ?? q).replace(/^[وفبك](?=ال)/, '').replace(/^لل/, 'ال');                   // «بالماء» -> «الماء»، «للملك» -> «الملك»
+}
+
+/** «الكتب»: the symbol (heading), then «<the word searched> = …» (what is reported about it), and a «وجه الشبه» button that opens the reason when there is one */
+export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTerm, words, query }: P & { query: string }) {
+  const [open, setOpen] = useState(false); const label = useMemo(() => labelFor(doc.text, query, words), [doc.text, query, words]);
   return (
     <article className="verse-card" data-src="book" data-match={matchType}>
       <div className="card-top">
         <div className="card-ref"><div className="t">{doc.ref}</div></div>
         <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
       </div>
-      <p dir="rtl" className="meaning-text"><b className="warad">ورد =</b> <Rich text={doc.text} words={words} /></p>
+      <p dir="rtl" className="meaning-text"><b className="warad">{label} =</b> <Rich text={doc.text} words={words} /></p>
       {doc.explanation && <button type="button" className="sharh" aria-expanded={open} onClick={() => setOpen((o) => !o)}>وجه الشبه<ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : undefined }} /></button>}
       {doc.explanation && open && <div dir="rtl" className="wajh"><p><Rich text={doc.explanation} words={words} /></p></div>}
     </article>

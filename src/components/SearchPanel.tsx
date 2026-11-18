@@ -70,7 +70,7 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
       {res.results.map((r) => {
-        return kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : card === 'meaning' ? <MeaningCard key={r.doc.id} {...r} words={res.highlight} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
+        return kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : card === 'meaning' ? <MeaningCard key={r.doc.id} {...r} words={res.highlight} query={res.query} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
       })}
     </div>
   );
