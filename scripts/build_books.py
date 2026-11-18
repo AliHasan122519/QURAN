@@ -6,7 +6,7 @@ usage: python3 -I scripts/build_books.py"""
 import json, re, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
-E = json.load(open('data/books/isharat_parsed.json', encoding='utf8'))
+E = json.load(open('data/books/isharat_parsed.json', encoding='utf8')) + json.load(open('data/books/more_parsed.json', encoding='utf8'))
 Q = json.load(open('content/quran.json', encoding='utf8'))['a']
 MARKS = re.compile(r'[ؐ-ًؚ-ٰٟۖ-ۭـ]')
 def key(w):
@@ -38,6 +38,11 @@ def fix_verses(t):
         else: stat['fixed'] += 1
         return '﴿' + o + '﴾'
     return re.sub(r'﴿([^﴾]+)﴾', rep, t)
+def paren_verses(t):
+    # «قوله تعالى (إن الذين اتقوا…) الآية»: a verse the author gives between plain parentheses -> the official text in ﴿ ﴾ when found word for word
+    def rep(m):
+        o = official(m.group(2)); return m.group(1) + ('﴿' + o + '﴾' if o else '(' + m.group(2) + ')')
+    return re.sub(r'(قوله\s+تعالى\s*:?\s*)\(([^()]{8,300})\)', rep, t)
 TAIL = re.compile(r'\s+(?:وقال|وقيل|ومن|وإن|وان|ثم|و|أو|فإن|وأما|وقد)\s*$')
 def tidy(t):
     t = t.strip()
@@ -46,6 +51,7 @@ def tidy(t):
 STOP = r'(?=\s(?:ومن رأى|ومن|وقيل|وقال|وإن|وان|وأما|فإن|\()|[.؛]|$)'
 RQ = re.compile(r'(?:ل|بـ?)قوله\s+تعالى\s*:?\s*(﴿[^﴾]+﴾(?:\s*الآية)?|[^﴿﴾.؛(]{4,200}?' + STOP + ')')
 RH = re.compile(r'ل?قوله\s+((?:صلى الله عليه وسلم|عليه السلام|عليه الصلاة والسلام)\s*:?\s*[^﴿﴾.؛(]{6,220}?' + STOP + ')')
+RB2 = re.compile(r'لما\s+(?:في|فيه|فيها)\s+([^﴿﴾.؛(]{6,200}?' + STOP + ')')
 RB = re.compile(r'لأن(ه|ها|هم|هن|ك|ي)?\s+([^﴿﴾.؛(]{6,260}?' + STOP + ')')
 def why(t):
     out = []
@@ -61,10 +67,13 @@ def why(t):
         r = tidy(m.group(2)).rstrip(' .')
         r = re.split(r'\s+(?:ل?قوله\s)', r)[0].strip()
         if len(r) >= 6: out.append('وجه الشبه: ' + pron + ' ' + r)
+    for m in RB2.finditer(t):
+        r = tidy(m.group(1)).rstrip(' .')
+        if len(r) >= 6: out.append('وجه الشبه: ما في ' + r)
     return '. '.join(dict.fromkeys(out)) + ('.' if out else '')
 rows = []
 for e in E:
-    t = tidy(re.sub(r'﴿((?:و?من|و?إن) رأى)﴾', r'\1', re.sub(r':\s*:', ':', fix_verses(e['text']))))
+    t = tidy(re.sub(r'﴿((?:و?من|و?إن) رأى)﴾', r'\1', re.sub(r':\s*:', ':', paren_verses(fix_verses(e['text'])))))
     if len(t) < 25: continue
     rows.append([e['ref'], t, why(t)])
 CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'placeholder': 'اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})

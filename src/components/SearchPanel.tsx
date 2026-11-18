@@ -66,7 +66,7 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
     <div className="space" role="region" aria-label="النتائج" aria-live="polite">
       {res.section && <div className="stats"><div><b className="sect-title">{res.section}</b><span className="sep">•</span><span>عدد الأبيات: <b>{toAr(res.directCount)}</b></span></div></div>}
       {!res.section && <div className="stats">
-        <div><span>نتائج مطابقة نصياً: <b>{toAr(res.directCount)}</b></span>{res.semanticCount > 0 && <><span className="sep">•</span><span>نتائج دلالية إضافية: <b>{toAr(res.semanticCount)}</b></span></>}{res.capped && <><span className="sep">•</span><span>عُرضت أول ٨٠ نتيجة</span></>}</div>
+        <div><span>نتائج مطابقة نصياً: <b>{toAr(res.directCount)}</b></span>{res.semanticCount > 0 && <><span className="sep">•</span><span>نتائج دلالية إضافية: <b>{toAr(res.semanticCount)}</b></span></>}{res.capped && <><span className="sep">•</span><span>عُرضت أول {toAr(res.results.length)} نتيجة</span></>}</div>
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
       {res.results.map((r) => {

@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 42,
- "updated": "2026-11-18T22:46:42Z",
+ "version": 43,
+ "updated": "2026-11-18T22:54:10Z",
  "apk": {
   "versionCode": 29917369,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -45,8 +45,8 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "e5c926727f0bc1a5cb89c4912ffb91158de6ad45f9a758438e3fc5d929f90180",
-   "count": 7750,
+   "sha256": "e9037696720b97ba75a057629d9817ab70a52606274d6f3a74bc98c5325ce833",
+   "count": 28376,
    "card": "meaning",
    "placeholder": "اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء",
    "hint": "اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه."

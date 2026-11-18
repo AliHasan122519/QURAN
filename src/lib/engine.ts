@@ -236,13 +236,14 @@ export class Engine {
     }
     let extra = r.hits.filter((h) => h.type === 'derived' || h.type === 'semantic').sort((a, b) => a.ord - b.ord);
     if (direct.length >= 5 || r.terms.length > 1) extra = [];      // expansion: only when direct matches are few, and only for a single word (it is root-based)
-    const all = [...direct, ...extra]; const shown = all.slice(0, MAX_RESULTS);
+    const cap = this.refFirst.has(src) ? 200 : MAX_RESULTS;      // the books tab holds many long entries per symbol: show more
+    const all = [...direct, ...extra]; const shown = all.slice(0, cap);
     const results = shown.map((hit) => {
       const doc = this.byId.get(hit.id)!; const isDirect = hit.type === 'literal' || hit.type === 'normalized' || hit.type === 'textual';
       return { hit, doc, matchType: (isDirect ? 'نصي' : 'دلالي') as 'نصي' | 'دلالي', matchedTerm: hit.via ?? '' };
     });
     const terms = r.related.length ? r.related : [...new Set(extra.map((h) => h.via).filter((x): x is string => !!x))].slice(0, 6);
     const hl = new Set(r.highlight); if (direct.length >= 5) { /* highlight only what was searched */ }
-    return { query: r.query, directCount: direct.length, semanticCount: extra.length, expansion: extra.length || r.root ? { root: r.root, terms } : null, results, highlight: hl, capped: all.length > MAX_RESULTS };
+    return { query: r.query, directCount: direct.length, semanticCount: extra.length, expansion: extra.length || r.root ? { root: r.root, terms } : null, results, highlight: hl, capped: all.length > cap };
   }
 }
