@@ -154,6 +154,30 @@ for i, r in enumerate(rows):
             r['t'] = ' '.join(F.ref[4533]); r['k'] = rows[j]['k']; r['sym'], r['g'] = rows[j]['sym'], rows[j]['g']
             r['flags'] = r.get('flags', []) + ['text_from_reference']; rows[j]['flags'] = rows[j].get('flags', []) + ['noise_by_reference']; joined2 += 1
 print('numbers shared by two entries: joined', joined2, ', second dropped', dropped2)
+# entries the machine reading missed or merged: read by eye from the printed pages (data/jami_manual_fixes.json)
+fx = json.load(open('data/jami_manual_fixes.json', encoding='utf8')); fixed_groups = 0
+for grp_ in fx['groups']:
+    rep = set(grp_['replace']); idx = [i for i, r in enumerate(rows) if r.get('n') in rep and 'noise_by_reference' not in r.get('flags', []) and not r.get('verified')]
+    if len(idx) != len(rep): print('manual fix skipped, rows not found for', sorted(rep)); continue
+    first = grp_['entries'][0]['n']
+    pos = min(idx) if idx else next((i for i, r in enumerate(rows) if (r.get('n') or 0) > first), len(rows))
+    base = rows[idx[0]] if idx else rows[max(pos - 1, 0)]
+    new = []
+    for e in grp_['entries']:
+        sy, gr = decode_k(e['k'])
+        new.append({'i': base.get('i'), 'top': False, 'page': e['page'], 'letter': base.get('letter', ''), 'mahla': base.get('mahla', True), 'ocr_n': None, 't': e['t'], 'k': e['k'], 'sym': sy, 'g': gr, 'cov': 1.0, 'flags': ['manual_from_image'], 'n': e['n'], 'verified': True})
+    rows = [r for i, r in enumerate(rows) if i not in set(idx) and i != pos] if False else rows
+    keep = [r for i, r in enumerate(rows) if i not in set(idx)]
+    ins = pos - sum(1 for i in idx if i < pos)
+    rows = keep[:ins] + new + keep[ins:]; fixed_groups += 1
+for n_, k_ in fx['takhrij_only'].items():
+    for r in rows:
+        if r.get('n') == int(n_) and not r['k']: r['k'] = k_; r['sym'], r['g'] = decode_k(k_); r['flags'] = r.get('flags', []) + ['takhrij_from_image']
+for r in rows:
+    if not r.get('n') and not r.get('verified'): r['flags'] = r.get('flags', []) + ['noise_by_reference']   # unnumbered and matching nothing
+for r in rows:
+    if (r.get('n') or 0) > 10031 and not r.get('verified'): r['flags'] = r.get('flags', []) + ['noise_by_reference']   # the author's closing note, not a hadith
+print('manual groups applied:', fixed_groups, 'of', len(fx['groups']))
 dups = [n for n, c in collections.Counter(r['n'] for r in rows if r.get('n')).items() if c > 1]
 print(dict(st)); print('numbers used by more than one entry:', len(dups), dups[:15])
 have = {r['n'] for r in rows if r.get('n')}; miss = [n for n in range(1, 10032) if n not in have]
