@@ -15,7 +15,6 @@ css = css.replace(/url\(\.\.\/assets\/Dubai-Bold\.ttf\)/g, `url(${dataUri('publi
          .replace(/url\(\.\.\/assets\/AmiriQuran-Regular\.woff2\)/g, `url(${dataUri('public/assets/AmiriQuran-Regular.woff2', 'font/woff2')})`);
 if (/url\(\.\.\/assets/.test(css)) throw new Error('unresolved asset url left in CSS');
 const safeJs = js.replace(/<\/script/gi, '<\\/script');
-const fav = readFileSync('public/favicon.svg', 'utf8');
 const html = `<title>الباحث القرآني</title>
 <meta name="description" content="منصّة بحث عربي في القرآن الكريم والسنة النبوية والألفية الوردية">
 <style>${css}</style>
@@ -25,4 +24,4 @@ const html = `<title>الباحث القرآني</title>
 writeFileSync(`${OUT}/index.html`, html);
 // data files are published as plain JSON (small: ~4 MB) so no compressed-file hosting rules are involved
 for (const f of readdirSync('public/data').filter((x) => x.endsWith('.json.gz'))) writeFileSync(`${OUT}/data/${f.replace('.json.gz', '.json')}`, gunzipSync(readFileSync(`public/data/${f}`)));
-console.log('artifact page', (html.length / 1e6).toFixed(2), 'MB; fav bytes', fav.length);
+console.log('artifact page', (html.length / 1e6).toFixed(2), 'MB);
