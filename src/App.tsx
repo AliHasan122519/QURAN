@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Sparkles, Download } from 'lucide-react';
 import { ICONS } from './components/icons';
 import { ThemeToggle } from './components/ThemeToggle';
+import { UpdateDialog } from './components/UpdateDialog';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
 import type { Kind, Manifest, SourceId } from './lib/types';
@@ -14,6 +15,8 @@ export function App() {
   const [states, setStates] = useState<Record<SourceId, SourceState>>({});
   const [attempt, setAttempt] = useState(0);
   const [apkNotice, setApkNotice] = useState<Manifest['apk']>();
+  const [dialog, setDialog] = useState(false);          // the «update available» dialog
+  const [toast, setToast] = useState('');
   const content = useRef<Content | null>(null);
 
   // 1) load the content in use (bundled, or a newer downloaded one) and index every tab
@@ -40,8 +43,8 @@ export function App() {
       // 2) in the background: look for newer content (only in builds that have a content URL, i.e. the Android app)
       const r = await checkForUpdate(c.manifest);
       if (dead) return;
-      if (r.apkNotice) setApkNotice(r.apkNotice);
-      if (r.status === 'updated') { setEngine(new Engine()); setAttempt((a) => a + 1); }          // re-index with the new content
+      if (r.apkNotice) { setApkNotice(r.apkNotice); setDialog(true); }
+      if (r.status === 'updated') { setEngine(new Engine()); setAttempt((a) => a + 1); setToast('تم تحديث المحتوى تلقائياً'); setTimeout(() => setToast(''), 5000); }          // re-index with the new content
     })();
     return () => { dead = true; };
   }, [engine, attempt]);
@@ -59,7 +62,9 @@ export function App() {
         </div>
       </header>
 
-      {apkNotice && <a className="apk-notice" href={apkNotice.url} target="_blank" rel="noreferrer"><Download size={16} />يتوفر إصدار جديد من التطبيق{apkNotice.notes ? ` — ${apkNotice.notes}` : ''}. اضغط للتنزيل.</a>}
+      {apkNotice && <button type="button" className="apk-notice" onClick={() => setDialog(true)}><Download size={16} />يتوفر إصدار جديد من التطبيق{apkNotice.notes ? ` — ${apkNotice.notes}` : ''}. اضغط للتحديث.</button>}
+      {apkNotice && dialog && <UpdateDialog apk={apkNotice} onClose={() => setDialog(false)} />}
+      {toast && <div className="toast" role="status">{toast}</div>}
 
       <section className="sheet">
         <div className="tabs" role="tablist" aria-label="مصادر البحث">

@@ -28,6 +28,7 @@ const mcp = createServer({ gh: githubClient({ token: 't', repo: 'o/r', fetchImpl
 const tool = (name, args) => mcp.handle({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } });
 const publish = () => { rmSync('tests/.remote', { recursive: true, force: true }); mkdirSync('tests/.remote', { recursive: true }); for (const [p, t] of repo) writeFileSync('tests/.remote/' + p.replace('content/', ''), t); };
 let tamper = false, offline = false;
+const axeSrc = readFileSync('node_modules/axe-core/axe.min.js', 'utf8');
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.svg': 'image/svg+xml' };
 const srv = http((req, res) => {
   const u = new URL(req.url, BASE); let f = u.pathname.startsWith('/remote/') ? join('tests/.remote', u.pathname.slice(8)) : join('dist-update', u.pathname === '/' ? 'index.html' : u.pathname);
@@ -55,11 +56,32 @@ await tool('set_apk_notice', { versionCode: 7, url: 'https://example.com/app.apk
 publish();
 await page.reload(); await ready(); await page.waitForTimeout(2500);        // the update downloads in the background and the app re-indexes
 log('B: the new tab appears after the update', (await tabs()).includes('الأذكار'), (await tabs()).join(' | '));
+log('B: the «update available» dialog appears when the app opens (installed build 3 < 7)', await page.locator('[role=dialog]').isVisible() && (await page.locator('#upd-title').innerText()).includes('يتوفر تحديث جديد'), (await page.locator('[role=dialog]').innerText()).replace(/\s+/g, ' ').slice(0, 120));
+await page.evaluate(axeSrc); const axeDlg = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id)); log('B: the dialog has no accessibility violations', axeDlg.length === 0, axeDlg.join(' '));
+await page.getByRole('button', { name: 'لاحقاً' }).click();
+log('B: «لاحقاً» closes the dialog and leaves a reminder banner', !(await page.locator('[role=dialog]').count()) && (await page.locator('button.apk-notice').count()) === 1);
+await page.locator('button.apk-notice').click();
+log('B: the banner reopens the dialog', await page.locator('[role=dialog]').isVisible());
+await ctx.route('https://example.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/plain', body: 'apk' }));
+const popupP = page.waitForEvent('popup', { timeout: 5000 }).catch(() => null); await page.getByRole('button', { name: 'تحديث الآن' }).click(); const popup = await popupP;
+log('B: on the web the update button opens the download link (no native installer)', !!popup && popup.url().startsWith('https://example.com/app.apk'), popup?.url()); if (popup) await popup.close();
+// the Android app uses its native installer: simulated here to check the progress UI and the result
+await page.getByRole("button", { name: "لاحقاً" }).click().catch(() => {});
 log('B: the new reference is searchable', (await search('adhkar', 'وشكرك')).includes('اللهم أعني على ذكرك'));
 log('B: a card of a new generic tab shows its explanation button', (await page.locator('#panel-adhkar button.sharh').count()) === 1);
 log('B: the empty «الأمثال» tab now has data (added through the MCP)', (await search('amthal', 'الصبر')).includes('الصبر مفتاح الفرج'));
 log('B: the corrected verse reached the app', (await search('alfiya', 'والليث سلطان')).includes('(معدَّل)'));
-log('B: the newer-APK notice is shown (installed build 3 < 7)', (await page.locator('.apk-notice').count()) === 1 && (await page.locator('.apk-notice').getAttribute('href')) === 'https://example.com/app.apk');
+
+
+// B2) native installer (simulated): progress, then the system installer is opened
+const ctxN = await browser.newContext({ locale: 'ar' }); const pn = await ctxN.newPage();
+await pn.addInitScript(() => { window.__qsInstaller = { install: async (url, cb) => { window.__url = url; for (const p of [10, 55, 100]) { cb(p); await new Promise((r) => setTimeout(r, 250)); } return 'installing'; } }; });
+await pn.goto(BASE + '/'); await pn.waitForFunction(() => document.querySelector('[role=dialog]'), null, { timeout: 30000 });
+await pn.getByRole('button', { name: 'تحديث الآن' }).click(); await pn.waitForSelector('[role=progressbar]', { timeout: 3000 }).catch(() => {});
+log('B2: native update shows a progress bar while downloading', (await pn.locator('[role=progressbar]').count()) === 1);
+await pn.waitForFunction(() => document.querySelector('#upd-desc')?.textContent.includes('اضغط «تثبيت»'), null, { timeout: 5000 }).catch(() => {});
+log('B2: when the download ends it asks the user to press «تثبيت» in Android\'s installer', (await pn.locator('#upd-desc').innerText()).includes('اضغط «تثبيت»') && (await pn.evaluate(() => window.__url)) === 'https://example.com/app.apk');
+await ctxN.close();
 
 // C) offline: the downloaded content is kept and used
 offline = true; await page.reload(); await ready();

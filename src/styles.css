@@ -134,10 +134,23 @@ html { background: var(--page-dark); min-height: 100%; }
 
 .sect-title { font-size: 1.15rem; color: var(--gold); }
 
-.apk-notice { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: 0 auto 1.25rem; max-width: 44rem; padding: .7rem 1rem; border-radius: .9rem; border: 1px solid color-mix(in oklch, var(--gold) 55%, var(--border)); background: color-mix(in oklch, var(--gold) 14%, var(--card)); color: var(--foreground); font-size: .92rem; text-decoration: none; }
+.apk-notice { width: calc(100% - 2rem); cursor: pointer; font: inherit; display: flex; align-items: center; justify-content: center; gap: .5rem; margin: 0 auto 1.25rem; max-width: 44rem; padding: .7rem 1rem; border-radius: .9rem; border: 1px solid color-mix(in oklch, var(--gold) 55%, var(--border)); background: color-mix(in oklch, var(--gold) 14%, var(--card)); color: var(--foreground); font-size: .92rem; text-decoration: none; }
 
 /* ===================================== theme toggle ===================================== */
 .theme-toggle { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top, 0px) + .75rem); inset-inline-end: .75rem; display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border-radius: 9999px;
   color: var(--h1); background: var(--badge-bg); border: 1px solid var(--badge-border); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .5); transition: transform .15s, background .15s; }
 .theme-toggle:hover { transform: scale(1.06); } .theme-toggle:active { transform: scale(.96); }
 html[data-theme="dark"] .theme-toggle { color: #efd28d; }
+
+/* ===================================== update dialog + toast ===================================== */
+.modal-back { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(2, 10, 8, .62); backdrop-filter: blur(3px); }
+.modal { width: min(24rem, 100%); padding: 1.6rem 1.4rem 1.3rem; border-radius: 1.4rem; text-align: center; color: var(--foreground); background: var(--background); border: 1px solid color-mix(in oklch, var(--gold) 45%, var(--border)); box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .7); }
+.modal-ic { display: inline-flex; align-items: center; justify-content: center; width: 3.4rem; height: 3.4rem; border-radius: 9999px; color: var(--primary-foreground); background: var(--primary); margin-bottom: .7rem; }
+.modal h2 { margin: 0 0 .4rem; font-size: 1.3rem; color: var(--ink); }
+.modal-p { font-size: .95rem; line-height: 2; color: var(--foreground); }
+.progress { height: .6rem; margin-top: .9rem; border-radius: 9999px; overflow: hidden; background: color-mix(in oklch, var(--border) 70%, transparent); }
+.progress i { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .2s; }
+.modal-actions { display: flex; flex-direction: column; gap: .6rem; margin-top: 1.2rem; }
+.modal-actions .go { width: 100%; height: 3rem; }
+.later { height: 2.6rem; border-radius: .75rem; font-size: .9rem; color: var(--muted-foreground); } .later:hover { color: var(--ink); } .later[disabled] { opacity: .45; cursor: not-allowed; }
+.toast { position: fixed; z-index: 90; bottom: calc(env(safe-area-inset-bottom, 0px) + 1.1rem); inset-inline: 1rem; margin-inline: auto; width: fit-content; max-width: calc(100% - 2rem); padding: .7rem 1.2rem; border-radius: 9999px; font-size: .9rem; color: var(--primary-foreground); background: var(--primary); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .6); }
