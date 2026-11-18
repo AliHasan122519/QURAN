@@ -18,6 +18,7 @@ export function App() {
   const [dialog, setDialog] = useState(false);          // the «update available» dialog
   const [toast, setToast] = useState('');
   const content = useRef<Content | null>(null);
+  const lastCheck = useRef(Date.now());
 
   // 1) load the content in use (bundled, or a newer downloaded one) and index every tab
   useEffect(() => {
@@ -41,6 +42,7 @@ export function App() {
       }
       if (dead) return;
       // 2) in the background: look for newer content (only in builds that have a content URL, i.e. the Android app)
+      lastCheck.current = Date.now();
       const r = await checkForUpdate(c.manifest);
       if (dead) return;
       if (r.apkNotice) { setApkNotice(r.apkNotice); setDialog(true); }
@@ -48,6 +50,19 @@ export function App() {
     })();
     return () => { dead = true; };
   }, [engine, attempt]);
+
+  // 3) while the app stays installed the user may leave it open or come back to it: look again when it returns to the screen (at most every 15 minutes)
+  useEffect(() => {
+    const again = async () => {
+      if (document.visibilityState !== 'visible' || !content.current || Date.now() - lastCheck.current < 15 * 60 * 1000) return;
+      lastCheck.current = Date.now();
+      const r = await checkForUpdate(content.current.manifest);
+      if (r.apkNotice) { setApkNotice(r.apkNotice); setDialog(true); }
+      if (r.status === 'updated') { setEngine(new Engine()); setAttempt((n) => n + 1); setToast('تم تحديث المحتوى تلقائياً'); setTimeout(() => setToast(''), 5000); }
+    };
+    document.addEventListener('visibilitychange', again);
+    return () => document.removeEventListener('visibilitychange', again);
+  }, []);
 
   const tabs = manifest?.tabs ?? [{ id: 'quran', label: 'القرآن الكريم', kind: 'quran' as Kind, file: null, sha256: null }];
   return (

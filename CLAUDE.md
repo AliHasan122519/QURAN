@@ -26,5 +26,15 @@ node scripts/content.mjs add_entries '{"tab":"amthal","entries":[{"ref":"…","t
 ## الاختبارات (قبل دفع تغيير في الكود)
 `npm ci && npm run build` ثم `NODE_PATH=$(npm root -g) node tests/e2e.mjs`، و`node mcp-server/test.mjs`، و`node tests/content_cli.mjs`، و`node scripts/validate_content.mjs`.
 
+## نظام التحديث (دائم — لا تكسره)
+أي تغيير تدفعه إلى `main` في **كود** التطبيق (`src/` أو `android/` أو `package*.json`…) يُبنى تلقائياً ويصل إلى المستخدمين هكذا: GitHub Actions يبني APK جديداً ← ينشره في Releases (`apk-latest`) ← يكتب رقمه في `content/manifest.json` (`apk`) ← كل تطبيق قديم يعرض عند فتحه (أو عند عودته إلى الشاشة) نافذة «يتوفر تحديث جديد» بزر «تحديث الآن» ينزّل الملف داخل التطبيق ويفتح مثبّت أندرويد.
+لتبقى هذه السلسلة تعمل في كل تحديث قادم:
+- **لا تغيّر** `applicationId` (`com.alboheth.quran`) ولا اسم الحزمة.
+- **لا تغيّر مفتاح التوقيع** (`android/keystore/`) — النسخ المثبَّتة ترفض تحديثاً بمفتاح مختلف. الـCI يوقف النشر إن اختلفت بصمة المفتاح عن `android/keystore/signer.sha256`. (تغييره عمداً يستلزم تحديث ذلك الملف وأن يلغي كل مستخدم تثبيته ويعيده مرة واحدة.)
+- **لا تحذف** `src/components/UpdateDialog.tsx` ولا `src/lib/installer.ts` ولا `android/app/src/main/java/com/alboheth/quran/ApkInstallerPlugin.java` ولا إذن `REQUEST_INSTALL_PACKAGES` ولا تسجيل الإضافة في `MainActivity.java`؛ ولا تعطّل فحص `manifest.apk` في `src/lib/data.ts`.
+- رقم الإصدار (`versionCode`) يحسبه الـCI تلقائياً (دقائق منذ 1970) ويتزايد دائماً؛ لا تضعه يدوياً.
+- الـCI يشغّل `tests/update.mjs` قبل بناء الـAPK: إن فشل اختبار التحديث لا يُنشر شيء. أصلح السبب بدل تعطيل الاختبار.
+- بعد دفع تغيير في الكود: انتظر نجاح تشغيل «Build Android APK» ثم أخبر المالك أن التحديث جاهز وسيظهر لمستخدميه عند فتح التطبيق.
+
 ## بناء APK
 يتم تلقائياً عبر GitHub Actions (`.github/workflows/android.yml`) عند تغيير كود التطبيق، وينشر الملف في Releases باسم `apk-latest`.
