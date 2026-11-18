@@ -36,7 +36,7 @@ check('tools/list has the content tools', ['content_status', 'search_entries', '
 check('unknown method is a JSON-RPC error', (await rpc('nope')).error.code === -32601);
 
 // reading
-const st = await call('content_status'); check('content_status: 4 tabs, version 1', st.json.version === 1 && st.json.tabs.length === 4, st.json.tabs.map((t) => `${t.id}:${t.count}`).join(' '));
+const st = await call('content_status'); check('content_status: 4 tabs', st.json.version >= 1 && st.json.tabs.length === 4, st.json.tabs.map((t) => `${t.id}:${t.count}`).join(' '));
 const s1 = await call('search_entries', { tab: 'jami', query: 'إنما الأعمال بالنيات' }); check('search_entries finds the hadith «إنما الأعمال بالنيات»', s1.json.total >= 1, 'index ' + s1.json.results[0]?.index);
 const s2 = await call('search_entries', { tab: 'alfiya', query: 'والليث سلطان' }); const lion = s2.json.results[0]; check('search_entries finds alfiya verse 521', s2.json.total === 1 && lion.number === 521, 'index ' + lion?.index);
 check('get_entry returns the fields', (await call('get_entry', { tab: 'alfiya', index: lion.index })).json.shatr1.includes('والليث'));
@@ -50,8 +50,9 @@ check('the edited text is in the data file', JSON.parse(files.get('content/alfiy
 check('manifest hash and counts stay consistent', consistent());
 check('update_entry rejects unknown fields', (await call('update_entry', { tab: 'alfiya', index: 0, fields: { bogus: 1 } })).err);
 v = manifest().version;
+const am0 = manifest().tabs.find((x) => x.id === 'amthal').count;
 const ad = await call('add_entries', { tab: 'amthal', entries: [{ ref: 'مثل', text: 'الصبر مفتاح الفرج', explanation: 'اختبار' }, { text: 'الجار قبل الدار' }] });
-check('add_entries creates the file of an empty tab (amthal)', !ad.err && files.has('content/amthal.json') && manifest().tabs.find((t) => t.id === 'amthal').count === 2 && manifest().version === v + 1);
+check('add_entries appends to a tab that already has data (amthal)', !ad.err && manifest().tabs.find((x) => x.id === 'amthal').count === am0 + 2 && manifest().version === v + 1 && ad.json.firstIndex === am0);
 check('consistent after add_entries', consistent());
 check('add_entries needs text', (await call('add_entries', { tab: 'amthal', entries: [{ ref: 'x' }] })).err);
 const nt = await call('add_tab', { id: 'adhkar', label: 'الأذكار', kind: 'generic', entries: [{ ref: 'ذكر', text: 'سبحان الله وبحمده' }] });
@@ -60,7 +61,7 @@ check('add_tab rejects a bad id / duplicate / bad kind', (await call('add_tab', 
 check('search in the new tab works', (await call('search_entries', { tab: 'adhkar', query: 'وبحمده' })).json.total === 1);
 check('update_tab changes the label', !(await call('update_tab', { id: 'adhkar', label: 'الأذكار والأدعية', hint: 'اكتب لفظاً' })).err && manifest().tabs.find((t) => t.id === 'adhkar').label === 'الأذكار والأدعية');
 const order = manifest().tabs.map((t) => t.id).reverse(); check('reorder_tabs', !(await call('reorder_tabs', { ids: order })).err && manifest().tabs.map((t) => t.id).join() === order.join());
-check('delete_entries removes entries', !(await call('delete_entries', { tab: 'amthal', indexes: [1] })).err && manifest().tabs.find((t) => t.id === 'amthal').count === 1);
+check('delete_entries removes entries', !(await call('delete_entries', { tab: 'amthal', indexes: [am0 + 1] })).err && manifest().tabs.find((t) => t.id === 'amthal').count === am0 + 1);
 check('remove_tab needs confirm and refuses core tabs', (await call('remove_tab', { id: 'adhkar', confirm: false })).err && (await call('remove_tab', { id: 'quran', confirm: true })).err);
 check('remove_tab deletes the tab and its file', !(await call('remove_tab', { id: 'adhkar', confirm: true })).err && !files.has('content/adhkar.json') && !manifest().tabs.some((t) => t.id === 'adhkar'));
 v = manifest().version; check('set_apk_notice does not bump the content version', !(await call('set_apk_notice', { versionCode: 9, url: 'https://example.com/a.apk', notes: 'x' })).err && manifest().apk.versionCode === 9 && manifest().version === v);

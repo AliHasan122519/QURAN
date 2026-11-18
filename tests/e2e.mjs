@@ -97,9 +97,11 @@ if ((await themeNow()) !== 'light') await page.locator('.theme-toggle').click();
 await page.evaluate(axeSrc); const axeLight = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id));
 log('الوضع الفاتح', 'بلا مخالفات وصول/تباين (axe)', axeLight.length === 0, axeLight.join(' '));
 
-// ---------- proverbs (data file optional) ----------
-await page.getByRole('tab', { name: TAB.amthal }).click(); await page.waitForTimeout(300);
-log('الأمثال', 'التبويب موجود كالأصل ويُصرِّح بعدم توفر بياناته بدل تقديم نتائج وهمية', (await panel('amthal').innerText()).includes('غير متاح') && (await panel('amthal').locator('button.go').isDisabled()) && (await panel('amthal').locator('article').count()) === 0);
+// ---------- الأمثال ----------
+await search('amthal', 'الجار'); const amT = await panel('amthal').innerText();
+log('الأمثال', 'البحث في الأمثال يعرض أمثالاً مع باب الحرف وزر «شرح»', (await cards('amthal').count()) > 0 && /حرف /.test(amT) && (await panel('amthal').locator('button.sharh').count()) > 0, (await stats('amthal')).slice(0, 80));
+await panel('amthal').locator('button.sharh').first().click(); log('الأمثال', 'زر «شرح» يفتح شرح المثل', (await panel('amthal').locator('.sharh-text').count()) === 1 && (await panel('amthal').locator('.sharh-text').innerText()).length > 20);
+await search('amthal', 'xyzqq'); log('الحالات', 'لا نتائج في الأمثال ← «لم نعثر على نتائج تطابق بحثك.»', (await panel('amthal').locator('.soft').innerText()).includes('لم نعثر على نتائج تطابق بحثك.'));
 
 log('مطابقة الأصل', 'لا أمثلة ولا أزرار أمثلة تحت زر البحث', (await page.locator('.ex-chip, .examples').count()) === 0 && !(await page.locator('.sform').first().innerText()).includes('أمثلة:'));
 log('مطابقة الأصل', 'التذييل تعريف عام بسيط بلا أسماء كتب', (await page.locator('.foot').innerText()).trim() === 'منصّة بحث في القرآن الكريم والسنة النبوية. لا يُعرض أي تفسير أو رأي شخصي.');

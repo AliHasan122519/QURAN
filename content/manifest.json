@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 1,
- "updated": "2026-11-18T16:08:03Z",
+ "version": 2,
+ "updated": "2026-11-18T18:49:12Z",
  "apk": {
   "versionCode": 29917084,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -28,9 +28,9 @@
    "id": "amthal",
    "label": "الأمثال",
    "kind": "generic",
-   "file": null,
-   "sha256": null,
-   "count": 0
+   "file": "amthal.json",
+   "sha256": "e770cfbfd41fe5914576e2cd99c8182dfc6ebfb2a94483c82b9e45cdba213141",
+   "count": 3174
   },
   {
    "id": "alfiya",
