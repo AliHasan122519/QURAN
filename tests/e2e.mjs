@@ -105,10 +105,10 @@ await search('books', 'ميه'); { const tx = await panel('books').innerText();
   log('الكتب', 'أول النتائج لـ«ميه» عن الماء لا عن «مئة»', /ماء|الماء/.test(await cards('books').first().innerText())); }
 await search('books', 'الماء'); { const gt = await panel('books').locator('.group-title').allInnerTexts();
   log('الكتب', 'البحث برمز ← قسم «معاني الرمز» أولاً ثم «ورد ذكره أيضاً»', gt.length >= 1 && /معاني «الماء»/.test(gt[0]), gt.join(' | '));
-  log('الكتب', 'أبرز ما ورد في معنى الرمز (كلمات متكررة من نصوص المعبّرين)', (await panel('books').locator('.meanings-box .badge-2').count()) >= 3); }
+  log('الكتب', 'لا صندوق «أبرز ما ورد»', (await panel('books').locator('.meanings-box').count()) === 0 && !/أبرز ما ورد/.test(await panel('books').innerText())); }
 await search('books', 'شفت حنش'); log('الكتب', 'جملة «شفت حنش» ← عنوان القسم باسم الرمز «حنش» لا الجملة كلها', /معاني «حنش»/.test((await panel('books').locator('.group-title').first().innerText())));
 await search('books', 'سيارة'); log('الكتب', 'كلمة حديثة «سيارة» تُفهم «مركب/دابة» ويُقدَّم ذلك', /فُهمت «سيارة» بالفصحى/.test(await panel('books').innerText()) && /مركب|دابة|دابه/.test(await cards('books').first().innerText()));
-await search('amthal', 'فلوس'); log('الأمثال', 'كلمة عامية «فلوس» تُفهم «مال» وتظهر أمثال بلفظها', /فُهمت «فلوس» بالفصحى/.test(await panel('amthal').innerText()) && (await cards('amthal').count()) > 0);
+await search('amthal', 'فلوس'); log('الأمثال', 'فهم العامية في «الكتب» فقط: «فلوس» في الأمثال تُبحث بلفظها بلا فصحى', !/فُهمت/.test(await panel('amthal').innerText()) && (await cards('amthal').count()) > 0);
 // ---------- الوضع الداكن / الفاتح ----------
 const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
 const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();

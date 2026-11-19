@@ -70,7 +70,6 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
       {res.dialect?.length ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => <div key={d.from}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div>)}</div> : null}
-      {res.meanings?.length ? <div className="stats meanings-box"><div className="meanings-title">أبرز ما ورد في معنى «{res.symbol ?? res.query}»:</div><div className="badges">{res.meanings.map((m) => <span className="badge-2" key={m.word}>{m.word} <small>{toAr(m.n)}</small></span>)}</div></div> : null}
       {res.results.map((r, idx) => {
         const head = r.group && (idx === 0 || res.results[idx - 1].group !== r.group)
           ? <h3 className="group-title" key={'g' + idx}>{r.group === 'meaning' ? `معاني «${res.symbol ?? res.query}» (${toAr(res.groups?.meaning ?? 0)})` : `ورد ذكره أيضاً في كلام المعبّرين (${toAr(res.groups?.mention ?? 0)})`}</h3> : null;

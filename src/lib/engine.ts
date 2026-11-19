@@ -251,7 +251,7 @@ export class Engine {
   /** What the user typed, and — when it holds colloquial words — the same query read in standard Arabic; the results of all readings are joined
    *  (the words as typed first). In the books tab the entries are then split into those that tell what the symbol MEANS and those that only mention it. */
   lookup(src: SourceId, raw: string): Lookup {
-    const dv = dialectVariants(raw);
+    const dv = this.refFirst.has(src) ? dialectVariants(raw) : { variants: [raw], notes: [], symbol: raw.trim() };       // colloquial words are understood in the books tab only
     let lk = this.lookupOne(src, dv.variants[0]);
     if (dv.variants.length > 1 && !lk.section) {
       const seen = new Set(lk.results.map((r) => r.doc.id)); const hl = new Set(lk.highlight); let direct = lk.directCount; let extra = lk.semanticCount; let capped = lk.capped;
@@ -268,7 +268,7 @@ export class Engine {
   }
 
   /** Books tab: an entry tells what a symbol means when the symbol is its subject (its heading, or the first words: «ومن رأى ملكاً…», «الملك يدل على…»); the others only
-   *  mention the word. Entries that tell the meaning come first, with the words that recur in what they say. Nothing is added to a text: the words come from the entries. */
+   *  mention the word. Entries that tell the meaning come first. Nothing is added to a text. */
   private markMeanings(lk: Lookup, variants: string[]) {
     const core = (w: string) => normalize(w).replace(/^(?:وال|فال|بال|كال|لل|ولل|ال|و|ف|ب|ل|ك)/, '');
     const sets = variants.map((v) => tokens(normalize(v)).map(core).filter((w) => w.length >= 2)).filter((a) => a.length);
@@ -281,26 +281,5 @@ export class Engine {
     const meaning: Lookup['results'] = []; const mention: Lookup['results'] = [];
     for (const r of lk.results) { const g = subject(r.doc) ? 'meaning' : 'mention'; r.group = g; (g === 'meaning' ? meaning : mention).push(r); }
     lk.results = [...meaning, ...mention]; lk.groups = { meaning: meaning.length, mention: mention.length };
-    // the words that recur after «يدل على / يؤول بـ / فهو …» in the entries that tell the meaning
-    const MARK = new Set(['يدل', 'تدل', 'يوول', 'توول', 'يعبر', 'تعبيره', 'تاويله', 'فهو', 'فهي', 'فانه', 'فانها', 'دليل', 'علامه']);
-    const END = new Set(['وان', 'ومن', 'وقيل', 'لقوله', 'ولقوله', 'قال', 'وقال', 'وقيل', 'فان', 'واذا', 'اذا', 'لان']);
-    const STOP = new Set(['علي', 'في', 'من', 'عن', 'الي', 'ان', 'انه', 'ما', 'لا', 'لم', 'او', 'ثم', 'كان', 'يكون', 'كل', 'ذلك', 'هذا', 'هذه', 'الذي', 'التي', 'قد', 'ولا', 'بعد', 'قبل', 'مع', 'بين', 'حتي', 'اذا', 'كما', 'اي', 'كذلك', 'يدل', 'يوول', 'حصول', 'ذي', 'رايه', 'راي', 'فيه', 'منه', 'له', 'به', 'عليه', 'وهو', 'هو', 'هي', 'بقدر', 'ايضا', 'اما', 'الا', 'وفي', 'وعلي', 'وله', 'ولم', 'وما', 'عند', 'نحو', 'بعض', 'مثل', 'غير', 'وقد', 'ومنه', 'والله', 'تعالي', 'اعلم', 'صاحبه', 'الرايي', 'الرائي', 'رايي', 'ولكن', 'لكن', 'فيها', 'منها', 'لها', 'بها', 'عليها', 'ربما', 'وربما', 'لاية', 'الاية', 'لايه', 'الايه', 'تلك', 'اوجه', 'ايه', 'يناله', 'ينال', 'يصيب', 'يحصل', 'يرزق', 'نال', 'اصاب', 'رزق', 'حصل', 'تدل', 'يدل', 'ملكا', 'كثير', 'فليتق', 'ليس', 'شيئا', 'فيما', 'وان', 'اذ', 'وكذلك', 'وكل']);
-    const LEXY = new Set(['يقين', 'يسار', 'يهود', 'يمين', 'يتيم', 'يوم', 'يد', 'ياقوت', 'يمن']);          // words that start with ي and are nouns, not verbs
-    const symbol = new Set(sets.flat()); const count = new Map<string, { n: number; show: string }>();
-    for (const r of meaning) {
-      const orig = r.doc.text.split(/\s+/); const nt = orig.map((t) => normalize(t));
-      for (let i = 0; i < nt.length; i++) {
-        if (!MARK.has(nt[i])) continue;
-        let j = i + 1; if (nt[j] === 'علي') j++;
-        const seen = new Set<string>();
-        for (let c = 0; c < 7 && j < nt.length; c++, j++) {
-          const w = core(nt[j]); if (!w || END.has(nt[j])) break;
-          if (w.length < 3 || (/^[يتن]/.test(w) && w.length >= 4 && !LEXY.has(w) && /^[ي]/.test(w)) || STOP.has(nt[j]) || STOP.has(w) || [...symbol].some((q) => same(w, q)) || seen.has(w)) continue;
-          seen.add(w); const e = count.get(w); if (e) e.n++; else count.set(w, { n: 1, show: orig[j].replace(/^[^\u0621-\u064A]+|[^\u0621-\u064A]+$/g, '').replace(/^(?:وال|فال|بال|كال|لل|ولل|ال|و|ف|ب|ل|ك)(?=\S{3})/, '') });
-        }
-      }
-    }
-    const top = [...count.values()].filter((x) => x.n >= 2).sort((a, b) => b.n - a.n).slice(0, 10);
-    if (top.length >= 2) lk.meanings = top.map((x) => ({ word: x.show, n: x.n }));
   }
 }
