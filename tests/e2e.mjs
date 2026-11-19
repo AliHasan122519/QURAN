@@ -14,7 +14,7 @@ const browser = await chromium.launch(); const ctx = await browser.newContext({ 
 const errors = [], requests = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errors.push('console: ' + m.text().slice(0, 160)); }); page.on('request', (r) => requests.push(r.url()));
 const toNum = (s) => +String(s).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
-const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'الألفية الوردية', books: 'الكتب', shawahid: 'أبيات الاستشهاد' };
+const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'الألفية الوردية', books: 'الكتب', shawahid: 'أبيات الإستشهاد' };
 const panel = (t) => page.locator(`#panel-${t}`);
 const go = async () => { await page.goto(URL_); await page.waitForFunction(() => document.querySelector('#panel-quran button.go') && !document.querySelector('#panel-quran .pulse'), null, { timeout: 30000 }); await page.waitForFunction(() => document.querySelectorAll('.tab').length === 6); await page.waitForTimeout(1800); };
 const search = async (t, q) => { await page.getByRole('tab', { name: TAB[t] }).click(); await panel(t).locator('input').fill(q); await panel(t).locator('button.go').click(); await panel(t).locator('article, .soft').first().waitFor({ timeout: 20000 }); await page.waitForTimeout(350); };
@@ -27,7 +27,7 @@ await page.screenshot({ path: 'tests/screenshots/home.png' });
 // ---------- structure = the original ----------
 const h1 = await page.locator('h1').innerText(); log('مطابقة الأصل', 'العنوان «الباحث القرآني»', h1.trim() === 'الباحث القرآني');
 log('مطابقة الأصل', 'الشارة العلوية ونص التعريف كما في الأصل', (await page.locator('.badge-top').innerText()).includes('بحث نصّي دقيق مع توسعة دلالية اشتقاقية') && (await page.locator('.hero p').innerText()).includes('منصّة بحث شرعي في القرآن الكريم والسنة النبوية الصحيحة'));
-log('مطابقة الأصل', 'ستة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية، الكتب، أبيات الاستشهاد', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية', 'الكتب', 'أبيات الاستشهاد']));
+log('مطابقة الأصل', 'ستة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية، الكتب، أبيات الإستشهاد', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية', 'الكتب', 'أبيات الإستشهاد']));
 log('مطابقة الأصل', 'حقل البحث في القرآن يحمل «اكتب هنا» بلا أمثلة', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب هنا' && (await panel('quran').locator('.hint').innerText()).includes('البحث يبدأ مطابقاً لرسم المصحف'));
 for (const id of ['quran', 'jami', 'amthal', 'alfiya', 'books', 'shawahid']) log('حقول البحث', `حقل «${id}» نصه «اكتب هنا» فقط`, (await panel(id).locator('input').getAttribute('placeholder')) === 'اكتب هنا');
 log('مطابقة الأصل', 'الحالة الأولى: «ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.»', (await panel('quran').locator('.soft').innerText()).includes('ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.'));
@@ -110,15 +110,19 @@ await search('books', 'الماء'); { const gt = await panel('books').locator('
 await search('books', 'شفت حنش'); log('الكتب', 'جملة «شفت حنش» ← عنوان القسم باسم الرمز «حنش» لا الجملة كلها', /معاني «حنش»/.test((await panel('books').locator('.group-title').first().innerText())));
 await search('books', 'سيارة'); log('الكتب', 'كلمة حديثة «سيارة» تُفهم «مركب/دابة» ويُقدَّم ذلك', /فُهمت «سيارة» بالفصحى/.test(await panel('books').innerText()) && /مركب|دابة|دابه/.test(await cards('books').first().innerText()));
 await search('amthal', 'فلوس'); log('الأمثال', 'فهم العامية في «الكتب» فقط: «فلوس» في الأمثال تُبحث بلفظها بلا فصحى', !/فُهمت/.test(await panel('amthal').innerText()) && (await cards('amthal').count()) > 0);
-// ---------- أبيات الاستشهاد ----------
+// ---------- أبيات الإستشهاد ----------
 await search('shawahid', 'سفينة'); { const tx = await panel('shawahid').innerText();
-  log('أبيات الاستشهاد', '«سفينة» ← أبيات بشطرين ومصدر لكل بيت', (await cards('shawahid').count()) > 10 && (await cards('shawahid').first().locator('.poem-shatr').count()) === 2 && /المصدر: \S/.test(await cards('shawahid').first().innerText()));
-  log('أبيات الاستشهاد', 'عبارة «وبُحث أيضاً عمّا يقاربها في المعنى» محذوفة', !/وبُحث أيضاً عمّا يقاربها/.test(tx));
-  const all = await panel('shawahid').innerText(); log('أبيات الاستشهاد', 'تظهر أبيات فيها «مركب» أو «فلك» وهي من مرادفات «سفينة»', /مركب|المركب|الفلك|فلك/.test(all)); }
+  log('أبيات الإستشهاد', '«سفينة» ← أبيات بشطرين ومصدر لكل بيت', (await cards('shawahid').count()) > 10 && (await cards('shawahid').first().locator('.poem-shatr').count()) === 2 && /المصدر: \S/.test(await cards('shawahid').first().innerText()));
+  log('أبيات الإستشهاد', 'عبارة «وبُحث أيضاً عمّا يقاربها في المعنى» محذوفة', !/وبُحث أيضاً عمّا يقاربها/.test(tx));
+  const all = await panel('shawahid').innerText(); log('أبيات الإستشهاد', 'تظهر أبيات فيها «مركب» أو «فلك» وهي من مرادفات «سفينة»', /مركب|المركب|الفلك|فلك/.test(all)); }
 await search('shawahid', 'ألستم خير من ركب المطايا'); { const c0 = await cards('shawahid').first().innerText();
-  log('أبيات الاستشهاد', 'تحت البيت: «يقال عند…» ثم «القائل:» ثم «المصدر:»', /يقال عند مدح عبد الملك بن مروان/.test(c0) && /القائل: جرير/.test(c0) && /المصدر: /.test(c0) && c0.indexOf('يقال') < c0.indexOf('القائل') && c0.indexOf('القائل') < c0.indexOf('المصدر')); }
-await search('shawahid', 'قارب'); log('أبيات الاستشهاد', 'الكتابة بـ«قارب» تجد أبيات «سفينة» أيضاً', /سفين/.test(await panel('shawahid').innerText()));
-await search('shawahid', 'سيارة'); log('أبيات الاستشهاد', 'كلمة حديثة/عامية «سيارة» تُفهم بالفصحى', /فُهمت «سيارة» بالفصحى/.test(await panel('shawahid').innerText()));
+  log('أبيات الإستشهاد', 'تحت البيت: «يقال عند…» ثم «القائل:» ثم «المصدر:»', /يقال عند مدح عبد الملك بن مروان/.test(c0) && /القائل: جرير/.test(c0) && /المصدر: /.test(c0) && c0.indexOf('يقال') < c0.indexOf('القائل') && c0.indexOf('القائل') < c0.indexOf('المصدر')); }
+await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; }); await page.waitForTimeout(200);
+{ const col = (sel) => cards('shawahid').first().locator(sel).first().evaluate((el) => getComputedStyle(el).color);
+  log('أبيات الإستشهاد', 'الوضع الداكن: نص البيت وبياناته (يقال/القائل/المصدر) بالأبيض', (await col('.poem-shatr')) === 'rgb(255, 255, 255)' && (await col('.shahid-info p')) === 'rgb(255, 255, 255)'); }
+await page.evaluate(() => { document.documentElement.dataset.theme = 'light'; });
+await search('shawahid', 'قارب'); log('أبيات الإستشهاد', 'الكتابة بـ«قارب» تجد أبيات «سفينة» أيضاً', /سفين/.test(await panel('shawahid').innerText()));
+await search('shawahid', 'سيارة'); log('أبيات الإستشهاد', 'كلمة حديثة/عامية «سيارة» تُفهم بالفصحى', /فُهمت «سيارة» بالفصحى/.test(await panel('shawahid').innerText()));
 // ---------- الوضع الداكن / الفاتح ----------
 const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
 const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();

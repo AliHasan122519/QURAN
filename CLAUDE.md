@@ -16,7 +16,7 @@ node scripts/content.mjs add_entries '{"tab":"amthal","entries":[{"ref":"…","t
 
 تبويب «الكتب» (`books`): كل مدخل `ref` (عنوان الرمز) و`text` (ما ورد) و`explanation` (ما يظهر تحت زر «وجه الشبه»، يُترك فارغاً إن لم يذكر المصدر سبباً — لا تُختلق علّة). تفاصيل في `BOOKS_SOURCE_NOTES.md`.
 
-تبويب «أبيات الاستشهاد» (`shawahid`): كل مدخل `ref` و`text` بصيغة «الشطر الأول … الشطر الثاني» و`source`، وحقل التبويب `smart:"full"` يفعّل فهم العامية والمرادفات (`src/lib/dialect.ts`). تفاصيل في `SHAWAHID_SOURCE_NOTES.md`.
+تبويب «أبيات الإستشهاد» (`shawahid`): كل مدخل `ref` و`text` بصيغة «الشطر الأول … الشطر الثاني» و`source`، وحقل التبويب `smart:"full"` يفعّل فهم العامية والمرادفات (`src/lib/dialect.ts`). تفاصيل في `SHAWAHID_SOURCE_NOTES.md`.
 
 أنواع التبويبات وحقولها: `content/SCHEMA.md`. المرجع الجديد = `add_tab` بنوع `generic` (حقول المدخل: `ref`, `text`, `explanation`).
 

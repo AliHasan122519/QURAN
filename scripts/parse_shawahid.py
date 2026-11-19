@@ -40,8 +40,9 @@ for key, title in BOOKS:
         if '(' in a or ')' in a or '(' in b or ')' in b: stats['paren'] += 1; continue
         before = texts[pi - 1][1] if pi > 0 and texts[pi - 1][0] == ref else ''
         after = []
-        for rr, tt in texts[pi + 1: pi + 8]:
+        for rr, tt in texts[pi + 1: pi + 40]:
             if rr != ref or re.match(r'^\d+ - ', tt) or tt.startswith('(الشاهد') : break
+            if rr != ref: break
             if ' ... ' in tt: continue                                           # the other verses of the same poem
             after.append(tt)
         out.append({'ref': ref, 'a': a, 'b': b, 'src': title, 'before': before, 'after': after})

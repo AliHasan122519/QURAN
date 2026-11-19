@@ -68,6 +68,6 @@ for n, i in enumerate(keep):
             if full(o) != full(e): alt = f"{o['a']} … {o['b']}"; break           # a variant that differs only in the way a hamza / alif maqsura is written is the same line
     stat['poet'] += bool(poet); stat['occasion'] += bool(occ)
     rows.append([ref, f"{e['a']} … {e['b']}", '\n'.join([occ, poet, alt]) if (occ or poet or alt) else '', ' · '.join(e['srcs'])])
-CL.publish('shawahid', 'أبيات الاستشهاد', 'generic', {'h': rows}, len(rows), extra={'card': 'verse', 'smart': 'full', 'placeholder': 'اكتب هنا',
+CL.publish('shawahid', 'أبيات الإستشهاد', 'generic', {'h': rows}, len(rows), extra={'card': 'verse', 'smart': 'full', 'placeholder': 'اكتب هنا',
     'hint': 'اكتب الكلمة ويفهم التطبيق مرادفاتها وما يقابلها بالعامية، وتظهر الأبيات التي ورد فيها المعنى.'})
 print(dict(stat), 'entries', len(rows))
