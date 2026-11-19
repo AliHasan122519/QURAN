@@ -23,7 +23,7 @@ node scripts/content.mjs add_entries '{"tab":"amthal","entries":[{"ref":"…","t
 - الجامع الصغير: تُعرض الرموز والدرجات كما طُبعت في الكتاب بلا إضافة.
 - لا تغيّر رقم `version` يدوياً ولا تدفع بالقوة (`--force`).
 - لا تضع أسراراً (توكنات/مفاتيح) في المستودع أو في رسائل المحادثة.
-- في كود التطبيق: واجهة عربية RTL، خط Dubai Bold لكل النصوص عدا الآيات (Amiri Quran). لا ذكر لأسماء الكتب والمراجع في واجهة التطبيق.
+- في كود التطبيق: واجهة عربية RTL، خط Dubai Bold لكل النصوص عدا الآيات (Amiri Quran). لا ذكر لأسماء الكتب والمراجع في واجهة التطبيق، **عدا تبويب «الكتب»** فهو يعرض اسم الكتاب مصدراً لكل نتيجة (بطلب المالك).
 
 ## الاختبارات (قبل دفع تغيير في الكود)
 `npm ci && npm run build` ثم `NODE_PATH=$(npm root -g) node tests/e2e.mjs`، و`node mcp-server/test.mjs`، و`node tests/content_cli.mjs`، و`node scripts/validate_content.mjs`.

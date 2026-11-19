@@ -53,8 +53,8 @@ export async function loadTab(tab: Tab, c: Content): Promise<Doc[] | null> {
     const w = parse<{ h: [number, number, string, string, string][] }>(buf);
     return w.h.map(([n, page, chapter, a, b]) => ({ id: `${src}:${n}`, src, text: `${a} ${b}`, verse: n, page, chapter, shatr1: a, shatr2: b }));
   }
-  const g = parse<{ h: [string, string, string][] }>(buf);
-  return g.h.map(([ref, text, explanation], i) => ({ id: `${src}:${i}`, src, text, ref, explanation }));
+  const g = parse<{ h: [string, string, string, string?][] }>(buf);
+  return g.h.map(([ref, text, explanation, source], i) => ({ id: `${src}:${i}`, src, text, ref, explanation, source }));
 }
 
 export type UpdateResult = { status: 'none' | 'updated' | 'failed'; manifest?: Manifest; apkNotice?: Manifest['apk'] };

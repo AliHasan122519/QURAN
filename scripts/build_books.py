@@ -100,11 +100,13 @@ def finalize(t):
     t = balance(t)
     t = re.sub(r'^[)﴾»\]\s]+', '', t); t = re.sub(r'[(﴿«\[\s]+$', '', t)
     return re.sub(r'\s+', ' ', t).strip()
+SOURCES = {'isharat': 'الإشارات في علم العبارات', 'tatir': 'تعطير الأنام في تعبير المنام', 'qadiri': 'القادري في التعبير', 'ghannam': 'تعبير الرؤيا (ابن غنام المقدسي)',
+           'muntakhab': 'منتخب الكلام في تفسير الأحلام', 'badr': 'البدر المنير في علم التعبير', 'manamat': 'المنامات (ابن أبي الدنيا)', 'salimi': 'الإشارة إلى علم العبارة'}
 rows = []
 for e in E:
     t = finalize(tidy(re.sub(r'﴿((?:و?من|و?إن) رأى)﴾', r'\1', re.sub(r':\s*:', ':', paren_verses(fix_verses(e['text']))))))
     if len(t) < 25: continue
     ref = '' if e['ref'] == 'PARATEXT' else finalize(e['ref'])
-    rows.append([ref, t, finalize(why(t))])
+    rows.append([ref, t, finalize(why(t)), SOURCES[e.get('src', 'isharat')]])
 CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'placeholder': 'اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})
 print(stat, 'with reason:', sum(1 for r in rows if r[2]), 'of', len(rows))

@@ -120,6 +120,7 @@ export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTe
       <p dir="rtl" className="meaning-text"><b className="warad">{label} =</b> <Rich text={doc.text} words={words} /></p>
       {doc.explanation && <button type="button" className="sharh" aria-expanded={open} onClick={() => setOpen((o) => !o)}>وجه الشبه<ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : undefined }} /></button>}
       {doc.explanation && open && <div dir="rtl" className="wajh"><p><Rich text={doc.explanation} words={words} /></p></div>}
+      {doc.source && <p dir="rtl" className="takhrij">المصدر: {doc.source}</p>}
     </article>
   );
 });

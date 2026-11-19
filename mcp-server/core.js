@@ -15,7 +15,7 @@ const KINDS = {
   quran: { list: 'a', fields: { surah: 0, ayah: 1, text: 2 }, make: (o) => [o.surah ?? 0, o.ayah ?? 0, o.text ?? ''] },
   hadith: { list: 'h', fields: { page: 0, letter: 1, text: 2, takhrij: 3, symbols: 4, grade: 5, tier: 6, mahla: 7, number: 8 }, make: (o) => [o.page ?? 0, o.letter ?? '', o.text ?? '', o.takhrij ?? '', o.symbols ?? [], o.grade ?? '', o.tier ?? 'v', o.mahla ?? 0, o.number ?? 0] },
   poem: { list: 'h', fields: { number: 0, page: 1, chapter: 2, shatr1: 3, shatr2: 4 }, make: (o) => [o.number ?? 0, o.page ?? 0, o.chapter ?? '', o.shatr1 ?? '', o.shatr2 ?? ''] },
-  generic: { list: 'h', fields: { ref: 0, text: 1, explanation: 2 }, make: (o) => [o.ref ?? '', o.text ?? '', o.explanation ?? ''] },
+  generic: { list: 'h', fields: { ref: 0, text: 1, explanation: 2, source: 3 }, make: (o) => (o.source ? [o.ref ?? '', o.text ?? '', o.explanation ?? '', o.source] : [o.ref ?? '', o.text ?? '', o.explanation ?? '']) },
 };
 const NEW_TAB_KINDS = ['generic', 'poem'];
 const ID_RE = /^[a-z][a-z0-9_-]{1,30}$/;
@@ -99,7 +99,7 @@ export function createServer({ gh }) {
         fieldCheck(t.kind, fields); need(Object.keys(fields).length, 'no fields given'); const before = toObj(t.kind, rows[index], index);
         for (const [k, v] of Object.entries(fields)) rows[index][KINDS[t.kind].fields[k]] = v;
         const c = await save(m, [{ tab: t, data }], `content: update ${tab} #${index}`); return { updated: toObj(t.kind, rows[index], index), before, ...c }; } },
-    { name: 'add_entries', description: 'Appends entries to a tab (up to 500 per call). Each entry is an object with the tab kind\'s fields: generic {ref,text,explanation}; poem {number,page,chapter,shatr1,shatr2}; hadith {text,takhrij,number,page,grade,...}; quran {surah,ayah,text}. Creates the data file if the tab was empty.',
+    { name: 'add_entries', description: 'Appends entries to a tab (up to 500 per call). Each entry is an object with the tab kind\'s fields: generic {ref,text,explanation,source?} (source = the name of the book, shown under the result in the books tab); poem {number,page,chapter,shatr1,shatr2}; hadith {text,takhrij,number,page,grade,...}; quran {surah,ayah,text}. Creates the data file if the tab was empty.',
       inputSchema: { type: 'object', properties: { tab: { type: 'string' }, entries: { type: 'array', items: { type: 'object' } } }, required: ['tab', 'entries'] },
       run: async ({ tab, entries }) => { need(Array.isArray(entries) && entries.length && entries.length <= 500, 'entries must be 1..500 objects'); const m = await readManifest(); const t = tabOf(m, tab); const data = await readTab(t); const rows = rowsOf(t, data);
         const K = KINDS[t.kind]; const first = rows.length;

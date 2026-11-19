@@ -97,7 +97,8 @@ await search('books', 'طوبى'); { const btn = panel('books').locator('button.
   await btn.click(); const w = panel('books').locator('.wajh').first();
   log('الكتب', 'الضغط على الزر يُظهر وجه الشبه (بنصّ الآية بخط Amiri Quran)', (await w.isVisible()) && /وجه الشبه/.test(await w.innerText()) && /Amiri Quran/.test(await w.locator('.quran-inline').first().evaluate((el) => getComputedStyle(el).fontFamily)));
   log('الكتب', 'بقية النص بخط Dubai', /Dubai/.test(await panel('books').locator('.meaning-text').first().evaluate((el) => getComputedStyle(el).fontFamily))); }
-log('الكتب', 'لا اسم كتاب ولا مؤلف في الواجهة', !/الإشارات في علم العبارات|خليل بن شاهين|ابن شاهين/.test(await page.evaluate(() => document.body.innerText)));
+await search('books', 'الجن'); log('الكتب', 'كل نتيجة تعرض مصدرها (اسم الكتاب)', (await panel('books').locator('.takhrij').count()) === (await cards('books').count()) && /المصدر: \S/.test(await cards('books').first().innerText()));
+await search('alfiya', 'الأسد'); log('الكتب', 'بقية الخانات لا تعرض أسماء كتب التعبير', !/تعطير الأنام|القادري في التعبير|المنامات \(/.test(await panel('alfiya').innerText()));
 // ---------- الوضع الداكن / الفاتح ----------
 const themeNow = () => page.evaluate(() => document.documentElement.dataset.theme);
 const th0 = await themeNow(); await page.locator(".theme-toggle").click(); const th1 = await themeNow();
