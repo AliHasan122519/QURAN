@@ -9,3 +9,4 @@ dist/
 node_modules/
 public/content/
 data/shawahid/verses_parsed.json
+data/shawahid/khizana_verses.json

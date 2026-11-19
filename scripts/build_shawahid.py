@@ -3,14 +3,18 @@ Input data/shawahid/verses_parsed.json (scripts/parse_shawahid.py). What is adde
 occasion when a book names one. The verses quoted by several books are compared: a reading that is a misprint (a word nobody else uses, where another book has a real word) is
 dropped; a different transmission of a real word is kept as «ويُروى».   usage: python3 -I scripts/build_shawahid.py"""
 import json, os, sys, re, gzip, collections, difflib
+from rapidfuzz import fuzz
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL, shawahid_lib as S
 V = json.load(open('data/shawahid/verses_parsed.json', encoding='utf8'))
+KH = json.load(open('data/shawahid/khizana_verses.json', encoding='utf8'))          # scripts/parse_khizana.py: the verses of «خزانة الأدب», each decided by the vote of four copies
+for e in KH: e.pop('copies', None)
+V += KH
 AR = re.compile(r'[^ء-ي ]')
 def nw(s): return AR.sub('', re.sub(r'[ً-ٰٟ]', '', s))
 # vocabulary: every word of the four books' own prose (typed, so a real word recurs)
 FREQ = collections.Counter()
-for f in ('suyuti_shawahid_mughni', 'baghdadi_abyat_mughni', 'ayni_maqasid', 'sirafi_abyat_sibawayh'):
+for f in ('suyuti_shawahid_mughni', 'baghdadi_abyat_mughni', 'ayni_maqasid', 'sirafi_abyat_sibawayh', 'khizana_jk'):
     for w in nw(gzip.open(f'data/shawahid/{f}.txt.gz', 'rt', encoding='utf8').read()).split(): FREQ[w] += 1
 def valid(w): return FREQ[w] >= 3
 # 1) compare the verses quoted twice with small differences
@@ -22,15 +26,15 @@ def find(x):
     while parent[x] != x: parent[x] = parent[parent[x]]; x = parent[x]
     return x
 for k, ids in groups.items():
-    if len(ids) < 2 or len(ids) > 60: continue
+    if len(ids) < 2 or len(ids) > 600: continue
     for x in range(len(ids)):
         for y in range(x + 1, len(ids)):
             a, b = full(V[ids[x]]), full(V[ids[y]])
-            if abs(len(a) - len(b)) <= 6 and difflib.SequenceMatcher(None, a, b, autojunk=False).ratio() >= 0.88: parent[find(ids[x])] = find(ids[y])
+            if abs(len(a) - len(b)) <= 6 and fuzz.ratio(a, b) >= 88: parent[find(ids[x])] = find(ids[y])
 clusters = collections.defaultdict(list)
 for i in range(len(V)): clusters[find(i)].append(i)
 drop = set(); variant = {}; stat = collections.Counter()
-SRC_ORDER = ['شرح شواهد المغني', 'المقاصد النحوية في شرح شواهد شروح الألفية', 'شرح أبيات مغني اللبيب', 'شرح أبيات سيبويه']
+SRC_ORDER = ['شرح شواهد المغني', 'المقاصد النحوية في شرح شواهد شروح الألفية', 'شرح أبيات مغني اللبيب', 'شرح أبيات سيبويه', 'خزانة الأدب ولب لباب لسان العرب']
 for root, ids in clusters.items():
     if len(ids) < 2: continue
     ids.sort(key=lambda i: (-len(V[i]['srcs']), min(SRC_ORDER.index(s) for s in V[i]['srcs'])))
@@ -61,6 +65,7 @@ for n, i in enumerate(keep):
     if re.match(r'^(?:و?أنشد|وأنشد|الكتاب|الشاهد|الباب|فصل)', ref) or len(ref) > 70: ref = ''
     ref = re.sub(r'\s+', ' ', ref).strip()
     occ = S.occasion_of(e['ctx']); poet = poets[n]
+    if occ and poet and S.same_person(occ, poet): occ = ''                                  # «عند رثاء أبو ذؤيب نشبة…»: the poet himself is the one the book names as the subject, not the object
     alt = ''
     if i in variant:
         for vi in variant[i]:
