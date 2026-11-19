@@ -9,14 +9,14 @@ import { VerseCard, HadithCard, GenericCard, PoemCard, MeaningCard, ShahidCard }
 export type SourceState = 'loading' | 'ready' | 'absent' | 'error';
 
 const CFG: Record<Kind, { placeholder: string; hint: string; empty: string }> = {
-  quran: { placeholder: 'اكتب كلمة أو عبارة قرآنية… مثال: مفتاح، الصبر، الرحمة', hint: 'البحث يبدأ مطابقاً لرسم المصحف، فإن قلّت النتائج فُعِّلت التوسعة الدلالية تلقائياً.', empty: 'لم نعثر على آيات تطابق بحثك حتى بعد التوسعة الدلالية.' },
-  hadith: { placeholder: 'اكتب كلمة أو عبارة من السنة… مثال: النية، الجار، الصدقة', hint: 'اكتب لفظاً أو عبارة، ويُفعَّل التوسع الدلالي عند قلّة النتائج.', empty: 'لم نعثر على أحاديث تطابق بحثك.' },
-  poem: { placeholder: 'اكتب كلمة أو عبارة في تعبير الرؤيا… مثال: الماء، الأسد، الخاتم', hint: 'اكتب لفظاً أو عبارة، أو حرفاً واحداً لعرض باب ذلك الحرف.', empty: 'لم نعثر على أبيات تطابق بحثك.' },
-  generic: { placeholder: 'اكتب كلمة أو عبارة… مثال: الصبر، الجار، الكرم', hint: 'اكتب لفظاً أو عبارة للبحث.', empty: 'لم نعثر على نتائج تطابق بحثك.' },
+  quran: { placeholder: 'اكتب هنا', hint: 'البحث يبدأ مطابقاً لرسم المصحف، فإن قلّت النتائج فُعِّلت التوسعة الدلالية تلقائياً.', empty: 'لم نعثر على آيات تطابق بحثك حتى بعد التوسعة الدلالية.' },
+  hadith: { placeholder: 'اكتب هنا', hint: 'اكتب لفظاً أو عبارة، ويُفعَّل التوسع الدلالي عند قلّة النتائج.', empty: 'لم نعثر على أحاديث تطابق بحثك.' },
+  poem: { placeholder: 'اكتب هنا', hint: 'اكتب لفظاً أو عبارة، أو حرفاً واحداً لعرض باب ذلك الحرف.', empty: 'لم نعثر على أبيات تطابق بحثك.' },
+  generic: { placeholder: 'اكتب هنا', hint: 'اكتب لفظاً أو عبارة للبحث.', empty: 'لم نعثر على نتائج تطابق بحثك.' },
 };
 
 export function SearchPanel({ tab, engine, state, retry }: { tab: Tab; engine: Engine; state: SourceState; retry: () => void }) {
-  const src: SourceId = tab.id; const base = CFG[tab.kind] ?? CFG.generic; const cfg = { ...base, placeholder: tab.placeholder ?? base.placeholder, hint: tab.hint ?? base.hint, Icon: ICONS[tab.kind] ?? ICONS.generic };
+  const src: SourceId = tab.id; const base = CFG[tab.kind] ?? CFG.generic; const cfg = { ...base, placeholder: 'اكتب هنا', hint: tab.hint ?? base.hint, Icon: ICONS[tab.kind] ?? ICONS.generic };
   const [q, setQ] = useState(''); const [busy, setBusy] = useState(false); const [res, setRes] = useState<Lookup | null>(null); const [failed, setFailed] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const run = (text: string) => {
