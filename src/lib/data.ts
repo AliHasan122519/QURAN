@@ -67,7 +67,8 @@ export async function checkForUpdate(current: Manifest): Promise<UpdateResult> {
     const mb = await fetchBuf(`${REMOTE}manifest.json?t=${Date.now()}`, true);
     if (!mb) return { status: 'none' };
     const remote = parse<Manifest>(mb);
-    const apkNotice = remote.apk && remote.apk.versionCode > APK_VERSION && remote.apk.url ? remote.apk : undefined;
+    const onIos = (window as any).Capacitor?.getPlatform?.() === 'ios';                       // an iPhone never installs an APK: its app comes from the App Store
+    const apkNotice = !onIos && remote.apk && remote.apk.versionCode > APK_VERSION && remote.apk.url ? remote.apk : undefined;
     if (!remote.tabs || remote.version <= current.version) return { status: 'none', apkNotice };
     for (const t of remote.tabs) {
       if (!t.file || !t.sha256) continue;
