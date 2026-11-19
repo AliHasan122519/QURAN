@@ -545,12 +545,159 @@ const LEXICON = `
 صراط = صراط
 `;
 
+
+/** Words of one meaning, as poetry and prose use them. Only for the tabs that ask for «full» understanding (the verses tab): typing one finds the others. */
+const SYNONYMS = `
+سفينة، مركب، قارب، فلك، زورق، جارية، باخرة، مركبة، قلع، شراع، سفين
+بحر، يم، لجة، عباب، موج، مياه
+نهر، جدول، وادي، غدير، ساقية، سيل
+ماء، غيث، مطر، سحاب، غمام، ودق، وابل، ديمة، رذاذ
+سيف، حسام، مهند، صارم، بتار، عضب، صمصامة، غرار، نصل
+رمح، قناة، سنان، اسل، عامل
+سهم، نبل، نشاب، قوس، سهام
+اسد، ليث، سبع، غضنفر، هزبر، ضرغام، حيدرة، قسورة
+ذئب، سرحان، عسال، ذيب
+كلب، سلوقي، كلاب
+ثعلب، ابو الحصين، روباه
+ناقة، جمل، بعير، راحلة، مطية، عيس، قلوص، ابل، هجان
+فرس، حصان، جواد، خيل، مهر، سابح، طرف، عود، ادهم، اشقر
+حمار، عير، حمير، اتان، فرا
+غزال، ظبي، رشا، ريم، مها، عفرا، اراما
+بقر، ثور، وحش، مها
+نعامة، ظليم، نعام
+طير، عصفور، حمام، قطا، غراب، صقر، باز، نسر، عقاب
+حية، ثعبان، افعى، اسود، رقش، صل
+عقرب، شبث
+ذباب، بعوض، ناموس، نحل، زنبور
+اسد
+ليل، دجى، ظلام، سدف، غسق، عتمة، هزيع
+نهار، ضحى، صبح، فجر، بكور، اصيل، عشي
+شمس، ذكاء، ضحى، دنيا، اياء
+قمر، بدر، هلال، سماء
+نجم، كوكب، ثريا، سهيل، شهاب
+سماء، فلك، سحاب، افق
+ارض، تراب، ثرى، غبراء، بسيطة، صعيد
+جبل، طود، شاهق، هضبة، رابية، اكمة، قنة
+صحراء، فلاة، بيد، مفازة، قفر، براري، دوية، بادية
+واحة، روضة، بستان، حديقة، جنة، خميلة
+شجر، نخل، غصن، ورق، دوحة، فنن
+زهر، ورد، ازهار، نور، رياحين
+نار، لهيب، جمر، حريق، سعير، وقود
+نور، ضياء، سنا، بريق، لمعان
+ريح، نسيم، هبوب، صبا، شمال، جنوب، دبور، سموم، عاصفة
+برق، لمع، وميض
+رعد، صاعقة
+خمر، راح، مدام، صهباء، كاس، قهوة، سلافة، رحيق، ندام، شراب، نبيذ
+كاس، قدح، كوب، ابريق، دن
+حب، عشق، هوى، غرام، ود، صبابة، وجد، شغف، ولع، هيام
+محبوب، حبيب، خليل، خل، صديق، رفيق، صاحب، صفي
+عدو، خصم، غريم، كاشح، حسود
+فراق، بعد، هجر، نوى، بين، صد، قطيعة
+لقاء، وصل، قرب، تلاق
+دمع، عبرة، ادمع، مدامع، مقلة
+عين، طرف، مقلة، حدقة، ناظر، لحظ
+قلب، فؤاد، جنان، لب، خاطر
+راس، هامة، راس، ناصية
+وجه، محيا، طلعة، خد، جبين
+يد، كف، بنان، راحة، ساعد
+فم، ثغر، شفة، ريق، لسان
+شعر، قصيد، نظم، قريض، بيت، ابيات
+كلام، قول، لفظ، حديث، منطق، نطق
+موت، منية، حتف، ردى، فناء، وفاة، اجل، منون، حمام
+حياة، عيش، دهر، زمان، عمر، ايام
+دنيا، دهر، زمن، ليالي، ايام
+قبر، لحد، ضريح، جدث، رمس، ثرى
+رجل، امرؤ، فتى، شاب، هزبر
+امراة، انثى، فتاة، غادة، عذراء، كاعب، خود، ظعينة، خريدة
+ولد، ابن، صبي، غلام، طفل، وليد
+شيخ، كهل، هرم، مسن، عجوز
+ملك، سلطان، امير، خليفة، حاكم، والي، سيد
+قوم، قبيلة، عشيرة، حي، اهل، بنو
+بيت، دار، منزل، مسكن، خيمة، قصر، ديار
+طلل، اطلال، دمن، رسم، ربع، اثافي
+خيمة، فسطاط، بيت، مضرب، خباء
+سفر، رحلة، ظعن، رحيل، سير، مسير
+طريق، سبيل، درب، نهج، مسلك، محجة، سكة
+قافلة، ركب، عير، ركبان
+جيش، جند، عسكر، كتيبة، جحفل، خميس
+حرب، قتال، وغى، معركة، نزال، كفاح، هيجاء، ملحمة
+فارس، بطل، مقاتل، شجاع، مغوار، ضرغام، بهمة
+شجاع، جريء، باسل، مقدام، بطل، غضنفر
+جبان، هياب، جزع، خوار، ضعيف
+كريم، جواد، سخي، معطاء، ندى، بذل، منان
+بخيل، شحيح، لئيم، ممسك، كز
+غني، ثري، موسر، مثر
+فقير، معدم، مسكين، محتاج، معسر، صعلوك
+مال، ثروة، ذهب، دراهم، دنانير، نضار، غنى
+ذهب، تبر، نضار، عسجد، لجين
+فضة، لجين، ورق
+جوهر، لؤلؤ، درر، مرجان، ياقوت، زبرجد، فرائد
+جمال، حسن، بهاء، روعة، جلال، فتنة
+حزن، هم، غم، كرب، اسى، شجن، لوعة، حسرة، ترح
+فرح، سرور، بهجة، حبور، ابتهاج، مسرة، غبطة
+خوف، فزع، رعب، هلع، وجل، خشية، رهبة
+صبر، جلد، تجلد، احتمال، تصبر
+حلم، اناة، رزانة، وقار
+علم، معرفة، فقه، حكمة، ادب، دراية
+جهل، سفه، غباوة، حمق
+عقل، لب، حجا، نهى، رشد
+كذب، زور، افتراء، بهتان
+صدق، حق، يقين
+ظلم، جور، بغي، عدوان
+عدل، قسط، انصاف
+ذل، هوان، مهانة، صغار
+عز، شرف، مجد، سؤدد، فخر، رفعة، علياء
+فخر، مدح، ثناء، حمد، اطراء
+هجاء، ذم، سب، شتم
+شيب، مشيب، بياض، ثغامة
+شباب، فتوة، صبا، غرارة
+سكر، ثمل، نشوان، سكران
+نوم، رقاد، كرى، سنة، هجوع
+سهر، ارق، سهاد
+جوع، مخمصة، سغب، مجاعة
+عطش، ظمأ، صدى، غلة
+طعام، زاد، قرى، مائدة، خبز
+لحم، شواء، قديد
+لبن، حليب، رسل، زبد
+تمر، رطب، بلح
+قهوة، بن
+سلاح، عدة، درع، سيف، رمح
+درع، زرد، لامة، مغفر، جوشن
+ترس، مجن، درقة
+خنجر، سكين، مدية، شفرة
+حبل، رسن، قيد، وثاق
+سجن، حبس، معتقل
+عبد، رقيق، مملوك، خادم، غلام
+سوق، مربد، سوقة
+ثوب، قميص، رداء، بردة، جلباب، كساء
+نعل، حذاء
+خاتم، فص
+تاج، اكليل، عمامة
+سحر، ساحر، عرافة، كهانة
+جن، عفريت، شيطان، ابليس
+ملاك، ملائكة، جبريل
+قرآن، كتاب، مصحف، وحي
+صلاة، صوم، حج، عبادة
+توبة، ندم، استغفار
+جنة، فردوس، نعيم، جنان
+نار، جحيم، جهنم، سعير
+`;
+const SURFACE = new Map<string, string>();                      // normalised form → the word as written in this file (shown to the user)
+const surf = (w: string) => SURFACE.get(w) ?? w;
+const CLUSTER = new Map<string, Set<string>>();
+for (const line of SYNONYMS.split('\n')) {
+  const raws = line.split('،').map((x) => x.trim()); for (const r of raws) { const n = normalize(r); if (n && !SURFACE.has(n)) SURFACE.set(n, r); }
+  const ws = [...new Set(raws.map((x) => normalize(x)).filter((x) => x && !x.includes(' ')))]; if (ws.length < 2) continue;
+  for (const w of ws) { const set = CLUSTER.get(w) ?? new Set<string>(); for (const o of ws) if (o !== w) set.add(o); CLUSTER.set(w, set); }
+}
+
 const MAP = new Map<string, string[]>(); const PREFER = new Set<string>();
 for (const line of LEXICON.split('\n')) {
   const t = line.trim(); if (!t || t.startsWith('#')) continue;
   const i = t.indexOf('='); if (i < 0) continue;
   const prefer = t[i + 1] === '>';                                                   // «=>»: a modern word the old books do not use in this sense: the standard readings are searched first
-  const from = normalize(t.slice(0, i)); const to = t.slice(i + (prefer ? 2 : 1)).split('|').map((x) => normalize(x)).filter(Boolean);
+  const from = normalize(t.slice(0, i)); const toRaw = t.slice(i + (prefer ? 2 : 1)).split('|').map((x) => x.trim()).filter(Boolean); const to = toRaw.map((x) => normalize(x)).filter(Boolean);
+  toRaw.forEach((r) => { const n = normalize(r); if (n && !SURFACE.has(n)) SURFACE.set(n, r); });
   if (prefer) PREFER.add(from);
   if (!from || !to.length || to.includes(from)) continue;                           // a word that is already standard Arabic is not rewritten
   const cur = MAP.get(from); MAP.set(from, cur ? [...new Set([...cur, ...to])] : to);
@@ -559,12 +706,13 @@ for (const line of LEXICON.split('\n')) {
 const IGNORE = new Set(['شفت', 'رايت', 'حلمت', 'حلم', 'احلم', 'منام', 'المنام', 'الحلم', 'ني', 'اني', 'كاني', 'في', 'بالحلم', 'بالمنام', 'اليوم', 'امس', 'يعني', 'والله', 'انا', 'انه', 'كان', 'شي', 'شيء', 'اني', 'ايش', 'معني', 'تفسير', 'تعبير', 'معنى', 'ما', 'ماذا', 'شو', 'هو']);
 
 export interface DialectResult {
-  variants: string[];                           // the query itself first, then the standard-Arabic readings (each a full query)
-  notes: { from: string; to: string[] }[];     // what was understood: «سيارة» → مركب، دابة
+  variants: string[];                           // the query itself first, then the other readings (each a full query)
+  notes: { from: string; to: string[]; kind: 'dialect' | 'synonym' }[];     // what was understood: «سيارة» → مركب، دابة   /   «سفينة» ≈ مركب، قارب
   symbol: string;                                // the words that name the thing searched (the dream-introducing words «شفت»، «حلمت» removed)
 }
-/** The standard-Arabic readings of a query written with colloquial words. A query with no colloquial word gives just itself. */
-export function dialectVariants(raw: string): DialectResult {
+/** The other readings of a query: colloquial words in standard Arabic (always) and, when `full`, words of the same meaning (synonyms).
+ *  A query with nothing to add gives just itself. */
+export function dialectVariants(raw: string, full = false): DialectResult {
   const toks = tokens(normalize(raw)); const out: DialectResult = { variants: [raw], notes: [], symbol: raw.trim() };
   if (!toks.length || toks.length > 6) return out;
   const original = raw.trim().split(/\s+/).map((w) => w.replace(/^[^\u0621-\u064A]+|[^\u0621-\u064A]+$/g, '')).filter(Boolean);
@@ -572,16 +720,26 @@ export function dialectVariants(raw: string): DialectResult {
   const kept = toks.filter((t) => !IGNORE.has(t)); const base = kept.length && kept.length < toks.length ? kept : toks;
   out.symbol = base.map((t) => original[toks.indexOf(t)] ?? t).join(' ');
   const alts: string[][] = base.map((t) => { const m = MAP.get(t); return m ? [t, ...m.filter((x) => x !== t)] : [t]; });
+  const nDialect = alts.map((a) => a.length - 1);
   const silent: boolean[] = base.map(() => false);
   base.forEach((t, i) => { if (!MAP.has(t) && t.length >= 4 && t.length <= 8 && /^[انت]/.test(t) && !t.startsWith('ال') && !t.startsWith('ان') && !t.startsWith('تا')) { alts[i] = [t, 'ي' + t.slice(1)]; silent[i] = true; } });   // «اطير» → «يطير»
-  const hasDialect = alts.some((a) => a.length > 1);
-  if (!hasDialect && base.length === toks.length) return out;
-  // 2) every combination of readings (at most 8), the first one being the words as typed
-  const combos: string[][] = [[]];
-  for (const a of alts) { const next: string[][] = []; for (const c of combos) for (const w of a.slice(0, 3)) { next.push([...c, w]); if (next.length >= 24) break; } combos.splice(0, combos.length, ...next); }
+  if (full) base.forEach((t, i) => {                                           // words of the same meaning, for the readings of this word too
+    const mates = new Set<string>(); for (const w of alts[i]) { const c = CLUSTER.get(w) ?? CLUSTER.get(w.replace(/^ال/, '')); if (c) c.forEach((x) => mates.add(x)); }
+    for (const w of alts[i]) mates.delete(w); alts[i] = [...alts[i], ...mates].slice(0, 14);
+  });
+  const hasMore = alts.some((a) => a.length > 1);
+  if (!hasMore && base.length === toks.length) return out;
+  // 2) every combination of readings (a few), the first one being the words as typed
+  const maxV = full ? 14 : 8; const combos: string[][] = [[]];
+  for (const a of alts) { const next: string[][] = []; for (const c of combos) for (const w of a.slice(0, full ? 14 : 3)) { next.push([...c, w]); if (next.length >= 40) break; } combos.splice(0, combos.length, ...next); }
   const seen = new Set<string>([normalize(raw)]);
-  for (const c of combos) { const q = c.join(' '); if (!seen.has(q)) { seen.add(q); out.variants.push(q); if (out.variants.length >= 8) break; } }
+  for (const c of combos) { const q = c.join(' '); if (!seen.has(q)) { seen.add(q); out.variants.push(q); if (out.variants.length >= maxV) break; } }
   if (base.some((t) => PREFER.has(t)) && out.variants.length > 1) out.variants.push(out.variants.shift()!);        // the standard readings first, the words as typed last
-  base.forEach((t, i) => { if (alts[i].length > 1 && !silent[i]) out.notes.push({ from: original[toks.indexOf(t)] ?? t, to: alts[i].slice(1, 4) }); });
+  base.forEach((t, i) => {
+    const w = original[toks.indexOf(t)] ?? t;
+    if (nDialect[i] > 0 && !silent[i]) out.notes.push({ from: w, to: alts[i].slice(1, 1 + Math.min(nDialect[i], 3)).map(surf), kind: 'dialect' });
+    const syn = alts[i].slice(1 + nDialect[i]).filter((x) => !(silent[i] && x === 'ي' + t.slice(1)));
+    if (full && syn.length) out.notes.push({ from: w, to: syn.slice(0, 6).map(surf), kind: 'synonym' });
+  });
   return out;
 }

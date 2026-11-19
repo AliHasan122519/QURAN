@@ -20,6 +20,8 @@ const yieldUI = () => new Promise<void>((r) => setTimeout(r, 0));
 export class Engine {
   private idx = new Map<SourceId, Idx>();
   private kinds = new Map<SourceId, Kind>();
+  private smart = new Map<SourceId, 'dialect' | 'full'>();            // tabs that understand colloquial words (and, «full», synonyms)
+  private caps = new Map<SourceId, number>();
   private refFirst = new Set<SourceId>();           // tabs whose entries are ranked first when the searched word is in the entry's heading (the symbol)
   private skel = new Map<string, Set<string>>();   // stem/skeleton key -> vocabulary words
   private vocab = new Map<string, number>();       // word -> document frequency (all sources)
@@ -32,8 +34,8 @@ export class Engine {
   docsOf(src: SourceId) { return this.idx.get(src)?.docs ?? []; }
 
   /** Build the index for one source. Yields to the UI every few thousand documents. */
-  async addSource(src: SourceId, docs: Doc[], kind: Kind, opts?: { refFirst?: boolean }) {
-    this.kinds.set(src, kind); if (opts?.refFirst) this.refFirst.add(src);
+  async addSource(src: SourceId, docs: Doc[], kind: Kind, opts?: { refFirst?: boolean; smart?: 'dialect' | 'full'; cap?: number }) {
+    this.kinds.set(src, kind); if (opts?.refFirst) this.refFirst.add(src); if (opts?.smart) this.smart.set(src, opts.smart); if (opts?.cap) this.caps.set(src, opts.cap);
     const isQ = kind === 'quran';
     const ix: Idx = { src, docs, norm: new Array(docs.length), normB: new Array(docs.length), post: new Map() };
     for (let i = 0; i < docs.length; i++) {
@@ -225,7 +227,8 @@ export class Engine {
   lookupOne(src: SourceId, raw: string): Lookup {
     if (this.kinds.get(src) === 'poem') { const s = this.letterSection(src, raw) ?? this.chapterSection(src, raw); if (s) return s; }
     const r = this.search(raw, { sources: new Set([src]), expand: 'always' });
-    let direct = r.hits.filter((h) => h.type === 'literal' || h.type === 'normalized' || h.type === 'textual').sort((a, b) => a.ord - b.ord);
+    const strict = this.smart.get(src) === 'full';        // verses: the loose «skeleton» match of the original site finds unrelated words in short lines; only the word itself (with its clitics) counts as a direct hit
+    let direct = r.hits.filter((h) => h.type === 'literal' || h.type === 'normalized' || (!strict && h.type === 'textual')).sort((a, b) => a.ord - b.ord);
     if (r.terms.length > 1) { const contiguous = direct.filter((h) => h.score >= 750); if (contiguous.length) direct = contiguous; }   // a phrase: prefer the words in sequence
     if (this.refFirst.has(src)) {                                    // «الجن» first shows the entries filed under the heading about the jinn
       const core = (w: string) => normalize(w).replace(/^(?:وال|فال|بال|لل|ال|و)/, '');
@@ -237,7 +240,7 @@ export class Engine {
     }
     let extra = r.hits.filter((h) => h.type === 'derived' || h.type === 'semantic').sort((a, b) => a.ord - b.ord);
     if (direct.length >= 5 || r.terms.length > 1) extra = [];      // expansion: only when direct matches are few, and only for a single word (it is root-based)
-    const cap = this.refFirst.has(src) ? 200 : MAX_RESULTS;      // the books tab holds many long entries per symbol: show more
+    const cap = this.caps.get(src) ?? (this.refFirst.has(src) ? 200 : MAX_RESULTS);      // the books / verses tabs hold many entries per word: show more
     const all = [...direct, ...extra]; const shown = all.slice(0, cap);
     const results = shown.map((hit) => {
       const doc = this.byId.get(hit.id)!; const isDirect = hit.type === 'literal' || hit.type === 'normalized' || hit.type === 'textual';
@@ -251,11 +254,11 @@ export class Engine {
   /** What the user typed, and — when it holds colloquial words — the same query read in standard Arabic; the results of all readings are joined
    *  (the words as typed first). In the books tab the entries are then split into those that tell what the symbol MEANS and those that only mention it. */
   lookup(src: SourceId, raw: string): Lookup {
-    const dv = this.refFirst.has(src) ? dialectVariants(raw) : { variants: [raw], notes: [], symbol: raw.trim() };       // colloquial words are understood in the books tab only
+    const sm = this.smart.get(src); const dv = sm ? dialectVariants(raw, sm === 'full') : { variants: [raw], notes: [], symbol: raw.trim() };       // colloquial words (and synonyms) are understood only in the tabs that ask for it
     let lk = this.lookupOne(src, dv.variants[0]);
     if (dv.variants.length > 1 && !lk.section) {
       const seen = new Set(lk.results.map((r) => r.doc.id)); const hl = new Set(lk.highlight); let direct = lk.directCount; let extra = lk.semanticCount; let capped = lk.capped;
-      const cap = this.refFirst.has(src) ? 200 : MAX_RESULTS; const results = [...lk.results];
+      const cap = this.caps.get(src) ?? (this.refFirst.has(src) ? 200 : MAX_RESULTS); const results = [...lk.results];
       for (const v of dv.variants.slice(1)) {
         const o = this.lookupOne(src, v); o.highlight.forEach((w) => hl.add(w)); capped = capped || o.capped;
         for (const r of o.results) if (!seen.has(r.doc.id) && results.length < cap) { seen.add(r.doc.id); results.push(r); if (r.matchType === 'نصي') direct++; else extra++; }

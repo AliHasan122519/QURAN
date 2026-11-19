@@ -1,7 +1,7 @@
 export type Kind = 'quran' | 'hadith' | 'poem' | 'generic';
 export type SourceId = string;                              // a tab id from the content manifest («quran», «jami», …); new ones can be added by a content update
 export type MatchType = 'literal' | 'normalized' | 'textual' | 'derived' | 'semantic';
-export interface Tab { id: SourceId; label: string; kind: Kind; file: string | null; sha256: string | null; count?: number; placeholder?: string; hint?: string; card?: 'meaning'; }
+export interface Tab { id: SourceId; label: string; kind: Kind; file: string | null; sha256: string | null; count?: number; placeholder?: string; hint?: string; card?: 'meaning' | 'verse'; smart?: 'dialect' | 'full'; }
 export interface Manifest { schema: number; version: number; updated?: string; apk?: { versionCode: number; url: string; notes?: string }; tabs: Tab[]; }
 export interface Doc {
   id: string; src: SourceId; text: string;
@@ -18,6 +18,6 @@ export interface Lookup {
   query: string; directCount: number; semanticCount: number; expansion: { root: string; terms: string[] } | null; section?: string;
   results: { hit: Hit; doc: Doc; matchType: 'نصي' | 'دلالي'; matchedTerm: string; group?: 'meaning' | 'mention' }[]; highlight: Set<string>; capped: boolean;
   symbol?: string;                                                  // the words that name what was searched (books tab)
-  dialect?: { from: string; to: string[] }[];                      // colloquial words understood as standard Arabic
+  dialect?: { from: string; to: string[]; kind: 'dialect' | 'synonym' }[];                      // colloquial words understood as standard Arabic
   groups?: { meaning: number; mention: number };   // books tab: what the sources say the symbol means
 }

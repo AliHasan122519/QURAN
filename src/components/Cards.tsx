@@ -124,3 +124,18 @@ export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTe
     </article>
   );
 });
+
+/** «أبيات الاستشهاد»: the verse in two hemistichs (the entry text is «first … second»), the heading it is filed under and the book(s) that quote it */
+export const ShahidCard = memo(function ShahidCard({ doc, matchType, matchedTerm, words }: P) {
+  const [a, b] = doc.text.split(' … ');
+  return (
+    <article className="verse-card" data-src="shahid" data-match={matchType}>
+      <div className="card-top">
+        <div className="card-ref">{doc.ref ? <div className="t">{doc.ref}</div> : null}</div>
+        <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
+      </div>
+      <div dir="rtl" className="poem-verse"><p className="poem-shatr"><Highlight text={a} words={words} /></p><p className="poem-shatr"><Highlight text={b ?? ''} words={words} /></p></div>
+      {doc.source && <p dir="rtl" className="takhrij">المصدر: {doc.source}</p>}
+    </article>
+  );
+});

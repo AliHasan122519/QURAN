@@ -108,5 +108,5 @@ for e in E:
     if len(t) < 25: continue
     ref = '' if e['ref'] == 'PARATEXT' else finalize(e['ref'])
     rows.append([ref, t, finalize(why(t)), SOURCES[e.get('src', 'isharat')]])
-CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'placeholder': 'اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})
+CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'smart': 'dialect', 'placeholder': 'اكتب رمزاً من الرؤيا… مثال: الجن، الله، الملك، الماء', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})
 print(stat, 'with reason:', sum(1 for r in rows if r[2]), 'of', len(rows))

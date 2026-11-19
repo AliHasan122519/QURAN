@@ -4,7 +4,7 @@ import type { Engine } from '../lib/engine';
 import type { Kind, Lookup, SourceId, Tab } from '../lib/types';
 import { ICONS } from './icons';
 import { toAr } from '../lib/format';
-import { VerseCard, HadithCard, GenericCard, PoemCard, MeaningCard } from './Cards';
+import { VerseCard, HadithCard, GenericCard, PoemCard, MeaningCard, ShahidCard } from './Cards';
 
 export type SourceState = 'loading' | 'ready' | 'absent' | 'error';
 
@@ -58,7 +58,7 @@ function Skeleton() {
   return <div className="space" aria-hidden="true">{[0, 1, 2].map((i) => <div className="verse-card pulse" key={i} style={{ animationDelay: `${i * 120}ms` }}><div className="sk w32" /><div className="sk" /><div className="sk w11" /><div className="sk w3" /></div>)}</div>;
 }
 
-function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: 'meaning'; empty: string }) {
+function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: 'meaning' | 'verse'; empty: string }) {
   if (!res.results.length) {
     return <div className="soft" role="status">{empty}{res.expansion?.terms.length ? <div className="also">تم البحث أيضاً عن: {res.expansion.terms.slice(0, 8).join('، ')}</div> : null}</div>;
   }
@@ -69,11 +69,11 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
         <div><span>نتائج مطابقة نصياً: <b>{toAr(res.directCount)}</b></span>{res.semanticCount > 0 && <><span className="sep">•</span><span>نتائج دلالية إضافية: <b>{toAr(res.semanticCount)}</b></span></>}{res.capped && <><span className="sep">•</span><span>عُرضت أول {toAr(res.results.length)} نتيجة</span></>}</div>
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
-      {res.dialect?.length ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => <div key={d.from}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div>)}</div> : null}
+      {res.dialect?.length ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => d.kind === 'dialect' ? <div key={d.from + 'd'}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div> : <div key={d.from + 's'}>وبُحث أيضاً عمّا يقاربها في المعنى: <b>{d.to.join('، ')}</b>.</div>)}</div> : null}
       {res.results.map((r, idx) => {
         const head = r.group && (idx === 0 || res.results[idx - 1].group !== r.group)
           ? <h3 className="group-title" key={'g' + idx}>{r.group === 'meaning' ? `معاني «${res.symbol ?? res.query}» (${toAr(res.groups?.meaning ?? 0)})` : `ورد ذكره أيضاً في كلام المعبّرين (${toAr(res.groups?.mention ?? 0)})`}</h3> : null;
-        const el = kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : card === 'meaning' ? <MeaningCard key={r.doc.id} {...r} words={res.highlight} query={res.symbol ?? res.query} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
+        const el = kind === 'quran' ? <VerseCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'hadith' ? <HadithCard key={r.doc.id} {...r} words={res.highlight} /> : kind === 'poem' ? <PoemCard key={r.doc.id} {...r} words={res.highlight} plain={!!res.section} /> : card === 'meaning' ? <MeaningCard key={r.doc.id} {...r} words={res.highlight} query={res.symbol ?? res.query} /> : card === 'verse' ? <ShahidCard key={r.doc.id} {...r} words={res.highlight} /> : <GenericCard key={r.doc.id} {...r} words={res.highlight} />;
         return head ? [head, el] : el;
       })}
     </div>
