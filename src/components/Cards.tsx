@@ -127,7 +127,7 @@ export const MeaningCard = memo(function MeaningCard({ doc, matchType, matchedTe
 
 /** «أبيات الاستشهاد»: the verse in two hemistichs (the entry text is «first … second»), the heading it is filed under and the book(s) that quote it */
 export const ShahidCard = memo(function ShahidCard({ doc, matchType, matchedTerm, words }: P) {
-  const [a, b] = doc.text.split(' … ');
+  const [a, b] = doc.text.split(' … '); const [occasion, poet, variant] = (doc.explanation ?? '').split('\n');
   return (
     <article className="verse-card" data-src="shahid" data-match={matchType}>
       <div className="card-top">
@@ -135,7 +135,12 @@ export const ShahidCard = memo(function ShahidCard({ doc, matchType, matchedTerm
         <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
       </div>
       <div dir="rtl" className="poem-verse"><p className="poem-shatr"><Highlight text={a} words={words} /></p><p className="poem-shatr"><Highlight text={b ?? ''} words={words} /></p></div>
-      {doc.source && <p dir="rtl" className="takhrij">المصدر: {doc.source}</p>}
+      {(occasion || poet || variant || doc.source) && <div dir="rtl" className="takhrij shahid-info">
+        {occasion && <p>يقال {occasion}.</p>}
+        {poet && <p>القائل: {poet}</p>}
+        {variant && <p>ويُروى: {variant}</p>}
+        {doc.source && <p>المصدر: {doc.source}</p>}
+      </div>}
     </article>
   );
 });

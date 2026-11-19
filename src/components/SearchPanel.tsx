@@ -69,7 +69,7 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
         <div><span>نتائج مطابقة نصياً: <b>{toAr(res.directCount)}</b></span>{res.semanticCount > 0 && <><span className="sep">•</span><span>نتائج دلالية إضافية: <b>{toAr(res.semanticCount)}</b></span></>}{res.capped && <><span className="sep">•</span><span>عُرضت أول {toAr(res.results.length)} نتيجة</span></>}</div>
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
-      {res.dialect?.length ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => d.kind === 'dialect' ? <div key={d.from + 'd'}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div> : <div key={d.from + 's'}>وبُحث أيضاً عمّا يقاربها في المعنى: <b>{d.to.join('، ')}</b>.</div>)}</div> : null}
+      {res.dialect?.some((d) => d.kind === 'dialect') ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => d.kind === 'dialect' ? <div key={d.from + 'd'}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div> : null)}</div> : null}
       {res.results.map((r, idx) => {
         const head = r.group && (idx === 0 || res.results[idx - 1].group !== r.group)
           ? <h3 className="group-title" key={'g' + idx}>{r.group === 'meaning' ? `معاني «${res.symbol ?? res.query}» (${toAr(res.groups?.meaning ?? 0)})` : `ورد ذكره أيضاً في كلام المعبّرين (${toAr(res.groups?.mention ?? 0)})`}</h3> : null;

@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 101,
- "updated": "2026-11-19T22:21:43Z",
+ "version": 105,
+ "updated": "2026-11-19T22:35:13Z",
  "apk": {
   "versionCode": 29918785,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -57,8 +57,8 @@
    "label": "أبيات الاستشهاد",
    "kind": "generic",
    "file": "shawahid.json",
-   "sha256": "a238298ed98be7a7ae6d44f52c2f784a143e9490a4845ee2d79e83832104b6f2",
-   "count": 10829,
+   "sha256": "0d8f49a075a78a624d1e7d3ed0f682dba2775922c0db4a3420c8e7809835b9fe",
+   "count": 9173,
    "card": "verse",
    "smart": "full",
    "placeholder": "اكتب هنا",

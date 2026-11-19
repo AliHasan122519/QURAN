@@ -25,7 +25,8 @@ for key, title in BOOKS:
             cur = None; continue
         if l.startswith('# '): cur = [l[2:]]; paras.append((ref, cur))
         elif l.startswith('~~') and cur is not None: cur.append(l[2:])
-    for ref, parts in paras:
+    texts = [(ref_, clean(' '.join(parts_))) for ref_, parts_ in paras]
+    for pi, (ref, parts) in enumerate(paras):
         t = clean(' '.join(parts))
         t = re.sub(r'^\(\s*', '', t); t = re.sub(r'\s*\)\s*$', '', t)             # «( … )» around a quoted verse
         if t.count(' ... ') != 1 or len(parts) > 2: continue
@@ -37,7 +38,13 @@ for key, title in BOOKS:
         if START_BAD.match(a) or re.search(r'[0-9A-Za-z:؟«»]|\.\.\.|…', a + b): stats['bad'] += 1; continue
         if re.search(r'إلى آخر|البيت|انتهى|الأبيات|\.\s*\.|الشاهد', a + ' ' + b): stats['cut'] += 1; continue
         if '(' in a or ')' in a or '(' in b or ')' in b: stats['paren'] += 1; continue
-        out.append({'ref': ref, 'a': a, 'b': b, 'src': title})
+        before = texts[pi - 1][1] if pi > 0 and texts[pi - 1][0] == ref else ''
+        after = []
+        for rr, tt in texts[pi + 1: pi + 8]:
+            if rr != ref or re.match(r'^\d+ - ', tt) or tt.startswith('(الشاهد') : break
+            if ' ... ' in tt: continue                                           # the other verses of the same poem
+            after.append(tt)
+        out.append({'ref': ref, 'a': a, 'b': b, 'src': title, 'before': before, 'after': after})
 # the same verse quoted by several books: one entry, all the books
 def key(e): return re.sub(r'[^ء-ي]', '', e['a'] + e['b'])
 by = collections.OrderedDict()
@@ -45,7 +52,8 @@ for e in out:
     k = key(e)
     if k in by:
         if e['src'] not in by[k]['srcs']: by[k]['srcs'].append(e['src'])
-    else: by[k] = {'ref': e['ref'], 'a': e['a'], 'b': e['b'], 'srcs': [e['src']]}
+        by[k]['ctx'].append({'before': e['before'], 'after': e['after']})
+    else: by[k] = {'ref': e['ref'], 'a': e['a'], 'b': e['b'], 'srcs': [e['src']], 'ctx': [{'before': e['before'], 'after': e['after']}]}
 res = list(by.values())
 json.dump(res, open('data/shawahid/verses_parsed.json', 'w', encoding='utf8'), ensure_ascii=False, indent=0)
 print(dict(stats), 'verses', len(out), 'unique', len(res), collections.Counter(len(e['srcs']) for e in res))

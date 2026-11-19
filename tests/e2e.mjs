@@ -113,8 +113,10 @@ await search('amthal', 'فلوس'); log('الأمثال', 'فهم العامية
 // ---------- أبيات الاستشهاد ----------
 await search('shawahid', 'سفينة'); { const tx = await panel('shawahid').innerText();
   log('أبيات الاستشهاد', '«سفينة» ← أبيات بشطرين ومصدر لكل بيت', (await cards('shawahid').count()) > 10 && (await cards('shawahid').first().locator('.poem-shatr').count()) === 2 && /المصدر: \S/.test(await cards('shawahid').first().innerText()));
-  log('أبيات الاستشهاد', 'يُبحث أيضاً بمرادفاتها (قارب، مركب، فلك…) ويُخبَر المستخدم', /وبُحث أيضاً عمّا يقاربها في المعنى/.test(tx) && /مركب/.test(tx));
+  log('أبيات الاستشهاد', 'عبارة «وبُحث أيضاً عمّا يقاربها في المعنى» محذوفة', !/وبُحث أيضاً عمّا يقاربها/.test(tx));
   const all = await panel('shawahid').innerText(); log('أبيات الاستشهاد', 'تظهر أبيات فيها «مركب» أو «فلك» وهي من مرادفات «سفينة»', /مركب|المركب|الفلك|فلك/.test(all)); }
+await search('shawahid', 'ألستم خير من ركب المطايا'); { const c0 = await cards('shawahid').first().innerText();
+  log('أبيات الاستشهاد', 'تحت البيت: «يقال عند…» ثم «القائل:» ثم «المصدر:»', /يقال عند مدح عبد الملك بن مروان/.test(c0) && /القائل: جرير/.test(c0) && /المصدر: /.test(c0) && c0.indexOf('يقال') < c0.indexOf('القائل') && c0.indexOf('القائل') < c0.indexOf('المصدر')); }
 await search('shawahid', 'قارب'); log('أبيات الاستشهاد', 'الكتابة بـ«قارب» تجد أبيات «سفينة» أيضاً', /سفين/.test(await panel('shawahid').innerText()));
 await search('shawahid', 'سيارة'); log('أبيات الاستشهاد', 'كلمة حديثة/عامية «سيارة» تُفهم بالفصحى', /فُهمت «سيارة» بالفصحى/.test(await panel('shawahid').innerText()));
 // ---------- الوضع الداكن / الفاتح ----------

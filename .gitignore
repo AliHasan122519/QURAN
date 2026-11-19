@@ -8,3 +8,4 @@ dist-artifact/
 dist/
 node_modules/
 public/content/
+data/shawahid/verses_parsed.json
