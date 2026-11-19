@@ -16,5 +16,8 @@ export interface SearchResult {
 }
 export interface Lookup {
   query: string; directCount: number; semanticCount: number; expansion: { root: string; terms: string[] } | null; section?: string;
-  results: { hit: Hit; doc: Doc; matchType: 'نصي' | 'دلالي'; matchedTerm: string }[]; highlight: Set<string>; capped: boolean;
+  results: { hit: Hit; doc: Doc; matchType: 'نصي' | 'دلالي'; matchedTerm: string; group?: 'meaning' | 'mention' }[]; highlight: Set<string>; capped: boolean;
+  symbol?: string;                                                  // the words that name what was searched (books tab)
+  dialect?: { from: string; to: string[] }[];                      // colloquial words understood as standard Arabic
+  meanings?: { word: string; n: number }[]; groups?: { meaning: number; mention: number };   // books tab: what the sources say the symbol means
 }
