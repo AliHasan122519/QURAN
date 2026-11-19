@@ -33,11 +33,8 @@ jobs:
       - name: Build number (minutes since 1970, always higher than the previous upload)
         run: echo "BUILD_NO=$(( $(date +%s) / 60 ))" >> "$GITHUB_ENV"
 
-      - name: Select Xcode
-        run: |
-          ls /Applications | grep -i xcode || true
-          sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -s "$(ls -d /Applications/Xcode_15*.app | tail -1)"
-          xcodebuild -version
+      - name: Xcode in use (the runner's newest; App Store uploads need a recent Xcode/iOS SDK)
+        run: xcodebuild -version && xcrun --sdk iphoneos --show-sdk-version
 
       - name: Build the web app and sync it into the iOS project
         env:
