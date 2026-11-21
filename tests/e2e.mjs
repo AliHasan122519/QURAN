@@ -58,6 +58,8 @@ await panel('quran').locator('article').first().waitFor();
 // ---------- Sunnah = al-Jami' al-Saghir only ----------
 await search('jami', 'النية'); const jt = await panel('jami').innerText();
 log('السنة النبوية', '«النية» ← نتائج أحاديث مع رقم صفحة PDF ووسم مصدر النص (مدقَّق / قراءة آلية)', (await cards('jami').count()) > 0 && /حديث رقم/.test(jt) && /صفحة [0-9٠-٩]+/.test(jt) && /(مدقَّق على صورة الصفحة|قراءة آلية غير مراجَعة)/.test(jt), (await stats('jami')).slice(0, 80));
+{ const tk = await panel('jami').locator('.takhrij').allInnerTexts();   // the takhrij is written in words, not in the printed symbols
+  log('السنة النبوية', 'التخريج بكلمات طبيعية (رواه …) لا برموز الكتاب مثل (ق 4) و(طب)', tk.length > 0 && tk.every((x) => !/\([^)]*\)/.test(x)) && tk.some((x) => /^رواه /.test(x)), tk.slice(0, 2).join(' | ').slice(0, 120)); }
 let semOk = false, semWord = ''; for (const w of ['العزم', 'الاحتساب', 'التحمل', 'السخاء', 'الشفقة', 'الجود']) { await search('jami', w); if ((await stats('jami')).includes('نتائج دلالية إضافية') && (await panel('jami').locator('.pill-sem').count()) > 0) { semOk = true; semWord = w; break; } }
 log('السنة النبوية', 'التوسعة الدلالية تُفعَّل عند قلة النتائج ويظهر «دلالي: …» وشارة الجذر/الألفاظ', semOk, semWord);
 await search('jami', 'الجار'); log('السنة النبوية', '«الجار» ← حتى ٨٠ نتيجة بلا ترقيم صفحات', (await cards('jami').count()) > 0 && (await cards('jami').count()) <= 80);

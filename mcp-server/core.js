@@ -13,7 +13,7 @@ const INSTRUCTIONS = [
 // How each tab kind stores a row (arrays, to keep the files small) and the field names the tools use.
 const KINDS = {
   quran: { list: 'a', fields: { surah: 0, ayah: 1, text: 2 }, make: (o) => [o.surah ?? 0, o.ayah ?? 0, o.text ?? ''] },
-  hadith: { list: 'h', fields: { page: 0, letter: 1, text: 2, takhrij: 3, symbols: 4, grade: 5, tier: 6, mahla: 7, number: 8 }, make: (o) => [o.page ?? 0, o.letter ?? '', o.text ?? '', o.takhrij ?? '', o.symbols ?? [], o.grade ?? '', o.tier ?? 'v', o.mahla ?? 0, o.number ?? 0] },
+  hadith: { list: 'h', fields: { page: 0, letter: 1, text: 2, takhrij: 3, symbols: 4, grade: 5, tier: 6, mahla: 7, number: 8, printed: 9 }, make: (o) => [o.page ?? 0, o.letter ?? '', o.text ?? '', o.takhrij ?? '', o.symbols ?? [], o.grade ?? '', o.tier ?? 'v', o.mahla ?? 0, o.number ?? 0] },
   poem: { list: 'h', fields: { number: 0, page: 1, chapter: 2, shatr1: 3, shatr2: 4 }, make: (o) => [o.number ?? 0, o.page ?? 0, o.chapter ?? '', o.shatr1 ?? '', o.shatr2 ?? ''] },
   generic: { list: 'h', fields: { ref: 0, text: 1, explanation: 2, source: 3 }, make: (o) => (o.source ? [o.ref ?? '', o.text ?? '', o.explanation ?? '', o.source] : [o.ref ?? '', o.text ?? '', o.explanation ?? '']) },
 };

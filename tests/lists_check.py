@@ -1,6 +1,6 @@
 """Checks the lists of the «المزيد» menu against their sources (run after scripts/build_ruaa.py / build_more_lists.py):  python3 -I tests/lists_check.py
   - every ayah of «رؤى الأنبياء والصالحين» is the mushaf's own text (content/quran.json) with the right number;
-  - every hadith of it is inside content/jami.json with the printed symbols; every passage taken from the books is in «رؤى وتعبيرها» word for word;
+  - every hadith of it is inside content/jami.json with its takhrij in words; every passage taken from the books is in «رؤى وتعبيرها» word for word;
   - every report of «المنامات» is whole and none repeats;  the biographical excerpts of «المعبِّرون» are found word for word in the dictionaries when those are present (OITI=…);
   - no typing residue (page marks, footnote numbers glued to words, ASCII «?», empty brackets, unbalanced brackets) in any of the three lists."""
 import json, re, sys, os, collections

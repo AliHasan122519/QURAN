@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 151,
- "updated": "2026-11-21T13:07:48Z",
+ "version": 161,
+ "updated": "2026-11-21T14:14:43Z",
  "apk": {
   "versionCode": 29921110,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -21,7 +21,7 @@
    "label": "السنة النبوية",
    "kind": "hadith",
    "file": "jami.json",
-   "sha256": "e430fc7c36b73b5ed4cbaad3a95385b8e698d333245296378279d4b8d4bc30a0",
+   "sha256": "59f901c807e7ec6ae16a2d2ca21a2cb0382bd3a3a5b69eee12d8131d4984275a",
    "count": 10031
   },
   {
@@ -82,7 +82,7 @@
    "label": "رؤى الأنبياء والصالحين",
    "kind": "generic",
    "file": "anbiya.json",
-   "sha256": "65d6878b0baaa9af7d293cd7129d295463b37d6ca1915f6ae7b020891a7f099b",
+   "sha256": "f23e358dacd5c55d2435ab94dc0e4cdf9777b2ffd7095168c046850fa535f3aa",
    "count": 250,
    "drawer": true,
    "card": "dream",

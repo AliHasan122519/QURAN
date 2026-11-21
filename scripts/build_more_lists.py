@@ -1,7 +1,7 @@
 """Builds the two lists of the «المزيد» menu that are made out of the other lists of the app:
   «رؤى الأنبياء والصالحين»  (content/anbiya.json)   — the dreams of the Prophets, of the Prophet ﷺ and of his Companions, and the dreams the Prophet or a Companion interpreted:
         1) the Qur'an's own dreams (Yusuf, the two prisoners, the king of Egypt, Ibrahim, the Prophet ﷺ): the ayat word for word from content/quran.json, each with its number;
-        2) the Prophet's dreams in al-Jami' al-Saghir (content/jami.json), with the printed symbols;
+        2) the Prophet's dreams in al-Jami' al-Saghir (content/jami.json), with its takhrij in words (as scripts/takhrij_natural.py writes it);
         3) the passages of «رؤى وتعبيرها» (content/ruaa.json, which is built from the books) whose dreamer or interpreter is the Prophet ﷺ, a Companion, or a Prophet.
   «المعبِّرون»              (content/muabbirun.json) — who the interpreters are: what the classical dictionaries say of them (data/muabbirun/excerpts.json, word for word,
         scripts/extract_muabbirun.py) and the number of their dreams in the list.

@@ -4,6 +4,7 @@ Run: python3 -I scripts/build_data.py"""
 import json, re, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
+import takhrij_natural as TN
 R = 'data/raw'
 DIAC = re.compile(r'[ؐ-ًؚ-ٰٟۖ-ۭ࣓-ࣿـ‎‏]')
 def first_letter(t):
@@ -43,6 +44,24 @@ for r in j:
     L = first_letter(r['t'])
     tier = 'v' if r.get('verified') else ('h' if r['cov'] >= 0.9 else ('m' if r['cov'] >= 0.75 else 'l'))
     rows.append([r['page'], L, r['t'], r['k'], r['sym'], r['g'], tier, 1 if r['mahla'] else 0, r.get('n') or 0])
+# The takhrij is written in plain words (the owner's request) instead of the printed symbols: index 3 = the words, index 9 = the takhrij exactly as printed.
+# Entries whose takhrij the machine reading lost / merged / garbled were read by eye from the printed pages: data/jami_takhrij_fixes.json.
+FIX = json.load(open('data/jami_takhrij_fixes.json', encoding='utf8'))['fixes']; used = set(); bad = []
+for row in rows:
+    f_ = FIX.get(str(row[8]))
+    if f_:
+        assert row[0] == f_['page'], ('fix on another page', row[8])
+        if f_.get('cut'):
+            assert row[2].rstrip().endswith(f_['cut']), ('text to cut not found', row[8]); row[2] = row[2].rstrip()[:-len(f_['cut'])].rstrip()
+        if f_.get('mv'): row[2] = row[2].rstrip() + ' ' + f_['mv']
+        if f_.get('t'): row[2] = f_['t']; row[1] = first_letter(row[2])
+        row[3] = f_['k']; used.add(str(row[8]))
+    nat, pr = TN.natural(row[3], none=bool(f_ and f_.get('none')))
+    if f_ and 'natural' in f_: nat, pr = f_['natural'], []
+    if pr: bad.append((row[8], row[3], pr))
+    row.append(row[3]); row[3] = nat
+assert used == set(FIX), ('fixes not used', set(FIX) - used)
+assert not bad, ('takhrij with something that is not a symbol of the key (add it to data/jami_takhrij_fixes.json after reading the printed page):', bad[:10])
 CL.publish('jami', 'السنة النبوية', 'hadith', {'letters': LETTER_NAMES, 'h': rows}, len(rows))
 meta = {'quran_ayat': sum(len(x['verses']) for x in q), 'jami_entries': len(rows), 'jami_excluded_noise': len(excluded), 'jami_pages': 592,
         'jami_tiers': {t: sum(1 for r in rows if r[6] == t) for t in 'vhml'}, 'jami_verified_pages': len(set(r[0] for r in rows if r[6] == 'v'))}

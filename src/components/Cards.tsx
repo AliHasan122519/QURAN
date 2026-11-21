@@ -51,7 +51,7 @@ export const HadithCard = memo(function HadithCard({ doc, matchType, matchedTerm
       <div className="card-top">
         <div className="card-ref">
           <div className="t">{doc.number ? `حديث رقم ${toAr(doc.number)}` : 'حديث'}</div>
-          <div className="s">{`صفحة ${toAr(doc.page!)}`}{grade ? ` • ${grade} (رمز الكتاب)` : ''} • {doc.tier === 'v' ? 'مدقَّق على صورة الصفحة' : `قراءة آلية غير مراجَعة${doc.tier === 'l' ? ' (منخفضة الجودة)' : ''}`}</div>
+          <div className="s">{`صفحة ${toAr(doc.page!)}`}{grade ? ` • الدرجة: ${grade}` : ''} • {doc.tier === 'v' ? 'مدقَّق على صورة الصفحة' : `قراءة آلية غير مراجَعة${doc.tier === 'l' ? ' (منخفضة الجودة)' : ''}`}</div>
         </div>
         <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
       </div>
