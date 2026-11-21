@@ -56,8 +56,8 @@ export function DreamsPanel({ title, docs, onClose }: { title: string; docs: Doc
   const submit = (e: React.FormEvent) => { e.preventDefault(); const t = q.trim(); if (!t) return; setApplied(t); setQ(''); setLimit(PAGE); top.current?.scrollIntoView({ block: 'start' }); };
   const shown = list.slice(0, limit);
   return (
-    <div className="panel-back" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="panel">
+    <div className="panel-back" onClick={onClose}>
+      <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head" ref={top}>
           <div><h2>{title}</h2><p className="panel-sub">{toAr(docs.length)} رؤيا مع تعبيرها من {toAr(books.length)} {books.length === 1 ? 'مرجع' : 'مراجع'}</p></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>

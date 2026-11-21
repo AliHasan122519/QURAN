@@ -41,11 +41,11 @@ log('الخلفية', 'الورقة المحتوية بلون الأصل الف�
 // ---------- Quran ----------
 await search('quran', 'مفتاح');
 const verses = await cards('quran').evaluateAll((a) => a.map((x) => x.querySelector('.card-ref .t').textContent + ' ' + x.querySelector('.card-ref .s').textContent));
-log('البحث في القرآن', '«مفتاح» ← الآيات الأربع نفسها وبالترتيب نفسه كالأصل (الأنعام ٥٩، النور ٦١، القصص ٧٦، ص ٥٠)', verses.length === 4 && /الأنعام/.test(verses[0]) && /٥٩/.test(verses[0]) && /النور/.test(verses[1]) && /٦١/.test(verses[1]) && /القصص/.test(verses[2]) && /٧٦/.test(verses[2]) && /ص/.test(verses[3]) && /٥٠/.test(verses[3]), verses.join(' | '));
-log('البحث في القرآن', 'شريط الإحصاء: «نتائج مطابقة نصياً: ٤» وكل الشارات «مطابقة نصية»', (await stats('quran')).includes('نتائج مطابقة نصياً: ٤') && (await panel('quran').locator('.pill-text').count()) === 4);
+log('البحث في القرآن', '«مفتاح» ← الآيات الأربع نفسها وبالترتيب نفسه كالأصل (الأنعام 59، النور 61، القصص 76، ص 50)', verses.length === 4 && /الأنعام/.test(verses[0]) && /59/.test(verses[0]) && /النور/.test(verses[1]) && /61/.test(verses[1]) && /القصص/.test(verses[2]) && /76/.test(verses[2]) && /ص/.test(verses[3]) && /50/.test(verses[3]), verses.join(' | '));
+log('البحث في القرآن', 'شريط الإحصاء: «نتائج مطابقة نصياً: 4» وكل الشارات «مطابقة نصية»', (await stats('quran')).includes('نتائج مطابقة نصياً: 4') && (await panel('quran').locator('.pill-text').count()) === 4);
 log('البحث في القرآن', 'الكلمة المطابقة مظلَّلة داخل الآية', (await panel('quran').locator('mark.search-hit').count()) >= 4);
-await search('quran', 'الصلاه'); log('البحث في القرآن', '«الصلاه» ← ٦٦ نتيجة (كما في الأصل)', toNum((await stats('quran')).match(/نصياً: ([٠-٩]+)/)[1]) === 66, (await stats('quran')).slice(0, 60));
-await search('quran', 'يؤمنون'); log('البحث في القرآن', 'سقف ٨٠ نتيجة كما في الأصل (مع التنبيه «عُرضت أول ٨٠»)', (await cards('quran').count()) === 80 && (await stats('quran')).includes('عُرضت أول ٨٠'));
+await search('quran', 'الصلاه'); log('البحث في القرآن', '«الصلاه» ← ٦٦ نتيجة (كما في الأصل)', toNum((await stats('quran')).match(/نصياً: ([0-9٠-٩]+)/)[1]) === 66, (await stats('quran')).slice(0, 60));
+await search('quran', 'يؤمنون'); log('البحث في القرآن', 'سقف ٨٠ نتيجة كما في الأصل (مع التنبيه «عُرضت أول 80»)', (await cards('quran').count()) === 80 && (await stats('quran')).includes('عُرضت أول 80'));
 await search('quran', 'قل هو الله احد'); log('البحث في القرآن', 'عبارة متعددة الكلمات «قل هو الله احد» ← سورة الإخلاص (يخفق الأصل فيها)', (await cards('quran').first().innerText()).includes('الإخلاص'));
 await search('quran', 'بِسْمِ ٱللَّهِ'); log('التشكيل', 'استعلام مشكَّل بالرسم العثماني ← الفاتحة ١', (await cards('quran').first().innerText()).includes('الفاتحة'));
 await search('quran', 'بسم الله'); log('التشكيل', 'الاستعلام نفسه بلا تشكيل ← الفاتحة ١ أيضاً', (await cards('quran').first().innerText()).includes('الفاتحة'));
@@ -57,7 +57,7 @@ await panel('quran').locator('article').first().waitFor();
 
 // ---------- Sunnah = al-Jami' al-Saghir only ----------
 await search('jami', 'النية'); const jt = await panel('jami').innerText();
-log('السنة النبوية', '«النية» ← نتائج أحاديث مع رقم صفحة PDF ووسم مصدر النص (مدقَّق / قراءة آلية)', (await cards('jami').count()) > 0 && /حديث رقم/.test(jt) && /صفحة [٠-٩]+/.test(jt) && /(مدقَّق على صورة الصفحة|قراءة آلية غير مراجَعة)/.test(jt), (await stats('jami')).slice(0, 80));
+log('السنة النبوية', '«النية» ← نتائج أحاديث مع رقم صفحة PDF ووسم مصدر النص (مدقَّق / قراءة آلية)', (await cards('jami').count()) > 0 && /حديث رقم/.test(jt) && /صفحة [0-9٠-٩]+/.test(jt) && /(مدقَّق على صورة الصفحة|قراءة آلية غير مراجَعة)/.test(jt), (await stats('jami')).slice(0, 80));
 let semOk = false, semWord = ''; for (const w of ['العزم', 'الاحتساب', 'التحمل', 'السخاء', 'الشفقة', 'الجود']) { await search('jami', w); if ((await stats('jami')).includes('نتائج دلالية إضافية') && (await panel('jami').locator('.pill-sem').count()) > 0) { semOk = true; semWord = w; break; } }
 log('السنة النبوية', 'التوسعة الدلالية تُفعَّل عند قلة النتائج ويظهر «دلالي: …» وشارة الجذر/الألفاظ', semOk, semWord);
 await search('jami', 'الجار'); log('السنة النبوية', '«الجار» ← حتى ٨٠ نتيجة بلا ترقيم صفحات', (await cards('jami').count()) > 0 && (await cards('jami').count()) <= 80);
@@ -69,7 +69,7 @@ log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الم
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
-log('الألفية الوردية', '«الأسد» ← أبيات من الألفية بنصّ الشطرين ورقم البيت والصفحة والباب', (await cards('alfiya').count()) > 0 && /البيت [٠-٩]+/.test(at) && /صفحة [٠-٩]+/.test(at) && /باب/.test(at), (await stats('alfiya')).slice(0, 80));
+log('الألفية الوردية', '«الأسد» ← أبيات من الألفية بنصّ الشطرين ورقم البيت والصفحة والباب', (await cards('alfiya').count()) > 0 && /البيت [0-9٠-٩]+/.test(at) && /صفحة [0-9٠-٩]+/.test(at) && /باب/.test(at), (await stats('alfiya')).slice(0, 80));
 log('الألفية الوردية', 'البيت ٥٢١ «والليث سلطان فمن سطا به» يُعثر عليه بالبحث عن «الليث»', (await (async () => { await search('alfiya', 'الليث'); return /والليث سلطان فمن سطا به/.test(await panel('alfiya').innerText()); })()));
 log('الألفية الوردية', 'المصطلح يُفرَّغ من حقل البحث بعد البحث', (await panel('alfiya').locator('input').inputValue()) === '');
 log('الألفية الوردية', 'كل بيت شطران (عمودان) في البطاقة', (await cards('alfiya').first().locator('.poem-shatr').count()) === 2);
@@ -183,18 +183,18 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   log('القائمة الجانبية', 'زر القائمة في أعلى الصفحة وله اسم وصول', (await page.locator('button.menu-toggle').getAttribute('aria-label')) === 'فتح القائمة');
   log('القائمة الجانبية', 'قسم «رؤى وتعبيرها» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: 'رؤى وتعبيرها' }).count()));
-  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
-  log('القائمة الجانبية', 'تنفتح قائمة منبثقة جانبية فيها «رؤى وتعبيرها»', (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى وتعبيرها'));
+  await page.click('button.menu-toggle'); await page.waitForSelector('.panel .dream-card');
+  log('القائمة الجانبية', 'الضغط على الزر يفتح مباشرة قائمة «رؤى وتعبيرها» الجانبية', (await page.locator('.panel .panel-head h2').innerText()).includes('رؤى وتعبيرها') && (await page.locator('.drawer').count()) === 0);
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
-  log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
-  await page.click('button.menu-toggle'); await page.click('.drawer-item'); await page.waitForSelector('.dream-card');
+  log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.panel').count()) === 0);
+  await page.click('button.menu-toggle'); await page.waitForSelector('.dream-card');
   const n0 = await page.locator('.dream-card').count();
   const sub = await page.locator('.panel-sub').innerText();
   log('رؤى وتعبيرها', 'تُعرض الرؤى بطاقات (٣٠ ثم «عرض المزيد»)', n0 === 30 && (await page.locator('button.more').count()) === 1, String(n0));
   log('رؤى وتعبيرها', 'كل بطاقة تذكر المرجع', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /المرجع: /.test(c.innerText)))));
   log('رؤى وتعبيرها', 'كل بطاقة فيها «الرؤيا» والتعبير', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /الرؤيا/.test(c.innerText)))));
-  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split('رؤيا')[0]) > 900 && /مراجع/.test(sub), sub);
+  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split(' رؤيا')[0]) > 900 && /مراجع/.test(sub), sub);
   log('رؤى وتعبيرها', 'حقل البحث «اكتب هنا» فقط', (await page.locator('#q-dreams').getAttribute('placeholder')) === 'اكتب هنا');
   await page.fill('#q-dreams', 'سمك'); await page.click('.panel button.go'); await page.waitForTimeout(300);
   const found = await page.locator('.dream-card').count();
@@ -208,6 +208,15 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('رؤى وتعبيرها', 'Escape يغلق القائمة المنبثقة للرؤى', (await page.locator('.panel').count()) === 0);
   const bk = await page.evaluate(async () => { const m = await (await fetch('content/manifest.json')).json(); return m.tabs.find((t) => t.id === 'books').count; });
   log('رؤى وتعبيرها', 'خانة الكتب كاملة لم تُنقَص (٢٨٢٣٧ مدخلاً)', bk === 28237, String(bk));
+}
+// ---------- الأرقام بالإنجليزية ----------
+{
+  await page.goto(URL_); await page.waitForTimeout(1500);
+  await search('quran', 'الرحمن'); await page.waitForTimeout(300);
+  const t = await panel('quran').innerText();
+  log('الأرقام', 'عداد النتائج وأرقام الآيات بالأرقام الإنجليزية 0-9 (لا هندية)', !/[\u0660-\u0669]/.test(t) && /\d/.test(await panel('quran').locator('.stats').first().innerText()) && /\d/.test(await panel('quran').locator('.ayah-marker').first().innerText()), (await stats('quran')).slice(0, 60));
+  await search('jami', 'الصلاة'); const tj = await panel('jami').innerText();
+  log('الأرقام', 'أرقام الأحاديث والصفحات بالإنجليزية', !/[\u0660-\u0669]/.test((await panel('jami').locator('.stats, .card-ref').allInnerTexts()).join(' ')) && /حديث رقم \d+/.test(tj) || /صفحة \d+/.test(tj));
 }
 writeFileSync('tests/last-run.json', JSON.stringify({ at: new Date().toISOString(), axe: axeRes, meta, results }, null, 1));
 const fails = results.filter((r) => !r.pass); console.log(`\nSUMMARY: ${results.length - fails.length}/${results.length} passed`); fails.forEach((f) => console.log('  FAIL', f.group, f.name, f.detail));

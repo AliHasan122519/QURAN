@@ -34,7 +34,7 @@ export const VerseCard = memo(function VerseCard({ doc, matchType, matchedTerm, 
     <article className="verse-card" data-src="quran" data-match={matchType}>
       <div className="card-top">
         <div className="card-id">
-          <span className="ayah-marker quran-font">{toAr(doc.ayah!)}</span>
+          <span className="ayah-marker">{toAr(doc.ayah!)}</span>
           <div className="card-ref"><div className="t">سورة {doc.surahName}</div><div className="s">الآية {toAr(doc.ayah!)}</div></div>
         </div>
         <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />

@@ -77,7 +77,7 @@ export function App() {
   return (
     <main className="page">
       <ThemeToggle />
-      {side.length > 0 && <MenuButton open={menu} onClick={() => setMenu(true)} />}
+      {side.length > 0 && <MenuButton open={menu || !!panel} onClick={() => (side.length === 1 ? setPanel(side[0].id) : setMenu(true))} />}
       <Drawer open={menu} items={side.map((t) => ({ id: t.id, label: t.label, count: t.count }))} onPick={(id) => { setMenu(false); setPanel(id); }} onClose={() => setMenu(false)} />
       {opened && <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />}
       <header className="hero">
