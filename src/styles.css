@@ -113,6 +113,9 @@ html { background: var(--page-dark); min-height: 100%; }
 .pill-sem { background: color-mix(in oklch, var(--gold) 22%, var(--card)); color: color-mix(in oklch, var(--gold) 40%, var(--ink)); }
 .verse-text { font-size: 1.5rem; line-height: 2.4; color: var(--ink); } @media (min-width: 640px) { .verse-text { font-size: 1.7rem; line-height: 2.6; } }
 .hadith-text { font-size: 1.25rem; line-height: 2.2; color: var(--ink); overflow-wrap: anywhere; } @media (min-width: 640px) { .hadith-text { font-size: 1.5rem; } }
+.ruling { margin-top: .5rem; font-size: .95rem; line-height: 2; color: var(--foreground); }
+.ruling b { font-weight: 700; }
+.ruling[data-grade="صح"] { color: var(--primary); }
 .takhrij { margin-top: .75rem; padding-top: .75rem; border-top: 1px solid color-mix(in oklch, var(--border) 60%, transparent); font-size: .875rem; line-height: 2; color: var(--muted-foreground); }
 .search-hit { color: var(--ink); background: color-mix(in oklch, var(--gold) 38%, transparent); border-radius: .35rem; padding: 0 .12em; -webkit-box-decoration-break: clone; box-decoration-break: clone; font-weight: inherit; }
 .proverb-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .75rem; }

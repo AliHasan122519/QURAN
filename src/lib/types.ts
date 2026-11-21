@@ -6,7 +6,7 @@ export interface Manifest { schema: number; version: number; updated?: string; a
 export interface Doc {
   id: string; src: SourceId; text: string;
   surah?: number; surahName?: string; ayah?: number;                              // Qur'an
-  page?: number; number?: number; takhrij?: string; grade?: string; tier?: 'v' | 'h' | 'm' | 'l';        // hadith
+  page?: number; number?: number; takhrij?: string; grade?: string; ungraded?: 'unclear' | 'none'; tier?: 'v' | 'h' | 'm' | 'l';        // hadith
   chapter?: string; verse?: number; shatr1?: string; shatr2?: string;             // poem (verse number, chapter title, the two hemistichs)
   ref?: string; explanation?: string; source?: string; by?: string; who?: string;                                              // generic entries
 }

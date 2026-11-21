@@ -37,6 +37,17 @@ def names(symbols, specified):
         n = UNCLEAR_TEXT if s == UNCLEAR else (BARE.get(s) if specified and s in BARE else FULL[s])
         if n not in items: items.append(n)
     return join(items)
+PROPHET = 'عن النبي ﷺ'
+def with_prophet(v):
+    """«عن أنس» → «عن أنس عن النبي ﷺ»: the author names the Companion (or the Successor, with «مرسلا») who narrates from the Prophet, so the chain ends with these two names.
+    Only a clean clause is touched: one «عن» followed by at most five words, no book name («في …»), no second «عن», no «موقوفا/مقطوعا» (those are sayings of the Companion or the Successor, not of the Prophet), no «عنه»."""
+    ms = list(re.finditer(r'(?:^|\s)عن\s+', v))
+    if len(ms) != 1: return v
+    pre, tail = v[:ms[0].start()], v[ms[0].end():]
+    q = re.search(r'\s+(مرسلا|معضلا)$', tail); qual = ''
+    if q: qual = ' ' + q.group(1); tail = tail[:q.start()]
+    if not tail or len(tail.split()) > 5 or re.search(r'\sفي\s|^في\s|موقوف|مقطوع|مرفوع|زاد|\d|عنه|وعن|مسلا|[()]', tail): return v
+    return (pre + (' ' if pre else '') + 'عن ' + tail + ' ' + PROPHET + qual).strip()
 def natural(raw, none=False):
     """(natural text, problems): the takhrij in words; problems = the tokens that are not symbols of the key.
     none=True: the printed entry has no source at all (only its grade, or nothing): the natural text is empty"""
@@ -73,6 +84,7 @@ def natural(raw, none=False):
             elif an: res += '، ورواه ' + nm; an = False
             else: res += ' و' + nm
         else:
+            v = with_prophet(v)
             if not res: res = v if v.startswith('عن ') else 'رواه ' + v      # the print itself names no source before «عن»
             else: res += ' ' + v
             if re.search(r'(?:^|\s)عن\s', v): an = True

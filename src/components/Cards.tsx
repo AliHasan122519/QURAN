@@ -51,12 +51,13 @@ export const HadithCard = memo(function HadithCard({ doc, matchType, matchedTerm
       <div className="card-top">
         <div className="card-ref">
           <div className="t">{doc.number ? `حديث رقم ${toAr(doc.number)}` : 'حديث'}</div>
-          <div className="s">{`صفحة ${toAr(doc.page!)}`}{grade ? ` • الدرجة: ${grade}` : ''} • {doc.tier === 'v' ? 'مدقَّق على صورة الصفحة' : `قراءة آلية غير مراجَعة${doc.tier === 'l' ? ' (منخفضة الجودة)' : ''}`}</div>
+          <div className="s">{`صفحة ${toAr(doc.page!)}`} • {doc.tier === 'v' ? 'مدقَّق على صورة الصفحة' : `قراءة آلية غير مراجَعة${doc.tier === 'l' ? ' (منخفضة الجودة)' : ''}`}</div>
         </div>
         <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />
       </div>
       <p dir="rtl" className="hadith-text"><Highlight text={doc.text} words={words} /></p>
       {doc.takhrij && <p dir="rtl" className="takhrij">{doc.takhrij}</p>}
+      <p dir="rtl" className="ruling" data-grade={doc.grade || doc.ungraded}><b>خلاصة حكم الحديث:</b> {grade || (doc.ungraded === 'unclear' ? 'غير واضح في الطبعة' : doc.tier === 'v' ? 'لا حكم مطبوع لهذا الحديث' : 'غير ظاهر في القراءة الآلية لهذا الحديث')}</p>
     </article>
   );
 });

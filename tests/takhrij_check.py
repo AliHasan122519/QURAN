@@ -20,5 +20,7 @@ for r in d:
 for n, f in fx.items():
     row = next(r for r in d if r[8] == int(n)); check(row[0] == f['page'], f'fix {n} is on another page')
     check(row[9] == f['k'], f'fix {n}: the printed takhrij was not applied')
+check(sum(1 for r in d if 'عن النبي ﷺ' in r[3]) > 9000, 'the chain should end with «عن النبي ﷺ» for the clean clauses')
+check(not any(('موقوف' in r[3] or 'مقطوع' in r[3]) and re.search(r'عن النبي ﷺ موقوف', r[3]) for r in d), 'a saying of a Companion must not be ascribed to the Prophet')
 print('entries checked:', len(d), '| fixes read from the printed pages:', len(fx), '| unclear symbols kept honest:', sum(1 for r in d if 'رمز لم يتضح' in r[3]))
 print('OK' if not bad else 'PROBLEMS:\n   ' + '\n   '.join(bad[:30])); sys.exit(1 if bad else 0)

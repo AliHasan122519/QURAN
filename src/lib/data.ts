@@ -46,8 +46,8 @@ export async function loadTab(tab: Tab, c: Content): Promise<Doc[] | null> {
     return q.a.map(([s, a, t]) => ({ id: `${src}:${s}:${a}`, src, text: t, surah: s, ayah: a, surahName: names.get(s) ?? '' }));
   }
   if (tab.kind === 'hadith') {
-    const j = parse<{ h: [number, string, string, string, string[], string, 'v' | 'h' | 'm' | 'l', number, number][] }>(buf);
-    return j.h.map(([page, , t, k, , g, tier, , n], i) => ({ id: `${src}:${i}`, src, text: t, page, number: n || undefined, takhrij: k, grade: g, tier }));
+    const j = parse<{ h: [number, string, string, string, string[], string, 'v' | 'h' | 'm' | 'l', number, number, string?][] }>(buf);
+    return j.h.map(([page, , t, k, , g, tier, , n, printed], i) => ({ id: `${src}:${i}`, src, text: t, page, number: n || undefined, takhrij: k, grade: g, tier, ungraded: !g && /\)\s*$/.test(printed ?? '') ? 'unclear' : !g ? 'none' : undefined }));
   }
   if (tab.kind === 'poem') {
     const w = parse<{ h: [number, number, string, string, string][] }>(buf);
