@@ -56,6 +56,9 @@ for row in rows:
         if f_.get('mv'): row[2] = row[2].rstrip() + ' ' + f_['mv']
         if f_.get('t'): row[2] = f_['t']; row[1] = first_letter(row[2])
         row[3] = f_['k']; used.add(str(row[8]))
+        gm = re.search(r'\(\s*(صح|ض|ح)(\s+ح)?\s*\)\s*$', f_['k'].strip())          # the grade follows the corrected takhrij
+        row[5] = (gm.group(1) + (' ح' if gm.group(2) else '')) if gm else ''
+    if re.search(r'(?:^|[\s(])صح(?:ـ)?[\s،,]+\(?ح\)?\s*\)?\s*$', row[3].strip()): row[5] = 'صح ح'      # the print gives both «صح ح»
     nat, pr = TN.natural(row[3], none=bool(f_ and f_.get('none')))
     if f_ and 'natural' in f_: nat, pr = f_['natural'], []
     if pr: bad.append((row[8], row[3], pr))
