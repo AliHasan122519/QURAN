@@ -117,5 +117,12 @@ for e in E:
     if len(t) < 25: continue
     ref = '' if e['ref'] == 'PARATEXT' else finalize(e['ref'])
     rows.append([ref, t, finalize(why(t)), SOURCES[e.get('src', 'isharat')]])
+# typing mistakes of the digital copies that are plain misprints (a missing letter, a doubled one): each is listed with the reason in data/books/corrections.json and must match exactly as many times as stated
+CORR = json.load(open('data/books/corrections.json', encoding='utf8'))
+for c in CORR:
+    n = 0
+    for r in rows:
+        if r[3] == c['src'] and c['find'] in r[1]: n += r[1].count(c['find']); r[1] = r[1].replace(c['find'], c['replace'])
+    assert n == c['count'], f"correction «{c['find']}» matched {n} times, expected {c['count']}"
 CL.publish('books', 'الكتب', 'generic', {'h': rows}, len(rows), extra={'card': 'meaning', 'smart': 'dialect', 'placeholder': 'اكتب هنا', 'hint': 'اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.'})
 print(stat, 'with reason:', sum(1 for r in rows if r[2]), 'of', len(rows))

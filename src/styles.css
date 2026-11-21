@@ -6,6 +6,7 @@
    ومزج الخطين في الكلمة الواحدة يشوّه الشكل ويُظهر العلامات بلون/هيئة مختلفة (لاحظه المستخدم). كل ما عداه Dubai Bold.
    ===================================================================================== */
 @font-face { font-family: "Dubai"; src: url("/assets/Dubai-Bold.ttf") format("truetype"); font-style: normal; font-weight: 700; font-display: swap; }
+@font-face { font-family: "Quran Marks"; src: url("/assets/QuranMarks.woff2") format("woff2"); font-style: normal; font-weight: 400; unicode-range: U+0620-064A, U+0651-065F, U+0670, U+0671, U+06D6-06ED, U+0640; font-display: swap; }   /* the Qur'anic mark U+065E (fatha with two dots) is not in Amiri Quran: a word that carries it is drawn with this font (Scheherazade New, SIL OFL; subset, see QuranMarks-OFL-LICENSE.txt) */
 @font-face { font-family: "Amiri Quran"; src: url("/assets/AmiriQuran-Regular.woff2") format("woff2"); font-style: normal; font-weight: 400; font-display: swap; }
 :root {
   /* tokens of the original site */
@@ -16,7 +17,7 @@
   --secondary: oklch(92% .03 88); --secondary-foreground: oklch(28% .05 158);
   --muted: oklch(93% .02 85); --muted-foreground: oklch(45% .03 150);
   --gold: oklch(72% .13 78); --destructive: oklch(55% .2 25); --border: oklch(86% .03 85); --input: oklch(90% .025 85); --ring: oklch(55% .08 158);
-  --font: "Dubai", "Segoe UI", Tahoma, sans-serif; --font-quran: "Amiri Quran", serif;
+  --font: "Dubai", "Segoe UI", Tahoma, sans-serif; --font-quran: "Amiri Quran", "Quran Marks", serif;
   /* page colours (outside the content sheet) — LIGHT theme, the default */
   --page-dark: #f4ecd8; --page-mid: #f4ecd8; --on-dark: #1b3a30; --on-dark-2: #46665a; --h1: #0c4a3a;
   --badge-text: #7a5a14; --badge-bg: rgba(255, 255, 255, .55); --badge-border: rgba(160, 120, 30, .45); --orn: #a07a1c;
@@ -197,3 +198,9 @@ html[data-theme="dark"] .menu-toggle { color: #efd28d; }
 .dream-list .more { width: 100%; height: 3rem; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slide-in { from { transform: translateX(100%); opacity: .4; } to { transform: none; opacity: 1; } }
+
+.dream-pills { display: flex; flex-wrap: wrap; gap: .4rem; }
+.panel-back.nested { z-index: 95; }
+.person-card { display: grid; gap: .5rem; } .person-name { margin: 0; font-size: 1.15rem; color: var(--gold); }
+.bio-line { margin: 0; font-size: 1.05rem; line-height: 2.1; color: var(--ink); overflow-wrap: anywhere; } .bio-src { font-size: .78rem; color: var(--muted-foreground); }
+.person-btn { width: 100%; height: 2.9rem; margin-top: .4rem; }

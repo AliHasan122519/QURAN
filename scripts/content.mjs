@@ -25,6 +25,7 @@ if (r.result.isError) process.exit(1);
 if (['add_entries', 'add_tab', 'update_entry', 'delete_entry'].includes(tool) && (params.tab === 'books' || params.id === 'books') && existsSync('scripts/build_ruaa.py') && existsSync('content/books.json')) {
   try {
     console.log(execFileSync('python3', ['-I', 'scripts/build_ruaa.py'], { encoding: 'utf8' }).trim().split('\n').slice(-2).join('\n'));
+    if (existsSync('scripts/build_more_lists.py') && existsSync('data/muabbirun/excerpts.json')) console.log(execFileSync('python3', ['-I', 'scripts/build_more_lists.py'], { encoding: 'utf8' }).trim());      // «رؤى الأنبياء والصالحين» and «المعبِّرون» are made of the list above
     const g = (...a) => execFileSync('git', a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
     g('add', '-A', 'content');
     if (g('status', '--porcelain', 'content')) {

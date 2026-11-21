@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 129,
- "updated": "2026-11-21T10:52:29Z",
+ "version": 151,
+ "updated": "2026-11-21T13:07:48Z",
  "apk": {
   "versionCode": 29920976,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -45,7 +45,7 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "9f3cb5717634137c6be68947f6690445b2e35fcab81cc1cb6817b6e2cd63dab8",
+   "sha256": "3b4c0d1764ea152aee1820b666115a4084b6f4559414624d8021ef808fe7eaad",
    "count": 28236,
    "card": "meaning",
    "placeholder": "اكتب هنا",
@@ -69,13 +69,39 @@
    "label": "رؤى وتعبيرها",
    "kind": "generic",
    "file": "ruaa.json",
-   "sha256": "4d4e2a3e454e04a7ee3ca84bc443c652a87399f36111790fe932026473f163d4",
-   "count": 1028,
+   "sha256": "65ed73deb3aa8133aa723894758dad003088711932caf8ccafb57960578b2578",
+   "count": 1029,
    "drawer": true,
    "card": "dream",
    "placeholder": "اكتب هنا",
    "hint": "رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها.",
    "menu": "رؤى عبّرت"
+  },
+  {
+   "id": "anbiya",
+   "label": "رؤى الأنبياء والصالحين",
+   "kind": "generic",
+   "file": "anbiya.json",
+   "sha256": "65d6878b0baaa9af7d293cd7129d295463b37d6ca1915f6ae7b020891a7f099b",
+   "count": 250,
+   "drawer": true,
+   "card": "dream",
+   "menu": "رؤى الأنبياء والصالحين",
+   "placeholder": "اكتب هنا",
+   "hint": "رؤى الأنبياء والنبي ﷺ وأصحابه، ورؤى عبّرها النبي ﷺ أو أحد الصحابة، من القرآن والسنة وكتب التعبير."
+  },
+  {
+   "id": "muabbirun",
+   "label": "المعبِّرون",
+   "kind": "generic",
+   "file": "muabbirun.json",
+   "sha256": "9a62c019962b95cb7a612afaddd6ee96ebfe4877d5b9435b237f9be91dcb7d06",
+   "count": 13,
+   "drawer": true,
+   "card": "person",
+   "menu": "المعبِّرون",
+   "placeholder": "اكتب هنا",
+   "hint": "من هم المعبِّرون الذين ورد ذكرهم في الكتب، وما قالته عنهم كتب التراجم."
   }
  ]
 }

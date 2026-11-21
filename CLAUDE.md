@@ -18,6 +18,8 @@ node scripts/content.mjs add_entries '{"tab":"amthal","entries":[{"ref":"…","t
 
 **القائمة الجانبية «المزيد» ← زر «رؤى عبّرت» ← قائمة «رؤى وتعبيرها»** (`ruaa`، حقل التبويب `drawer:true` فلا تظهر بين التبويبات): كل رؤيا ذكرها صاحب كتاب من «الكتب» مع تعبيرها، منسوخة حرفياً من الكتاب مع اسم المرجع. **تُبنى آلياً من خانة الكتب ولا تُحرَّر يدوياً:** `python3 -I scripts/build_ruaa.py`. و`node scripts/content.mjs` يعيد بناءها تلقائياً في commit ثانٍ عند أي `add_entries`/`add_tab`/`update_entry` على تبويب `books` (فأي مرجع يُضاف إلى الكتب تدخل رؤاه المعبَّرة، إن وُجدت، إلى القائمة). خانة «الكتب» نفسها لا يُحذف منها شيء. التفاصيل: `RUAA_SOURCE_NOTES.md`.
 
+وفي «المزيد» أيضاً **«رؤى الأنبياء والصالحين»** (`anbiya`) و**«المعبِّرون»** (`muabbirun`): تُبنيان آلياً من القرآن والجامع الصغير و«رؤى وتعبيرها» و«المنامات» ومن مقتطفات حرفية لكتب التراجم (`data/muabbirun/excerpts.json`): `python3 -I scripts/build_more_lists.py` (تلقائياً بعد `build_ruaa.py` في `content.mjs`). لا تُحرَّر يدوياً ولا يُكتب فيهما نص من عندك. وأخطاء الطباعة الواضحة في نصوص الكتب تُصحَّح فقط عبر `data/books/corrections.json` (مع سبب لكل تصحيح). التفاصيل: `ANBIYA_MUABBIRUN_NOTES.md`.
+
 تبويب «أبيات الإستشهاد» (`shawahid`): كل مدخل `ref` و`text` بصيغة «الشطر الأول … الشطر الثاني» و`source`، وحقل التبويب `smart:"full"` يفعّل فهم العامية والمرادفات (`src/lib/dialect.ts`). تفاصيل في `SHAWAHID_SOURCE_NOTES.md`.
 
 أنواع التبويبات وحقولها: `content/SCHEMA.md`. المرجع الجديد = `add_tab` بنوع `generic` (حقول المدخل: `ref`, `text`, `explanation`).
@@ -27,10 +29,10 @@ node scripts/content.mjs add_entries '{"tab":"amthal","entries":[{"ref":"…","t
 - الجامع الصغير: تُعرض الرموز والدرجات كما طُبعت في الكتاب بلا إضافة.
 - لا تغيّر رقم `version` يدوياً ولا تدفع بالقوة (`--force`).
 - لا تضع أسراراً (توكنات/مفاتيح) في المستودع أو في رسائل المحادثة.
-- في كود التطبيق: واجهة عربية RTL، خط Dubai Bold لكل النصوص عدا الآيات (Amiri Quran). لا ذكر لأسماء الكتب والمراجع في واجهة التطبيق، **عدا تبويب «الكتب» وتبويب «أبيات الإستشهاد» وقائمة «رؤى وتعبيرها»** فهي تعرض اسم الكتاب مصدراً لكل نتيجة (بطلب المالك).
+- في كود التطبيق: واجهة عربية RTL، خط Dubai Bold لكل النصوص عدا الآيات (Amiri Quran). لا ذكر لأسماء الكتب والمراجع في واجهة التطبيق، **عدا تبويب «الكتب» وتبويب «أبيات الإستشهاد» وقوائم «المزيد» («رؤى وتعبيرها» و«رؤى الأنبياء والصالحين» و«المعبِّرون»)** فهي تعرض اسم الكتاب مصدراً لكل نتيجة (بطلب المالك).
 
 ## الاختبارات (قبل دفع تغيير في الكود)
-`npm ci && npm run build` ثم `NODE_PATH=$(npm root -g) node tests/e2e.mjs`، و`node mcp-server/test.mjs`، و`node tests/content_cli.mjs`، و`node scripts/validate_content.mjs`.
+`npm ci && npm run build` ثم `NODE_PATH=$(npm root -g) node tests/e2e.mjs`، و`node mcp-server/test.mjs`، و`node tests/content_cli.mjs`، و`node scripts/validate_content.mjs`، و`python3 -I tests/lists_check.py` (قوائم «المزيد» مقابل مصادرها).
 
 ## نظام التحديث (دائم — لا تكسره)
 أي تغيير تدفعه إلى `main` في **كود** التطبيق (`src/` أو `android/` أو `package*.json`…) يُبنى تلقائياً ويصل إلى المستخدمين هكذا: GitHub Actions يبني APK جديداً ← ينشره في Releases (`apk-latest`) ← يكتب رقمه في `content/manifest.json` (`apk`) ← كل تطبيق قديم يعرض عند فتحه (أو عند عودته إلى الشاشة) نافذة «يتوفر تحديث جديد» بزر «تحديث الآن» ينزّل الملف داخل التطبيق ويفتح مثبّت أندرويد.

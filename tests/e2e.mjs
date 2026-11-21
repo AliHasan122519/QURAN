@@ -65,7 +65,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -195,7 +195,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('رؤى وتعبيرها', 'تُعرض الرؤى بطاقات (٣٠ ثم «عرض المزيد»)', n0 === 30 && (await page.locator('button.more').count()) === 1, String(n0));
   log('رؤى وتعبيرها', 'كل بطاقة تذكر المرجع', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /المرجع: /.test(c.innerText)))));
   log('رؤى وتعبيرها', 'كل بطاقة فيها «الرؤيا» والتعبير', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /الرؤيا/.test(c.innerText)))));
-  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split(' رؤيا')[0]) > 900 && /مراجع/.test(sub), sub);
+  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split(' رؤيا')[0]) > 900 && /مرجعاً|مراجع/.test(sub), sub);
   log('رؤى وتعبيرها', 'حقل البحث «اكتب هنا» فقط', (await page.locator('#q-dreams').getAttribute('placeholder')) === 'اكتب هنا');
   await page.fill('#q-dreams', 'سمك'); await page.click('.panel button.go'); await page.waitForTimeout(300);
   const found = await page.locator('.dream-card').count();
@@ -209,6 +209,37 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('رؤى وتعبيرها', 'Escape يغلق القائمة المنبثقة للرؤى', (await page.locator('.panel').count()) === 0);
   const bk = await page.evaluate(async () => { const m = await (await fetch('content/manifest.json')).json(); return m.tabs.find((t) => t.id === 'books').count; });
   log('رؤى وتعبيرها', 'خانة الكتب كاملة لم تُنقَص (٢٨٢٣٦ مدخلاً)', bk === 28236, String(bk));
+}
+// ---------- «رؤى الأنبياء والصالحين» و«المعبِّرون» ----------
+{
+  await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
+  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
+  const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
+  log('المزيد', 'ثلاثة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون', items.join('|'));
+  await page.locator('.drawer-item').nth(1).click(); await page.waitForSelector('.panel .dream-card');
+  const first = await page.locator('.dream-card').first().innerText();
+  log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
+  const sub = await page.locator('.panel-sub').innerText();
+  log('رؤى الأنبياء والصالحين', 'العدد المعلن أكثر من ٢٠٠ مع مراجع متعددة', toNum(sub.split(' ')[0]) > 200 && /مرجعاً|مراجع/.test(sub), sub);
+  const opts = await page.locator('.panel select[aria-label="المرجع"] option').allInnerTexts();
+  log('رؤى الأنبياء والصالحين', 'المراجع: القرآن والجامع الصغير وكتب التعبير والمنامات', ['القرآن الكريم', 'الجامع الصغير', 'المنامات', 'القادري'].every((k) => opts.some((o) => o.includes(k))), opts.length + ' مرجعاً');
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(2).click(); await page.waitForSelector('.person-card');
+  const nPeople = await page.locator('.person-card').count();
+  const sirin = await page.locator('.person-card', { hasText: 'محمد بن سيرين' }).first().innerText();
+  log('المعبِّرون', 'بطاقات المعبِّرين (١٣) وفي ابن سيرين نص الذهبي كما هو مع اسم المصدر', nPeople === 13 && sirin.includes('فلم أر أجبن من فتوى منه، ولا أجرأ على رؤيا منه') && sirin.includes('سير أعلام النبلاء للذهبي'), String(nPeople));
+  const nabulsi = await page.locator('.person-card', { hasText: 'ابن نعمة' }).first().innerText();
+  log('المعبِّرون', 'ابن نعمة النابلسي: «فقيه اشتهر بعلم تعبير الرؤيا» من الأعلام للزركلي', nabulsi.includes('اشتهر بعلم تعبير الرؤيا') && nabulsi.includes('الأعلام للزركلي'));
+  await page.locator('.person-card', { hasText: 'محمد بن سيرين' }).first().locator('.person-btn').click(); await page.waitForSelector('.panel-back.nested .dream-card');
+  const pills = await page.locator('.panel-back.nested .dream-card .pill-text').allInnerTexts();
+  log('المعبِّرون', 'زر «رؤاه المعبَّرة» يفتح رؤى ابن سيرين وحدها', pills.length > 0 && pills.every((x) => x.includes('ابن سيرين')), String(pills.length));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('المعبِّرون', 'Escape يغلق قائمة الرؤى ويبقى المعبِّرون', (await page.locator('.panel-back.nested').count()) === 0 && (await page.locator('.person-card').count()) === 13);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('المعبِّرون', 'Escape ثانية يغلق القائمة كلها', (await page.locator('.panel-back').count()) === 0);
+  await page.goto(URL_); await page.waitForTimeout(1200);
+  await search('quran', 'يجتبيك ربك'); await page.waitForTimeout(500);
+  log('الخط', 'علامة U+065E (ينقصها خط Amiri Quran) تُرسم بخط احتياطي لا مربعاً فارغاً', await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.family.includes('Quran Marks') && f.status === 'loaded'); }));
 }
 // ---------- الأرقام بالإنجليزية ----------
 {

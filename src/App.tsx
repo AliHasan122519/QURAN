@@ -5,10 +5,14 @@ import { ThemeToggle } from './components/ThemeToggle';
 import { UpdateDialog } from './components/UpdateDialog';
 import { MenuButton, Drawer } from './components/Drawer';
 import { DreamsPanel } from './components/DreamsPanel';
+import { PeoplePanel } from './components/PeoplePanel';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
 import { SearchPanel, type SourceState } from './components/SearchPanel';
+
+/** every dream with a named interpreter: the list of the books, and the Qur'an's and the Sunnah's own dreams of the second list (the passages of the books it repeats are not counted twice) */
+const dreamsOf = (lists: Record<string, Doc[]>): Doc[] => [...(lists.ruaa ?? []), ...(lists.anbiya ?? []).filter((d) => /^(?:القرآن|الجامع)/.test(d.source ?? ''))];
 
 export function App() {
   const [engine, setEngine] = useState(() => new Engine());
@@ -79,7 +83,9 @@ export function App() {
       <ThemeToggle />
       {side.length > 0 && <MenuButton open={menu} onClick={() => setMenu(true)} />}
       <Drawer open={menu} items={side.map((t) => ({ id: t.id, label: t.menu ?? t.label, count: t.count }))} onPick={(id) => { setMenu(false); setPanel(id); }} onClose={() => setMenu(false)} />
-      {opened && <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />}
+      {opened && (opened.card === 'person'
+        ? <PeoplePanel title={opened.label} people={lists[opened.id] ?? []} dreams={dreamsOf(lists)} onClose={() => setPanel(null)} />
+        : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}
       <header className="hero">
         <div className="hero-in">
           <div className="badge-top"><Sparkles size={14} />بحث نصّي دقيق مع توسعة دلالية اشتقاقية</div>

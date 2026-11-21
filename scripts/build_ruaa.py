@@ -32,9 +32,9 @@ WHO = [('ابن سيرين', r'(?:محمد\s+بن\s+)?ابن\s+سيرين|ابن
        ('أبو بكر الصديق', r'أب[يو]\s+بكر(?:\s+الصديق)?'), ('الكرماني', r'الكرماني'), ('دانيال', r'دانيال'), ('الحسن البصري', r'الحسن\s+البصري'), ('ابن عباس', r'(?:عبد\s+الله\s+بن\s+)?ابن\s+عباس'),
        ('مسروق', r'مسروق'), ('الشعبي', r'الشعبي'), ('قتادة', r'قتادة'), ('النبي ﷺ', r'(?:النبي|رسول\s+الله)(?:\s+صلى\s+الله\s+عليه\s+وسلم)?'), ('الأوزاعي', r'الأوزاعي'), ('ابن شبرمة', r'ابن\s+شبرمة'),
        ('سليمان بن داود عليهما السلام', r'سليمان\s+بن\s+داود'), ('الإمام الشافعي', r'الشافعي'), ('عمر بن الخطاب', r'عمر\s+بن\s+الخطاب')]
-def interpreter(dream, interp):
+def interpreter(dream, interp, src=''):
     """who interprets, as the passage itself says: the one who speaks first after «فقال» («فقال ابن سيرين: …»), else the one the dreamer went to («أتى ابن سيرين»); «قلت» = the author of the book"""
-    if re.match(r'\s*(?:ف)?قلت', interp): return 'مؤلف الكتاب'
+    if re.match(r'\s*(?:ف)?قلت', interp): return 'ابن نعمة النابلسي' if src.startswith('البدر') else 'مؤلف الكتاب'          # «قلت» of al-Badr al-Munir: its author
     for canon, rx in WHO:
         if re.match(r'\s*(?:ف|و)?(?:قال|قالت)\s+(?:له\s+|لها\s+)?(?:' + rx + r')(?![ء-ي])', interp): return canon
     for canon, rx in WHO:
@@ -106,7 +106,7 @@ def anecdotes(t):
 # a row of the «الكتب» tab is a paragraph of the printed book, and the printers (or the digital copy) break a story in the middle: after «فقال أبو بكر:», before a quoted verse of poetry or of the Qur'an.
 # The passage therefore continues into the next rows as long as they do not open a new unit of the book.
 NEWUNIT = re.compile(r'^\s*(?:\(?\s*(?:ومن|من|وإن|فإن|فمن|وأما|وإذا|وكل)\s+(?:رأى|رأت|سمع)|وأما\s+من|وكل\s+من|(?:ال)?باب\b|فصل\b|\(?\s*(?:وحكي|وحكى|ويحكى|وروي|ونقل|ومن\s+الرؤيا|ومن\s+الحكايات|ومن\s+المنامات)|نادرة|حكاية|وأتى|وجاء|وجاءت|ورأى|ورأت|وقال\s+(?:آخر|لي|إنسان|رجل|شخص)|وقالت\s+أخرى|وقال\s+(?!له\b|لها\b)[^\s:]+(?:\s+[^\s:]+){0,3}\s*:)')
-DANGLING = re.compile(r'(?:[:،]|قول\s+الشاعر|لقوله\s+تعالى|كقوله\s+تعالى|كقوله|وأنشد|قوله\s+تعالى|قال\s+الله\s+تعالى|كما\s+قال|لقول\s+\S+|بقول\s+\S+|وفي\s+الحديث|فقال\s+(?:\S+\s+){0,4}\S+|قال\s+(?:\S+\s+){0,3}\S+)\s*$')
+DANGLING = re.compile(r'(?:[:،]|\s(?:فلما|ثم|حتى|إلى|في|من|على|أن|إن|لكن|ولكن|الذي|التي|لأن|إذ|لما|قد|ولما|وإذا|فإذا|إذا|و|ف|أو|فإن|وكان|فكان|بل)|قول\s+الشاعر|لقوله\s+تعالى|كقوله\s+تعالى|كقوله|وأنشد|قوله\s+تعالى|قال\s+الله\s+تعالى|كما\s+قال|لقول\s+\S+|بقول\s+\S+|وفي\s+الحديث|فقال\s+(?:\S+\s+){0,4}\S+|قال\s+(?:\S+\s+){0,3}\S+)\s*$')
 FA = re.compile(r'^\s*ف(?:عن\s+قليل|لما|لم\s+يلبث|كان|قال|قالت|دخل|خرج|أمر|أعطى|ذهب|مات|فعل|وقع|رجع|جاء|أتى|ضرب|قتل|عزل|ولي|تزوج|طلق|حبل|ولدت|ما\s+لبث|بعد|أرسل|سأل|قص|فسر|عبر|أول|وصل|كذلك|هذا\s+ما)')
 def continues(acc, nxt):
     if NEWUNIT.match(nxt): return False
@@ -142,12 +142,15 @@ def main():
                 tl = re.search(r'\s(?:وأما|ومن|وإن|وقال|وقيل)\s+\S+(?:\s+\S+)?$', seg)                 # the first words of the next explanation of the book
                 if tl and len(tl.group(0)) <= 24 and len(seg) - len(tl.group(0)) > 40 and (sp <= 0 or len(seg) - len(tl.group(0)) > sp + 12): seg = clean_end(seg[:tl.start()])
                 if seg.endswith(':') and not re.search(r'(?:قول\s+الشاعر|تعالى|ف?قال\S*|وقال\S*|ف?قلت|يقول|أنشد\S*)(?:\s+\S+){0,3}\s*$', seg[:-1]): seg = seg[:-1] + '.'               # a printer's colon at the end of the passage
+                dt = re.search(r'(?:صدقت|فكان كذلك|فكان كما قال|وكان كذلك)(?:\s+\S+){0,12}?(\s+و(?:ال)?[\u0621-\u064A]+\s+(?:رجل|امرأة|إنسان|أناس|مال|ولد|ملك|خير|شر)\s.{0,80})$', seg)
+                if dt and '.' not in seg[-120:]: seg = seg[:dt.start(1)].rstrip()                    # the dictionary entry that follows the story in the same paragraph («والبكرة رجل نفاع…»)
                 kk = (src, re.sub(r'\W', '', seg)[:80])
                 if kk in seen: continue
                 seen.add(kk)
-                seg = re.sub(r'^\(\s*(و?[\u0621-\u064A]{1,12}(?:\s+أيضا)?)\s*\)\s*', r'\1 ', seg); sp = sp - (len(full[a:b]) - len(seg)) if sp > 0 else sp
+                seg0 = seg; seg = re.sub(r'^\(\s*(و?[\u0621-\u064A]{1,12}(?:\s+أيضا)?)\s*\)\s*', r'\1 ', seg); seg = re.sub(r'^((?:و?[\u0621-\u064A]{1,12})(?:\s+أيضا)?)\)\s+', r'\1 ', seg); sp = sp - (len(seg0) - len(seg)) if sp > 0 else sp        # only the opener's parentheses leave the beginning
                 dream, interp = (seg[:sp].strip(), seg[sp:].strip()) if sp > 0 else (seg.strip(), '')
                 if src.startswith('المنامات') and not re.match(r'\s*(?:ف|و)?(?:قال\s+\S+\s+)?(?:أول|عبر|فسر)', interp[:60]) and not re.search(r'(?:ف|و)?(?:أول|عبر|فسر)(?:ها|ته|تها|ه|وها)\b', interp[:90]): continue      # «المنامات»: dreams of the dead told with their dialogue; only where someone interprets
+                if re.match(r'\s*(?:ف)?قلت', interp) and not src.startswith('البدر'): continue         # «قلت» is the author's interpretation only in the book where he tells his own cases; elsewhere it is a speaker inside a narrated story
                 rows.append({'ref': ref, 'dream': dream, 'interp': interp, 'src': src, 'full': seg}); stat[src] += 1
     return rows, stat
 
@@ -155,7 +158,7 @@ def publish(rows):
     import content_lib as CL
     out = []
     for r in rows:
-        by = interpreter(r['dream'], r['interp'])
+        by = interpreter(r['dream'], r['interp'], r['src'])
         out.append(['', r['dream'], r['interp'], r['src'], by])
     CL.publish('ruaa', 'رؤى وتعبيرها', 'generic', {'h': out}, len(out), extra={'drawer': True, 'menu': 'رؤى عبّرت', 'card': 'dream', 'placeholder': 'اكتب هنا', 'hint': 'رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها.'})
     return out
