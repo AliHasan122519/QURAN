@@ -169,3 +169,30 @@ html[data-theme="dark"] .theme-toggle { color: #efd28d; }
 
 /* أبيات الإستشهاد: النصوص بيضاء في الوضع الداكن (والوضع الفاتح يبقى بحبر داكن ليظهر على الصفحة الفاتحة) */
 html[data-theme="dark"] [data-src="shahid"] .poem-shatr, html[data-theme="dark"] [data-src="shahid"] .shahid-info, html[data-theme="dark"] [data-src="shahid"] .shahid-info p, html[data-theme="dark"] [data-src="shahid"] .card-ref .t { color: #fff; }
+
+/* ===================================== side menu + «رؤى وتعبيرها» ===================================== */
+.menu-toggle { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top, 0px) + .75rem); inset-inline-start: .75rem; display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+  color: var(--h1); background: var(--badge-bg); border: 1px solid var(--badge-border); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .5); transition: transform .15s, background .15s; }
+.menu-toggle:hover { transform: scale(1.06); } .menu-toggle:active { transform: scale(.96); }
+html[data-theme="dark"] .menu-toggle { color: #efd28d; }
+.drawer-back { position: fixed; inset: 0; z-index: 100; background: rgba(2, 10, 8, .55); backdrop-filter: blur(2px); animation: fade .18s ease-out; }
+.drawer { position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: min(20rem, 86vw); padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem 1.25rem; overflow-y: auto; color: var(--foreground); background: var(--background);
+  border-inline-end: 1px solid color-mix(in oklch, var(--gold) 45%, var(--border)); box-shadow: 0 0 60px -10px rgba(0, 0, 0, .6); animation: slide-in .22s ease-out; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: 1rem; }
+.drawer-head h2, .panel-head h2 { margin: 0; font-size: 1.3rem; color: var(--ink); }
+.drawer-x { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 9999px; color: var(--muted-foreground); background: var(--secondary); } .drawer-x:hover { color: var(--ink); }
+.drawer-list { display: grid; gap: .5rem; }
+.drawer-item { display: flex; align-items: center; gap: .7rem; width: 100%; padding: .85rem 1rem; border-radius: .9rem; text-align: start; font-size: 1rem; color: var(--ink); border: 1px solid color-mix(in oklch, var(--gold) 35%, var(--border)); background: color-mix(in oklch, var(--parchment) 90%, white); }
+.drawer-item:hover { background: color-mix(in oklch, var(--gold) 14%, var(--parchment)); } .drawer-item svg { color: var(--gold); flex: none; }
+.drawer-label { flex: 1; } .drawer-count { font-size: .75rem; padding: .1rem .6rem; border-radius: 9999px; background: var(--secondary); color: var(--secondary-foreground); }
+.drawer-empty { font-size: .85rem; color: var(--muted-foreground); }
+.panel-back { position: fixed; inset: 0; z-index: 90; overflow-y: auto; overscroll-behavior: contain; padding: calc(env(safe-area-inset-top, 0px) + .75rem) .75rem 2rem; background: var(--page-dark); animation: fade .18s ease-out; }
+.panel { max-width: 56rem; margin: 0 auto; padding: 1.25rem 1.1rem 1.75rem; border-radius: 1.5rem; color: var(--foreground); background: var(--background); box-shadow: 0 0 0 1px rgba(225, 190, 106, .35) inset; display: grid; gap: 1.1rem; }
+.panel > * { min-width: 0; }
+.panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; scroll-margin-top: 4rem; }
+.panel-sub { margin-top: .2rem; font-size: .8rem; color: var(--muted-foreground); }
+.book-pick { flex: 1 1 14rem; } .book-pick select { width: 100%; height: 2.5rem; padding: 0 .75rem; border-radius: .75rem; font-size: .85rem; color: var(--foreground); background: color-mix(in oklch, var(--card) 80%, transparent); border: 1px solid color-mix(in oklch, var(--gold) 35%, var(--border)); }
+.dream-label { margin: .9rem 0 .15rem; font-size: .95rem; color: var(--gold); } .dream-card .card-top { margin-bottom: .25rem; }
+.dream-list .more { width: 100%; height: 3rem; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-in { from { transform: translateX(100%); opacity: .4; } to { transform: none; opacity: 1; } }

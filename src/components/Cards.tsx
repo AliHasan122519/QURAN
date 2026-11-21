@@ -94,7 +94,7 @@ export const GenericCard = memo(function GenericCard({ doc, matchType, matchedTe
 });
 
 /** text with its Qur'anic phrases (﴿ ﴾) set in the Qur'an font; the rest in the app font */
-function Rich({ text, words }: { text: string; words: Set<string> }) {
+export function Rich({ text, words }: { text: string; words: Set<string> }) {
   return <>{text.split(/(﴿[^﴾]*﴾)/).map((seg, i) => (seg.startsWith('﴿') ? <span key={i} className="quran-inline"><Highlight text={seg} words={words} /></span> : <Highlight key={i} text={seg} words={words} />))}</>;
 }
 

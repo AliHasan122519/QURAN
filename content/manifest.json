@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 117,
- "updated": "2026-11-19T23:31:41Z",
+ "version": 119,
+ "updated": "2026-11-21T10:18:47Z",
  "apk": {
   "versionCode": 29918853,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -63,6 +63,18 @@
    "smart": "full",
    "placeholder": "اكتب هنا",
    "hint": "اكتب الكلمة ويفهم التطبيق مرادفاتها وما يقابلها بالعامية، وتظهر الأبيات التي ورد فيها المعنى."
+  },
+  {
+   "id": "ruaa",
+   "label": "رؤى وتعبيرها",
+   "kind": "generic",
+   "file": "ruaa.json",
+   "sha256": "a6d478729b829dec470d291ea076dcc7aba16b1d2ab667cb73a7d46faa62fc4e",
+   "count": 1026,
+   "drawer": true,
+   "card": "dream",
+   "placeholder": "اكتب هنا",
+   "hint": "رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها."
   }
  ]
 }

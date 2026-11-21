@@ -65,7 +65,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -178,6 +178,37 @@ log('الأداء', 'زمن البحث حتى ظهور النتائج (يشمل 
 const axeRes = {};
 for (const [name, tab] of [['الصفحة الرئيسية (قرآن)', 'quran'], ['السنة النبوية', 'jami']]) { await page.goto(URL_); await page.waitForTimeout(2200); await page.getByRole('tab', { name: TAB[tab] }).click(); await panel(tab).locator('input').fill('الجار'); await panel(tab).locator('button.go').click(); await panel(tab).locator('article, .soft').first().waitFor(); await page.evaluate(axeSrc); const r = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'best-practice'] })).violations.map((v) => ({ id: v.id, impact: v.impact, n: v.nodes.length }))); axeRes[name] = r; const bad = r.filter((v) => v.impact === 'serious' || v.impact === 'critical'); log('إمكانية الوصول (axe)', `${name}: بلا مخالفات خطيرة/حرجة`, bad.length === 0, r.map((v) => `${v.id}(${v.impact}×${v.n})`).join(' ') || 'لا مخالفات'); }
 log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', errors.length === 0, errors.slice(0, 3).join(' | '));
+// ---------- القائمة الجانبية و«رؤى وتعبيرها» ----------
+{
+  await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
+  log('القائمة الجانبية', 'زر القائمة في أعلى الصفحة وله اسم وصول', (await page.locator('button.menu-toggle').getAttribute('aria-label')) === 'فتح القائمة');
+  log('القائمة الجانبية', 'قسم «رؤى وتعبيرها» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: 'رؤى وتعبيرها' }).count()));
+  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
+  log('القائمة الجانبية', 'تنفتح قائمة منبثقة جانبية فيها «رؤى وتعبيرها»', (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى وتعبيرها'));
+  await page.screenshot({ path: 'tests/screenshots/drawer.png' });
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
+  await page.click('button.menu-toggle'); await page.click('.drawer-item'); await page.waitForSelector('.dream-card');
+  const n0 = await page.locator('.dream-card').count();
+  const sub = await page.locator('.panel-sub').innerText();
+  log('رؤى وتعبيرها', 'تُعرض الرؤى بطاقات (٣٠ ثم «عرض المزيد»)', n0 === 30 && (await page.locator('button.more').count()) === 1, String(n0));
+  log('رؤى وتعبيرها', 'كل بطاقة تذكر المرجع', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /المرجع: /.test(c.innerText)))));
+  log('رؤى وتعبيرها', 'كل بطاقة فيها «الرؤيا» والتعبير', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /الرؤيا/.test(c.innerText)))));
+  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split('رؤيا')[0]) > 900 && /مراجع/.test(sub), sub);
+  log('رؤى وتعبيرها', 'حقل البحث «اكتب هنا» فقط', (await page.locator('#q-dreams').getAttribute('placeholder')) === 'اكتب هنا');
+  await page.fill('#q-dreams', 'سمك'); await page.click('.panel button.go'); await page.waitForTimeout(300);
+  const found = await page.locator('.dream-card').count();
+  log('رؤى وتعبيرها', 'البحث يعيد رؤى فيها الكلمة ويفرغ الحقل', found > 0 && found < n0 && (await page.locator('.dream-card').first().innerText()).includes('سمك') && (await page.locator('#q-dreams').inputValue()) === '', String(found));
+  await page.click('.panel .stats button'); await page.waitForTimeout(200);
+  await page.selectOption('.panel select', { index: 1 }); await page.waitForTimeout(200);
+  const src1 = await page.locator('.dream-card .takhrij').allInnerTexts();
+  log('رؤى وتعبيرها', 'تصفية المرجع تعرض رؤى مرجع واحد', src1.length > 0 && new Set(src1).size === 1, src1[0]);
+  await page.screenshot({ path: 'tests/screenshots/dreams.png' });
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('رؤى وتعبيرها', 'Escape يغلق القائمة المنبثقة للرؤى', (await page.locator('.panel').count()) === 0);
+  const bk = await page.evaluate(async () => { const m = await (await fetch('content/manifest.json')).json(); return m.tabs.find((t) => t.id === 'books').count; });
+  log('رؤى وتعبيرها', 'خانة الكتب كاملة لم تُنقَص (٢٨٢٣٧ مدخلاً)', bk === 28237, String(bk));
+}
 writeFileSync('tests/last-run.json', JSON.stringify({ at: new Date().toISOString(), axe: axeRes, meta, results }, null, 1));
 const fails = results.filter((r) => !r.pass); console.log(`\nSUMMARY: ${results.length - fails.length}/${results.length} passed`); fails.forEach((f) => console.log('  FAIL', f.group, f.name, f.detail));
 await browser.close(); srv.kill(); process.exit(fails.length ? 1 : 0);

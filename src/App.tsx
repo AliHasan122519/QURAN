@@ -3,9 +3,11 @@ import { Sparkles, Download } from 'lucide-react';
 import { ICONS } from './components/icons';
 import { ThemeToggle } from './components/ThemeToggle';
 import { UpdateDialog } from './components/UpdateDialog';
+import { MenuButton, Drawer } from './components/Drawer';
+import { DreamsPanel } from './components/DreamsPanel';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
-import type { Kind, Manifest, SourceId } from './lib/types';
+import type { Doc, Kind, Manifest, SourceId } from './lib/types';
 import { SearchPanel, type SourceState } from './components/SearchPanel';
 
 export function App() {
@@ -17,6 +19,9 @@ export function App() {
   const [apkNotice, setApkNotice] = useState<Manifest['apk']>();
   const [dialog, setDialog] = useState(false);          // the «update available» dialog
   const [toast, setToast] = useState('');
+  const [menu, setMenu] = useState(false);                    // the side menu
+  const [panel, setPanel] = useState<SourceId | null>(null);   // the list opened from the side menu («رؤى وتعبيرها»)
+  const [lists, setLists] = useState<Record<SourceId, Doc[]>>({});   // the content of the tabs that live in the side menu instead of the tab bar
   const content = useRef<Content | null>(null);
   const lastCheck = useRef(Date.now());
 
@@ -30,13 +35,14 @@ export function App() {
       if (dead) return;
       content.current = c; setManifest(c.manifest);
       setStates(Object.fromEntries(c.manifest.tabs.map((t) => [t.id, 'loading' as SourceState])));
-      setTab((cur) => (c.manifest.tabs.some((t) => t.id === cur) ? cur : c.manifest.tabs[0]?.id ?? cur));
+      setTab((cur) => (c.manifest.tabs.some((t) => t.id === cur && !t.drawer) ? cur : c.manifest.tabs.find((t) => !t.drawer)?.id ?? cur));
       for (const t of c.manifest.tabs) {
         const set = (s: SourceState) => !dead && setStates((p) => ({ ...p, [t.id]: s }));
         try {
           const docs = await loadTab(t, c);
           if (dead) return;
           if (!docs) { set('absent'); continue; }
+          if (t.drawer) { setLists((p) => ({ ...p, [t.id]: docs })); set('ready'); continue; }      // not searched with the tabs: shown by the side menu
           await eng.addSource(t.id, docs, t.kind, { refFirst: t.card === 'meaning', smart: t.smart, cap: t.card === 'verse' ? 200 : undefined }); await eng.finalize(); set('ready');
         } catch { set('error'); }
       }
@@ -64,10 +70,16 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', again);
   }, []);
 
-  const tabs = manifest?.tabs ?? [{ id: 'quran', label: 'القرآن الكريم', kind: 'quran' as Kind, file: null, sha256: null }];
+  const all = manifest?.tabs ?? [{ id: 'quran', label: 'القرآن الكريم', kind: 'quran' as Kind, file: null, sha256: null }];
+  const tabs = all.filter((t) => !t.drawer);
+  const side = all.filter((t) => t.drawer);
+  const opened = side.find((t) => t.id === panel);
   return (
     <main className="page">
       <ThemeToggle />
+      {side.length > 0 && <MenuButton open={menu} onClick={() => setMenu(true)} />}
+      <Drawer open={menu} items={side.map((t) => ({ id: t.id, label: t.label, count: t.count }))} onPick={(id) => { setMenu(false); setPanel(id); }} onClose={() => setMenu(false)} />
+      {opened && <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />}
       <header className="hero">
         <div className="hero-in">
           <div className="badge-top"><Sparkles size={14} />بحث نصّي دقيق مع توسعة دلالية اشتقاقية</div>

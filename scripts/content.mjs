@@ -6,6 +6,7 @@
 import { createServer } from '../mcp-server/core.js';
 import { localClient } from '../mcp-server/local.js';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
 const args = process.argv.slice(2); const noPush = args.includes('--no-push'); const rest = args.filter((a) => a !== '--no-push');
 const [tool, json] = rest;
@@ -20,4 +21,17 @@ const r = await server.handle({ jsonrpc: '2.0', id: 1, method: 'tools/call', par
 if (r.error) { console.error(r.error.message); process.exit(1); }
 console.log(r.result.content[0].text);
 if (r.result.isError) process.exit(1);
+// A change to the books tab (a new reference, a corrected text): the list «رؤى وتعبيرها» (side menu) is rebuilt from the books, so the dreams the new reference interprets appear there too
+if (['add_entries', 'add_tab', 'update_entry', 'delete_entry'].includes(tool) && (params.tab === 'books' || params.id === 'books') && existsSync('scripts/build_ruaa.py') && existsSync('content/books.json')) {
+  try {
+    console.log(execFileSync('python3', ['-I', 'scripts/build_ruaa.py'], { encoding: 'utf8' }).trim().split('\n').slice(-2).join('\n'));
+    const g = (...a) => execFileSync('git', a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    g('add', '-A', 'content');
+    if (g('status', '--porcelain', 'content')) {
+      const trailer = process.env.COMMIT_TRAILER ?? ''; g('commit', '-q', '-m', trailer ? `content: refresh «رؤى وتعبيرها» from the books\n\n${trailer}` : 'content: refresh «رؤى وتعبيرها» from the books');
+      if (!noPush) { try { g('pull', '-q', '--rebase', 'origin', 'HEAD'); } catch { /* nothing to rebase onto */ } g('push', '-q', 'origin', 'HEAD'); }
+      console.log('«رؤى وتعبيرها» refreshed' + (noPush ? ' (not pushed)' : ' and pushed'));
+    }
+  } catch (e) { console.error('تعذّر تحديث قائمة «رؤى وتعبيرها»:', e.stderr || e.message); process.exit(1); }
+}
 try { console.log(execFileSync('node', ['scripts/validate_content.mjs'], { encoding: 'utf8' }).trim()); } catch (e) { console.error(e.stdout || e.message); process.exit(1); }
