@@ -42,11 +42,17 @@ def with_prophet(v):
     """«عن أنس» → «عن أنس عن النبي ﷺ»: the author names the Companion (or the Successor, with «مرسلا») who narrates from the Prophet, so the chain ends with these two names.
     Only a clean clause is touched: one «عن» followed by at most five words, no book name («في …»), no second «عن», no «موقوفا/مقطوعا» (those are sayings of the Companion or the Successor, not of the Prophet), no «عنه»."""
     ms = list(re.finditer(r'(?:^|\s)عن\s+', v))
-    if len(ms) != 1: return v
+    if not ms: return v
     pre, tail = v[:ms[0].start()], v[ms[0].end():]
+    # only the first to hear it from the Prophet is named (the owner's request): «X عن أبيه عن جده» is X's grandfather, «X عن أبيه Y» is Y, «X عن أبيه» is X's father («والد X»)
+    m = re.fullmatch(r'(?P<x>.+?)\s+عن\s+أبيه\s+عن\s+جده', tail) or re.fullmatch(r'(?P<x>.+?)\s+عن\s+أبيه\s+(?P<n>.+)', tail) or re.fullmatch(r'(?P<x>.+?)\s+عن\s+أبيه', tail)
+    if m and ' عن ' not in ' ' + m.group('x') + ' ' and not re.search(r'\sفي\s|وعن|عنه|\d|[()]|مرسلا|موقوف|مقطوع|معضلا|رحمهم|قال', tail) and not re.match(r'عن\s', m.groupdict().get('n') or '') and len(m.group('x').split()) <= 8:
+        g = m.groupdict(); who = ('جدّ ' + g['x']) if m.re.pattern.endswith('جده') else (g['n'] if g.get('n') else 'والد ' + g['x'])
+        return (pre + (' ' if pre else '') + 'عن ' + who + ' ' + PROPHET).strip()
+    if len(ms) != 1: return v
     q = re.search(r'\s+(مرسلا|معضلا)$', tail); qual = ''
     if q: qual = ' ' + q.group(1); tail = tail[:q.start()]
-    if not tail or len(tail.split()) > 5 or re.search(r'\sفي\s|^في\s|موقوف|مقطوع|مرفوع|زاد|\d|عنه|وعن|مسلا|[()]', tail): return v
+    if not tail or tail in ('أبيه', 'جده') or len(tail.split()) > 5 or re.search(r'\sفي\s|^في\s|موقوف|مقطوع|مرفوع|زاد|\d|عنه|وعن|مسلا|[()]', tail): return v
     return (pre + (' ' if pre else '') + 'عن ' + tail + ' ' + PROPHET + qual).strip()
 def natural(raw, none=False):
     """(natural text, problems): the takhrij in words; problems = the tokens that are not symbols of the key.
