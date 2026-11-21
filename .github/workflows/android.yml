@@ -97,6 +97,11 @@ jobs:
         run: |
           gh release delete apk-latest --cleanup-tag --yes || true
           gh release create apk-latest out/alboheth-quran.apk --title "تطبيق الباحث القرآني (APK)" --notes "أحدث نسخة من التطبيق. رقم الإصدار ${{ env.APP_VC }}. التحديثات على المحتوى تصل إلى التطبيق المثبَّت تلقائياً دون إعادة تنزيل."
+          # the release must be PUBLIC (a draft release answers 404 to the app's download): publish it if it was left as a draft, then check the link
+          id=$(gh api repos/${{ github.repository }}/releases --jq '.[] | select(.tag_name=="apk-latest") | .id' | head -1)
+          [ "$(gh api repos/${{ github.repository }}/releases/$id --jq .draft)" = "true" ] && gh api -X PATCH repos/${{ github.repository }}/releases/$id -F draft=false
+          for i in 1 2 3 4 5 6; do code=$(curl -sIL -o /dev/null -w "%{http_code}" "https://github.com/${{ github.repository }}/releases/download/apk-latest/alboheth-quran.apk"); [ "$code" = "200" ] && break; sleep 5; done
+          echo "APK download link answers $code"; [ "$code" = "200" ]
 
       - name: Tell installed apps that a new APK exists
         if: github.ref == 'refs/heads/main'
