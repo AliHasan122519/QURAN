@@ -11,7 +11,7 @@ FULL = {'خد': 'البخاري في الأدب', 'تخ': 'البخاري في �
 BARE = {'ك': 'الحاكم', 'قط': 'الدارقطني', 'خط': 'الخطيب', 'حم': 'أحمد', 'حب': 'ابن حبان', 'خد': 'البخاري', 'تخ': 'البخاري', 'عم': 'عبد الله بن أحمد', 'طب': 'الطبراني', 'طس': 'الطبراني', 'طص': 'الطبراني',
         'ص': 'سعيد بن منصور', 'عب': 'عبد الرزاق', 'ع': 'أبو يعلى', 'فر': 'الديلمي', 'حل': 'أبو نعيم', 'هب': 'البيهقي', 'هق': 'البيهقي', 'عد': 'ابن عدي', 'عق': 'العقيلي'}
 GRADES = {'صح', 'ح', 'ض'}
-ALIAS = {'طبس': 'طس'}      # the print of «طس» (الطبراني في الأوسط) that the machine reading spelled «طبس» (checked on the page images, e.g. page 73 no. 1120)
+ALIAS = {'طبس': 'طس', 'نخ': 'تخ'}      # «طبس» is the print of «طس»; «نخ» (not in the key) is «تخ» (al-Bukhari in the History): both agreed by the recogniser and al-Munawi
 UNCLEAR = '؟'                # a symbol the printed copy itself does not make out (a letter the print lost, or one that is not in the author's key): written «؟» in the raw takhrij
 UNCLEAR_TEXT = '(رمز لم يتضح في الطبعة)'
 DIG = str.maketrans('٣٤', '34')
