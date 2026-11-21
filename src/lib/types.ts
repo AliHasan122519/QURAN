@@ -1,7 +1,7 @@
 export type Kind = 'quran' | 'hadith' | 'poem' | 'generic';
 export type SourceId = string;                              // a tab id from the content manifest («quran», «jami», …); new ones can be added by a content update
 export type MatchType = 'literal' | 'normalized' | 'textual' | 'derived' | 'semantic';
-export interface Tab { id: SourceId; label: string; kind: Kind; file: string | null; sha256: string | null; count?: number; placeholder?: string; hint?: string; card?: 'meaning' | 'verse' | 'dream'; smart?: 'dialect' | 'full'; drawer?: boolean; }
+export interface Tab { id: SourceId; label: string; kind: Kind; file: string | null; sha256: string | null; count?: number; placeholder?: string; hint?: string; card?: 'meaning' | 'verse' | 'dream'; smart?: 'dialect' | 'full'; drawer?: boolean; menu?: string; }
 export interface Manifest { schema: number; version: number; updated?: string; apk?: { versionCode: number; url: string; notes?: string }; tabs: Tab[]; }
 export interface Doc {
   id: string; src: SourceId; text: string;

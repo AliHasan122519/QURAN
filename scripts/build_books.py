@@ -99,6 +99,15 @@ def finalize(t):
     t = re.sub(r'([،؛:؟])(?=[\u0621-\u064A])', r'\1 ', t); t = re.sub(r'\.{4,}', '...', t)
     t = balance(t)
     t = re.sub(r'^[)﴾»\]\s]+', '', t); t = re.sub(r'[(﴿«\[\s]+$', '', t)
+    # typing residue of the digital texts (never part of the author's words): footnote numbers glued to a word, ASCII «?», empty brackets, the line/page mark « / »
+    parts = re.split(r'(﴿[^﴾]*﴾)', t)
+    def tidy_plain(p):
+        p = re.sub(r'(?<=[\u0621-\u064A])\d{1,3}(?=[\s.،:؛)؟?!]|$)', '', p); p = re.sub(r'(?:(?<=\s)|^)\d{1,3}(?=[\u0621-\u064A])', '', p)
+        p = re.sub(r'(?<=[\u0621-\u064A\s])\s?\?', '؟', p); p = re.sub(r'(?<=[!])\?', '؟', p); p = re.sub(r'\(\s*\)|«\s*»|\[\s*\]', ' ', p)
+        p = re.sub(r'\s/(?=\s|$)', ' ', p); p = re.sub(r'^/\s', '', p)
+        return p
+    t = ''.join(p if p.startswith('﴿') else tidy_plain(p) for p in parts)
+    t = re.sub(r'\s+([،؛:.؟!)])', r'\1', t)
     return re.sub(r'\s+', ' ', t).strip()
 SOURCES = {'isharat': 'الإشارات في علم العبارات', 'tatir': 'تعطير الأنام في تعبير المنام', 'qadiri': 'القادري في التعبير', 'ghannam': 'تعبير الرؤيا (ابن غنام المقدسي)',
            'muntakhab': 'منتخب الكلام في تفسير الأحلام', 'badr': 'البدر المنير في علم التعبير', 'manamat': 'المنامات (ابن أبي الدنيا)', 'salimi': 'الإشارة إلى علم العبارة'}

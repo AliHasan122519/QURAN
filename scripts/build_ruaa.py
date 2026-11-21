@@ -20,11 +20,11 @@ IC_STRONG = re.compile(r'(?:(?:ف|و)?(?:قصها|قصصتها|قص\s+رؤياه
 IC_WEAK = re.compile(r'\s(?:فقال|فقالت|قال|قالت|فقالوا)\s+(?!إني\b|إنني\b)')
 NAMED = re.compile(r'ابن\s+سيرين|ابن\s+سرين|جعفر|ابن\s+المسيب|معبر|المعبر|الكرماني|رسول\s+الله|النبي|أبي\s+بكر|أبو\s+بكر|مسروق|الحسن\s+البصري|دانيال|الفيلسوف|المقدسي')                 # «فقال ابن سيرين تطأ امرأة…» in a text without punctuation: may also be a sentence said inside the dream
 INTERP_WORDS = re.compile(r'تأويل|تعبير|عبر|يدل|تدل|دليل|فإن|لأن|ينال|تنال|تصير|يصير|تكون|يكون|تصيب|يصيب|تلد|تموت|يموت|فكان كذلك|فكذلك|صدقت|ترزق|يرزق|تتزوج|يتزوج|تسافر|يسافر|يحصل|تحصل|يقع|تقع|يذهب|تذهب|تأخذ|يأخذ|تعلم|اتق|تطأ|تستغفر|استغفر|ولد|مال|رزق|خير|شر|امرأة|زوجة|سلطان|ملك|مرض|موت|قتل|حرب|سفر|دين|علم|فقه')
-TIER1 = re.compile(r'(?:^|\s)(?:وحكي|ويحكى|حكي|يحكى|وروي|روي|ويروى|وقد\s+بلغنا|بلغنا|ومن\s+الرؤيا\s+المعبرة|ومن\s+الحكايات|ومن\s+المنامات|ومن\s+الرؤيا|نادرة|حكاية|ومما\s+حكي|ومما\s+روي|وقد\s+حكي|وقد\s+روي|وجاء|جاء|وأتى|أتى|أتت|وجاءت|جاءت|وسأل|سأل|دخل\s+رجل|وقال\s+آخر|وقالت\s+أخرى|وقال\s+لي|قال\s+لي|وقال\s+إنسان|قال\s+إنسان|وقال\s+رجل|قال\s+رجل|وقالت\s+امرأة|قالت\s+امرأة|قال\s+المصنف|وقال\s+شخص)(?=\s|:)')
+TIER1 = re.compile(r'(?:^|\s)\(?(?:وحكي|ويحكى|حكي|يحكى|وروي|روي|ويروى|وقد\s+بلغنا|بلغنا|ومن\s+الرؤيا\s+المعبرة|ومن\s+الحكايات|ومن\s+المنامات|ومن\s+الرؤيا|نادرة|حكاية|ومما\s+حكي|ومما\s+روي|وقد\s+حكي|وقد\s+روي|وجاء|جاء|جلء|وجلء|وأتى|أتى|أتت|وأتت|وجاءت|جاءت|وأتاه|أتاه|وسأل|سأل|دخل\s+رجل|وقال\s+آخر|وقالت\s+أخرى|وقال\s+لي|قال\s+لي|وقال\s+إنسان|قال\s+إنسان|وقال\s+رجل|قال\s+رجل|وقالت\s+امرأة|قالت\s+امرأة|قال\s+المصنف|وقال\s+شخص|أى(?=\s+(?:ابن|محمد|جعفر)))\)?(?=\s|:)')
 TIER2 = re.compile(r'(?:^|\s)(?:قال|وقال|فقال|وقالت|قالت)(?=\s|:)')
 STORY = re.compile(r'(?:^|\s)(?:\((?:و[\u0621-\u064A ]{1,24})\)|وحكي|ويحكى|وروي|ويروى|وقد\s+بلغنا|ومن\s+الرؤيا\s+المعبرة|ومن\s+الحكايات|ومن\s+المنامات|نادرة|حكاية|ومما\s+حكي|ومما\s+روي|وقد\s+حكي|وقد\s+روي|ورأى|ورأت|وأتاه|وجاءه|وأتته|وجاءته|وسأله|وقال\s+آخر|وقالت\s+أخرى|وقال\s+لي|وقال\s+إنسان|وقال\s+رجل|وقالت\s+امرأة|وقال\s+شخص)(?=\s|:|\))')
 OPEN = TIER1
-SENT_END = re.compile(r'[.؛؟]\s+|\)\s+')
+SENT_END = re.compile(r'[.؛؟]\s+')
 GENERIC_RESTART = re.compile(r'\s(?:ومن\s+رأى|وإن\s+رأى|فإن\s+رأى|فمن\s+رأى|ومن\s+سمع|وأما\s+من\s+رأى|فإن\s+رأى)\s')
 TAIL = re.compile(r'\s+(?:ومثله|ومنه|وكذلك|فافهمه|والله\s+أعلم|وقال|وقيل|ومن|وإن|وان|ثم|و|أو|فإن|وأما|وقد|وهو|وهي)\s*[.،:]?\s*$')
 # the interpreters the passages name (canonical form <- the spellings found in the books)
@@ -55,6 +55,10 @@ def start_of(t, ds, floor, first):
     base = lo + (cuts[-1] if cuts else 0)
     om = TIER1.search(t[base:ds])
     if om: return base + om.start() + (1 if t[base + om.start()].isspace() else 0)
+    lo3 = max(floor, ds - 170); reg3 = t[lo3:ds]; cuts3 = [m.end() for m in SENT_END.finditer(reg3)]; b3 = lo3 + (cuts3[-1] if cuts3 else 0)
+    far = list(TIER1.finditer(t[b3:ds]))
+    if far and first or far and DS_THIRD.match(t, ds): 
+        m3 = far[-1]; return b3 + m3.start() + (1 if t[b3 + m3.start()].isspace() else 0)          # the story's opener a little further back (no sentence end in between)
     lo2 = max(floor, ds - 60); tm = list(TIER2.finditer(t[lo2:ds]))
     if tm and first: return lo2 + tm[-1].start() + (1 if t[lo2 + tm[-1].start()].isspace() else 0)
     return 0 if ds <= 3 else ds
@@ -78,7 +82,7 @@ def anecdotes(t):
         im = next((m for m in IC_STRONG.finditer(t, ds + 6, bound) if m.start() - ds >= 12), None); strong = im is not None
         if not im:
             im = next((m for m in IC_WEAK.finditer(t, ds + 6, bound) if m.start() - ds >= 12), None)
-            if im and NAMED.search(t[start:im.start()]): strong = True            # «أتى ابن سيرين رجل فقال رأيت… فقال…»: the interpreter is named in the passage
+            if im and NAMED.search(re.sub(r'^\s*\(?و?قال\s+[^:]{1,30}:', '', t[start:im.start()])): strong = True            # «أتى ابن سيرين رجل فقال رأيت… فقال…»: the interpreter is named in the passage
         if not im:
             cm = next((m for m in CUELESS.finditer(t, ds + 6, bound)), None)       # «…فحبلت وولدت؛ وإنما دل الفراش على المرأة»: the interpretation follows without «فقال»
             if cm: im = cm; strong = False
@@ -99,28 +103,49 @@ def anecdotes(t):
         out.append((start, start + len(seg), sp)); last_end = start + len(seg)
     return out
 
+# a row of the «الكتب» tab is a paragraph of the printed book, and the printers (or the digital copy) break a story in the middle: after «فقال أبو بكر:», before a quoted verse of poetry or of the Qur'an.
+# The passage therefore continues into the next rows as long as they do not open a new unit of the book.
+NEWUNIT = re.compile(r'^\s*(?:\(?\s*(?:ومن|من|وإن|فإن|فمن|وأما|وإذا|وكل)\s+(?:رأى|رأت|سمع)|وأما\s+من|وكل\s+من|(?:ال)?باب\b|فصل\b|\(?\s*(?:وحكي|وحكى|ويحكى|وروي|ونقل|ومن\s+الرؤيا|ومن\s+الحكايات|ومن\s+المنامات)|نادرة|حكاية|وأتى|وجاء|وجاءت|ورأى|ورأت|وقال\s+(?:آخر|لي|إنسان|رجل|شخص)|وقالت\s+أخرى|وقال\s+(?!له\b|لها\b)[^\s:]+(?:\s+[^\s:]+){0,3}\s*:)')
+DANGLING = re.compile(r'(?:[:،]|قول\s+الشاعر|لقوله\s+تعالى|كقوله\s+تعالى|كقوله|وأنشد|قوله\s+تعالى|قال\s+الله\s+تعالى|كما\s+قال|لقول\s+\S+|بقول\s+\S+|وفي\s+الحديث|فقال\s+(?:\S+\s+){0,4}\S+|قال\s+(?:\S+\s+){0,3}\S+)\s*$')
+FA = re.compile(r'^\s*ف(?:عن\s+قليل|لما|لم\s+يلبث|كان|قال|قالت|دخل|خرج|أمر|أعطى|ذهب|مات|فعل|وقع|رجع|جاء|أتى|ضرب|قتل|عزل|ولي|تزوج|طلق|حبل|ولدت|ما\s+لبث|بعد|أرسل|سأل|قص|فسر|عبر|أول|وصل|كذلك|هذا\s+ما)')
+def continues(acc, nxt):
+    if NEWUNIT.match(nxt): return False
+    t = acc.rstrip()
+    if DANGLING.search(t) and not re.search(r'[.؟!]\s*$', t): return True
+    if re.match(r'\s*(?:\(|﴿|«)', nxt) and ('...' in nxt[:120] or '﴿' in nxt[:5] or len(nxt) < 140): return True          # a quoted verse (poetry between parentheses with «...» between the hemistichs, or an ayah)
+    if FA.match(nxt) or re.match(r'\s*(?:قال|قالت|قلت|فقال|فقلت|فقالت)\s*[:،]', nxt): return True
+    if len(t) >= 800 and not re.search(r'[.؟!]\s*$', t): return True                                  # the book's own cut of a long paragraph
+    return False
+TAILHEAD = re.compile(r'\s(?:وأما|وقال|وقالت|وقيل|وكل|وإن)\s+[^:؟.]{1,40}:\s*$')
 def main():
     rows = []; stat = collections.Counter(); bysrc = collections.defaultdict(list)
     for ref, text, expl, src in ROWS: bysrc[src].append((ref, text))
     seen = set()
     for src, lst in bysrc.items():
         for i, (ref, text) in enumerate(lst):
-            t = text; prefix = ''
-            if i and re.match(r'\s*(?:ف|و)?(?:قال|قالت)\s*:', t) and len(lst[i - 1][1]) < 700:
-                prefix = lst[i - 1][1][-300:] + ' '                                          # the book's own cut fell between «جاء رجل إلى ابن سيرين» and «فقال: رأيت…»
-            if i + 1 < len(lst) and re.search(r'(?:قلت|فقلت|قال|فقال|قالت)\s*[:،]?\s*$', t) and len(t) < 600: t = t + ' ' + lst[i + 1][1][:400]
-            full = prefix + t
+            prefix = ''
+            if i and (re.match(r'\s*فقال(?:ت)?\b', text) or len(lst[i - 1][1]) < 350 and (re.match(r'\s*(?:ف|و)?(?:قال|قالت)\s*:', text) or (re.search(r'(?:[:،]|(?:ف|و)?قال|فقالت)\s*$', lst[i - 1][1]) and (DS_FIRST.match(text.lstrip()) or DS_THIRD.match(text.lstrip()) or DS_THIRD2.match(text.lstrip()))))):
+                prefix = lst[i - 1][1][-300:] + ' '                                      # the book's own cut fell between «جاء رجل إلى ابن سيرين فقال:» and «رأيت…»
+            full = prefix + text; k = i + 1; n0 = len(full)
             res = anecdotes(full)
-            nxt = lst[i + 1][1] if i + 1 < len(lst) else ''
-            if (not res or (res and res[-1][1] >= len(full) - 2 and len(full[res[-1][0] + res[-1][2]:]) < 40 if res and res[-1][2] > 0 else False)) and nxt and re.search(r'(?:رأى|رأت|رأيت|رؤيا)', full) and re.match(r'\s*(?:ف|و)?(?:قال|قالت|قلت|فقلت|قيل)\b', nxt) and len(full) < 900:
-                full2 = full + ' ' + nxt[:420]; res2 = anecdotes(full2)
-                if len(res2) >= len(res): full, res = full2, res2
+            while k < len(lst) and k < i + 7 and len(full) < 3600 and (res and res[-1][1] >= len(full) - 3 or not res and re.search(r'(?:رأى|رأت|رأيت)', text)) and continues(full, lst[k][1]):
+                full2 = full + ' ' + lst[k][1]; res2 = anecdotes(full2)
+                if not res2 and not res: full, res = full2, res2; k += 1; continue
+                if len(res2) < len(res): break
+                full, res = full2, res2; k += 1
             for a, b, sp in res:
                 if prefix and b <= len(prefix): continue
-                seg = full[a:b]
-                k = (src, re.sub(r'\W', '', seg)[:80])
-                if k in seen: continue
-                seen.add(k)
+                if a >= len(prefix) + len(text): continue                                    # it begins in a later row: that row finds it itself
+                seg = full[a:b]; cut = TAILHEAD.search(seg)
+                if cut and cut.start() > sp > 0: seg = seg[:cut.start()]; b = a + len(seg)
+                seg = clean_end(seg)
+                tl = re.search(r'\s(?:وأما|ومن|وإن|وقال|وقيل)\s+\S+(?:\s+\S+)?$', seg)                 # the first words of the next explanation of the book
+                if tl and len(tl.group(0)) <= 24 and len(seg) - len(tl.group(0)) > 40 and (sp <= 0 or len(seg) - len(tl.group(0)) > sp + 12): seg = clean_end(seg[:tl.start()])
+                if seg.endswith(':') and not re.search(r'(?:قول\s+الشاعر|تعالى|ف?قال\S*|وقال\S*|ف?قلت|يقول|أنشد\S*)(?:\s+\S+){0,3}\s*$', seg[:-1]): seg = seg[:-1] + '.'               # a printer's colon at the end of the passage
+                kk = (src, re.sub(r'\W', '', seg)[:80])
+                if kk in seen: continue
+                seen.add(kk)
+                seg = re.sub(r'^\(\s*(و?[\u0621-\u064A]{1,12}(?:\s+أيضا)?)\s*\)\s*', r'\1 ', seg); sp = sp - (len(full[a:b]) - len(seg)) if sp > 0 else sp
                 dream, interp = (seg[:sp].strip(), seg[sp:].strip()) if sp > 0 else (seg.strip(), '')
                 if src.startswith('المنامات') and not re.match(r'\s*(?:ف|و)?(?:قال\s+\S+\s+)?(?:أول|عبر|فسر)', interp[:60]) and not re.search(r'(?:ف|و)?(?:أول|عبر|فسر)(?:ها|ته|تها|ه|وها)\b', interp[:90]): continue      # «المنامات»: dreams of the dead told with their dialogue; only where someone interprets
                 rows.append({'ref': ref, 'dream': dream, 'interp': interp, 'src': src, 'full': seg}); stat[src] += 1
@@ -132,7 +157,7 @@ def publish(rows):
     for r in rows:
         by = interpreter(r['dream'], r['interp'])
         out.append(['', r['dream'], r['interp'], r['src'], by])
-    CL.publish('ruaa', 'رؤى وتعبيرها', 'generic', {'h': out}, len(out), extra={'drawer': True, 'card': 'dream', 'placeholder': 'اكتب هنا', 'hint': 'رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها.'})
+    CL.publish('ruaa', 'رؤى وتعبيرها', 'generic', {'h': out}, len(out), extra={'drawer': True, 'menu': 'رؤى عبّرت', 'card': 'dream', 'placeholder': 'اكتب هنا', 'hint': 'رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها.'})
     return out
 if __name__ == '__main__':
     rows, stat = main()

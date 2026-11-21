@@ -181,14 +181,15 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
 // ---------- القائمة الجانبية و«رؤى وتعبيرها» ----------
 {
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
-  log('القائمة الجانبية', 'زر القائمة في أعلى الصفحة وله اسم وصول', (await page.locator('button.menu-toggle').getAttribute('aria-label')) === 'فتح القائمة');
-  log('القائمة الجانبية', 'قسم «رؤى وتعبيرها» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: 'رؤى وتعبيرها' }).count()));
-  await page.click('button.menu-toggle'); await page.waitForSelector('.panel .dream-card');
-  log('القائمة الجانبية', 'الضغط على الزر يفتح مباشرة قائمة «رؤى وتعبيرها» الجانبية', (await page.locator('.panel .panel-head h2').innerText()).includes('رؤى وتعبيرها') && (await page.locator('.drawer').count()) === 0);
+  log('القائمة الجانبية', 'زر «المزيد» في أعلى الصفحة وله اسم وصول', (await page.locator('button.menu-toggle').getAttribute('aria-label')) === 'المزيد');
+  log('القائمة الجانبية', 'قسم «رؤى عبّرت» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: /رؤى/ }).count()));
+  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
+  log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى عبّرت'));
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
-  log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.panel').count()) === 0);
-  await page.click('button.menu-toggle'); await page.waitForSelector('.dream-card');
+  log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
+  await page.click('button.menu-toggle'); await page.click('.drawer-item'); await page.waitForSelector('.panel .dream-card');
+  log('القائمة الجانبية', 'زر «رؤى عبّرت» يفتح القائمة الخاصة «رؤى وتعبيرها»', (await page.locator('.panel .panel-head h2').innerText()).includes('رؤى وتعبيرها'));
   const n0 = await page.locator('.dream-card').count();
   const sub = await page.locator('.panel-sub').innerText();
   log('رؤى وتعبيرها', 'تُعرض الرؤى بطاقات (٣٠ ثم «عرض المزيد»)', n0 === 30 && (await page.locator('button.more').count()) === 1, String(n0));
@@ -207,7 +208,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('رؤى وتعبيرها', 'Escape يغلق القائمة المنبثقة للرؤى', (await page.locator('.panel').count()) === 0);
   const bk = await page.evaluate(async () => { const m = await (await fetch('content/manifest.json')).json(); return m.tabs.find((t) => t.id === 'books').count; });
-  log('رؤى وتعبيرها', 'خانة الكتب كاملة لم تُنقَص (٢٨٢٣٧ مدخلاً)', bk === 28237, String(bk));
+  log('رؤى وتعبيرها', 'خانة الكتب كاملة لم تُنقَص (٢٨٢٣٦ مدخلاً)', bk === 28236, String(bk));
 }
 // ---------- الأرقام بالإنجليزية ----------
 {

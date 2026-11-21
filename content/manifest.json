@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 119,
- "updated": "2026-11-21T10:18:47Z",
+ "version": 129,
+ "updated": "2026-11-21T10:52:29Z",
  "apk": {
   "versionCode": 29920957,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -45,8 +45,8 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "b6893f66a0677d961ff3ba7e38d655926d93d0388d5c8f1225b680ae29c93687",
-   "count": 28237,
+   "sha256": "9f3cb5717634137c6be68947f6690445b2e35fcab81cc1cb6817b6e2cd63dab8",
+   "count": 28236,
    "card": "meaning",
    "placeholder": "اكتب هنا",
    "hint": "اكتب اسم الرمز لتعرف ما ورد في معناه، ثم اضغط «وجه الشبه» لبيان سببه.",
@@ -69,12 +69,13 @@
    "label": "رؤى وتعبيرها",
    "kind": "generic",
    "file": "ruaa.json",
-   "sha256": "a6d478729b829dec470d291ea076dcc7aba16b1d2ab667cb73a7d46faa62fc4e",
-   "count": 1026,
+   "sha256": "4d4e2a3e454e04a7ee3ca84bc443c652a87399f36111790fe932026473f163d4",
+   "count": 1028,
    "drawer": true,
    "card": "dream",
    "placeholder": "اكتب هنا",
-   "hint": "رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها."
+   "hint": "رؤى ذكرها أصحاب الكتب المرجعية مع تعبيرها.",
+   "menu": "رؤى عبّرت"
   }
  ]
 }
