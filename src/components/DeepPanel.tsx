@@ -53,17 +53,16 @@ export function DeepPanel({ title, books, rules, onClose }: { title: string; boo
         <div ref={out} className="deep-out" aria-live="polite">
           {res && (
             <>
-              <article className="verse-card deep-card">
-                <p dir="rtl" className="deep-open">{res.opening}</p>
-              </article>
               {res.sections.map((s, i) => (
                 <article className="verse-card deep-card" key={s.symbol + i}>
-                  <h3 className="rule-title">أما رؤيتك «{s.symbol}»</h3>
-                  <p dir="rtl" className="deep-lead">فاعلم أن مما يُقال في ذلك:</p>
-                  {s.points.map((p, j) => <div key={j} className="deep-pt"><p dir="rtl" className="bio-line"><Rich text={p.t} words={NONE} /></p>{p.why && <p dir="rtl" className="deep-why"><b>ووجه ذلك:</b> <Rich text={p.why} words={NONE} /></p>}</div>)}
-                  {s.mine.length > 0 && <><h3 className="dream-label">وبحسب حالك</h3>{s.mine.map((m, j) => <p dir="rtl" className="bio-line" key={j}><Rich text={m} words={NONE} /></p>)}</>}
+                  {i === 0 && <p dir="rtl" className="deep-open">{res.opening}</p>}
+                  <h3 className="rule-title">رؤيتك «{s.symbol}»</h3>
+                  <p dir="rtl" className="deep-verdict"><Rich text={s.verdict} words={NONE} /></p>
+                  {s.why && <p dir="rtl" className="deep-why"><b>ووجه ذلك:</b> <Rich text={s.why} words={NONE} /></p>}
+                  {s.mine.length > 0 && <><h3 className="dream-label">وبحسب حالك</h3>{s.mine.map((m, j) => <p dir="rtl" className="deep-verdict" key={j}><Rich text={m} words={NONE} /></p>)}</>}
                 </article>
               ))}
+              {res.found === 0 && <article className="verse-card deep-card"><p dir="rtl" className="deep-open">{res.opening}</p></article>}
               {res.rules.length > 0 && (
                 <article className="verse-card deep-card">
                   <h3 className="rule-title">وعلى ماذا بُني هذا التأويل</h3>

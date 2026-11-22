@@ -267,3 +267,4 @@ html[data-theme="dark"] .menu-toggle { color: #efd28d; }
 .deep-pt { padding: .15rem 0; } .deep-pt + .deep-pt { border-top: 1px dashed color-mix(in oklch, var(--gold) 30%, transparent); margin-top: .5rem; padding-top: .55rem; }
 .deep-why { margin: .25rem 0 0; font-size: .92rem; line-height: 2; color: var(--muted-foreground); } .deep-why b { color: var(--gold); }
 .deep-lead { margin: .1rem 0 .2rem; font-size: .92rem; color: var(--muted-foreground); }
+.deep-verdict { margin: .3rem 0 0; font-size: 1.08rem; line-height: 2.25; color: var(--ink); } .deep-open + .rule-title { margin-top: .2rem; }

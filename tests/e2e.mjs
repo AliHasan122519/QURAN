@@ -299,7 +299,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.deep-chip', { hasText: 'من 18 إلى 35' }).click(); await page.locator('.deep-chip', { hasText: 'أعزب' }).click();
   log('التأويل العميق', 'يُفعَّل الزر بعد اختيار الخيارين', !(await page.locator('.deep-go').isDisabled()));
   await page.click('.deep-go'); await page.waitForSelector('.deep-card'); const dp = await page.locator('.deep-out').innerText();
-  log('التأويل العميق', 'يبدأ بـ«والله أعلم» ويخاطب المستخدم بحاله ويأتي بتأويل «حية» و«ماء» و«بيتي» وقسم «وبحسب حالك»', dp.trim().startsWith('والله أعلم') && /أنت شاب وأعزب/.test(dp) && /أما رؤيتك «حية»/.test(dp) && /أما رؤيتك «ماء»/.test(dp) && /وبحسب حالك/.test(dp), dp.slice(0, 80));
+  log('التأويل العميق', 'يبدأ بـ«بدايةً نقول والله أعلم،» ثم التأويل مباشرة: تأويل واحد نهائي لكل رمز («حية» و«ماء» و«بيتي») وقسم «وبحسب حالك»', dp.trim().startsWith('بدايةً نقول والله أعلم،') && /رؤيتك «حية»/.test(dp) && /رؤيتك «ماء»/.test(dp) && /وبحسب حالك/.test(dp) && (await page.locator('.deep-card:has(.deep-verdict)').count()) >= 3 && (await page.locator('.deep-card').first().locator('.deep-verdict').count()) === 1 + (await page.locator('.deep-card').first().locator('.dream-label ~ .deep-verdict').count()), dp.slice(0, 80));
   log('التأويل العميق', 'لا يذكر اسم كتاب ولا «قال فلان» أثناء التأويل', !/ابن سيرين|ابن نعمة|قال ابن|قال جعفر|قال دانيال|في كتاب|الإشارات في|تعطير الأنام|القادري|البدر المنير/.test(dp));
   log('التأويل العميق', 'يذكر الأصول التي بُني عليها التأويل ويختم بـ«والله أعلم»', /وعلى ماذا بُني هذا التأويل/.test(dp) && /والله أعلم وأحكم/.test(dp));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
