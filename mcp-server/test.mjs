@@ -36,7 +36,7 @@ check('tools/list has the content tools', ['content_status', 'search_entries', '
 check('unknown method is a JSON-RPC error', (await rpc('nope')).error.code === -32601);
 
 // reading
-const st = await call('content_status'); check('content_status: 9 tabs', st.json.version >= 1 && st.json.tabs.length === 9, st.json.tabs.map((t) => `${t.id}:${t.count}`).join(' '));
+const st = await call('content_status'); check('content_status: 10 tabs', st.json.version >= 1 && st.json.tabs.length === 10, st.json.tabs.map((t) => `${t.id}:${t.count}`).join(' '));
 const s1 = await call('search_entries', { tab: 'jami', query: 'إنما الأعمال بالنيات' }); check('search_entries finds the hadith «إنما الأعمال بالنيات»', s1.json.total >= 1, 'index ' + s1.json.results[0]?.index);
 const s2 = await call('search_entries', { tab: 'alfiya', query: 'والليث سلطان' }); const lion = s2.json.results[0]; check('search_entries finds alfiya verse 521', s2.json.total === 1 && lion.number === 521, 'index ' + lion?.index);
 check('get_entry returns the fields', (await call('get_entry', { tab: 'alfiya', index: lion.index })).json.shatr1.includes('والليث'));

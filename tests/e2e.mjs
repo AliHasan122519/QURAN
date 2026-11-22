@@ -69,7 +69,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -191,7 +191,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى عبّرت'));
   { const ics = await page.locator('.drawer .drawer-item .drawer-ic svg').count(), its = await page.locator('.drawer .drawer-item').count();
     const kinds = await page.locator('.drawer .drawer-item .drawer-ic svg').evaluateAll((a) => a.map((x) => x.getAttribute('class') || ''));
-    log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
+    log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر، قواعد)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
@@ -222,7 +222,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'ثلاثة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون', items.join('|'));
+  log('المزيد', 'أربعة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون، قواعد علم التعبير', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير', items.join('|'));
   await page.locator('.drawer-item').nth(1).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
@@ -244,6 +244,30 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('المعبِّرون', 'Escape يغلق قائمة الرؤى ويبقى المعبِّرون', (await page.locator('.panel-back.nested').count()) === 0 && (await page.locator('.person-card').count()) === 13);
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('المعبِّرون', 'Escape ثانية يغلق القائمة كلها', (await page.locator('.panel-back').count()) === 0);
+  // «قواعد علم التعبير»
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(3).click(); await page.waitForSelector('.rule-card');
+  const nRules = await page.locator('.rule-card').count();
+  const ruleSub = await page.locator('.panel-sub').innerText();
+  log('قواعد علم التعبير', 'تُفتح بقواعدها (٥٩) مع عدد الكتب في العنوان الفرعي', toNum(ruleSub.split(' ')[0]) === 59 && /كتب التعبير/.test(ruleSub), `${nRules} | ${ruleSub}`);
+  const sel = await page.locator('.panel select[aria-label="القسم"] option').allInnerTexts();
+  log('قواعد علم التعبير', 'أقسام التصفية الأربعة', sel.length === 5 && sel[0] === 'كل الأقسام' && sel.some((x) => x.startsWith('آداب المعبِّر')), sel.join('|'));
+  await page.locator('#q-rules').fill('التصحيف'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  const tas = await page.locator('.rule-card').first().innerText();
+  log('قواعد علم التعبير', 'البحث عن «التصحيف» يقدّم قاعدة التصحيف بنص البدر المنير حرفياً مع اسم الكتاب', /التصحيف/.test(tas.split('\n')[0]) && tas.includes('رأيت أنني سرقت برغيف') && tas.includes('البدر المنير في علم التعبير'), tas.slice(0, 160));
+  await page.locator('.panel .retry').click(); await page.locator('#q-rules').fill('الاشتقاق'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  const ish = await page.locator('.rule-card').first().innerText();
+  log('قواعد علم التعبير', 'قاعدة الاشتقاق: «واعتبر الاشتقاق في الأسماء» مع مثال «السوسة تدل على السوء» ومثال ابن غنام', ish.includes('واعتبر الاشتقاق في الأسماء') && ish.includes('السوسة: تدل على السوء') && ish.includes('أمثلة') && ish.includes('تعبير الرؤيا (ابن غنام المقدسي)'), ish.slice(0, 120));
+  await page.locator('.panel .retry').click(); await page.locator('#q-rules').fill('تشبيه'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  const tsh = await page.locator('.rule-card').first().innerText();
+  log('قواعد علم التعبير', 'قاعدة التشبيه: «قياس واعتبار وتشبيه وظن» مع «لتشبيه العرب الحرب بالرحى»', tsh.includes('قياس واعتبار وتشبيه وظن') && tsh.includes('لتشبيه العرب الحرب بالرحى'), tsh.slice(0, 120));
+  await page.locator('.panel .retry').click();
+  await page.locator('.panel select[aria-label="القسم"]').selectOption({ index: 4 }); await page.waitForTimeout(200);
+  const g4 = await page.locator('.rule-card .pill').allInnerTexts();
+  log('قواعد علم التعبير', 'تصفية القسم تُبقي قواعده وحدها', g4.length > 0 && g4.every((x) => x.includes('آداب المعبِّر')), String(g4.length));
+  const pageText = await page.locator('.panel').innerText();
+  log('قواعد علم التعبير', 'لا بقايا طباعة في النصوص (علامات صفحات، أرقام حواشٍ، رموز @ و^)', !/PageV|\bms\d|@QB|@QE|\^|\[؟؟/.test(pageText));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('قواعد علم التعبير', 'Escape يغلق القائمة', (await page.locator('.panel-back').count()) === 0);
   await page.goto(URL_); await page.waitForTimeout(1200);
   await search('quran', 'يجتبيك ربك'); await page.waitForTimeout(500);
   log('الخط', 'علامة U+065E (ينقصها خط Amiri Quran) تُرسم بخط احتياطي لا مربعاً فارغاً', await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.family.includes('Quran Marks') && f.status === 'loaded'); }));

@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 193,
- "updated": "2026-11-21T16:47:31Z",
+ "version": 194,
+ "updated": "2026-11-22T20:46:36Z",
  "apk": {
   "versionCode": 29922984,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -102,6 +102,19 @@
    "menu": "المعبِّرون",
    "placeholder": "اكتب هنا",
    "hint": "من هم المعبِّرون الذين ورد ذكرهم في الكتب، وما قالته عنهم كتب التراجم."
+  },
+  {
+   "id": "qawaid",
+   "label": "قواعد علم التعبير",
+   "kind": "generic",
+   "file": "qawaid.json",
+   "sha256": "05a7984bdfeef5cc196fb0d25c17b8d3a3098e7ac849bcc77a9683f491255701",
+   "count": 59,
+   "drawer": true,
+   "card": "rule",
+   "menu": "قواعد علم التعبير",
+   "placeholder": "اكتب هنا",
+   "hint": "أصول التأويل وضوابطه كما نصّت عليها كتب التعبير: الاشتقاق، والتصحيف، والتشبيه، والضد، والمثل، والشعر…، مع أمثلتها."
   }
  ]
 }

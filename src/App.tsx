@@ -6,6 +6,7 @@ import { UpdateDialog } from './components/UpdateDialog';
 import { MenuButton, Drawer } from './components/Drawer';
 import { DreamsPanel } from './components/DreamsPanel';
 import { PeoplePanel } from './components/PeoplePanel';
+import { RulesPanel } from './components/RulesPanel';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
@@ -85,7 +86,9 @@ export function App() {
       <Drawer open={menu} items={side.map((t) => ({ id: t.id, label: t.menu ?? t.label, count: t.count }))} onPick={(id) => { setMenu(false); setPanel(id); }} onClose={() => setMenu(false)} />
       {opened && (opened.card === 'person'
         ? <PeoplePanel title={opened.label} people={lists[opened.id] ?? []} dreams={dreamsOf(lists)} onClose={() => setPanel(null)} />
-        : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}
+        : opened.card === 'rule'
+          ? <RulesPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />
+          : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}
       <header className="hero">
         <div className="hero-in">
           <div className="badge-top"><Sparkles size={14} />بحث نصّي دقيق مع توسعة دلالية اشتقاقية</div>
