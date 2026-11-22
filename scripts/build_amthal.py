@@ -25,4 +25,6 @@ rows = [[e['chapter'], re.sub(r'\s+([:،؛؟])', r'\1', e['proverb']).strip(), f
 if os.path.exists('data/amthal/majma_parsed.json'):
     M = json.load(open('data/amthal/majma_parsed.json', encoding='utf8'))
     rows += [[e['chapter'], e['proverb'], e['explanation']] for e in M]
+if os.path.exists('data/amthal/jamhara_parsed.json'):          # + «جمهرة الأمثال» (أبو هلال العسكري)
+    rows += [[e['chapter'], e['proverb'], e['explanation']] for e in json.load(open('data/amthal/jamhara_parsed.json', encoding='utf8'))]
 CL.publish('amthal', 'الأمثال', 'generic', {'h': rows}, len(rows))

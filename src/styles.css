@@ -268,3 +268,83 @@ html[data-theme="dark"] .menu-toggle { color: #efd28d; }
 .deep-why { margin: .25rem 0 0; font-size: .92rem; line-height: 2; color: var(--muted-foreground); } .deep-why b { color: var(--gold); }
 .deep-lead { margin: .1rem 0 .2rem; font-size: .92rem; color: var(--muted-foreground); }
 .deep-verdict { margin: .3rem 0 0; font-size: 1.08rem; line-height: 2.25; color: var(--ink); } .deep-open + .rule-title { margin-top: .2rem; }
+
+/* ===================================================================================================
+   STYLE «EMBER» — the colours and the type of the advertising film: ink, ember, yellow and cream,
+   Dubai Bold, pills and corner-brackets, a spark that travels. Only tokens and decorations: the structure
+   and the sizes of the controls stay as they are.
+   =================================================================================================== */
+:root {
+  --background: oklch(97.2% .014 90); --parchment: oklch(94% .03 88); --foreground: oklch(19% .01 20); --ink: oklch(14% .01 20);
+  --card: oklch(98.7% .008 90); --primary: oklch(57% .215 33); --primary-foreground: oklch(99% .004 90);
+  --secondary: oklch(93% .05 92); --secondary-foreground: oklch(30% .07 40); --muted: oklch(94% .02 90); --muted-foreground: oklch(43% .025 40);
+  --gold: oklch(82.5% .168 86); --border: oklch(86% .035 88); --input: oklch(91% .03 88); --ring: oklch(57% .215 33);
+  --page-dark: #f1ead7; --page-mid: #f1ead7; --on-dark: #0b0a0d; --on-dark-2: #4a4038; --h1: #0b0a0d;
+  --badge-text: #7d3410; --badge-bg: rgba(255, 255, 255, .72); --badge-border: rgba(11, 10, 13, .22); --orn: #e2401f;
+  --glow1: rgba(255, 74, 43, .17); --glow2: rgba(255, 194, 26, .34); --glow3: rgba(255, 74, 43, .1); --pg1: #f7f0de; --pg2: #efe4ca; --pg3: #f3ead3; --sheet-shadow: rgba(70, 30, 10, .3);
+  --ember: #ff4a2b; --yellow: #ffc21a; --cream: #f1ead7; --night: #0b0a0d;
+}
+html[data-theme="dark"] {
+  --background: oklch(17% .008 20); --parchment: oklch(21% .012 20); --card: oklch(21.5% .009 20); --secondary: oklch(27% .014 28); --secondary-foreground: oklch(93% .02 90);
+  --foreground: oklch(93% .015 90); --ink: oklch(97.5% .012 90); --muted: oklch(26% .011 25); --muted-foreground: oklch(75% .022 70);
+  --primary: oklch(61% .215 34); --primary-foreground: oklch(99% .004 90); --border: oklch(33% .016 25); --input: oklch(27% .013 25); --ring: oklch(66% .2 36);
+  --page-dark: #0b0a0d; --page-mid: #0e0c10; --on-dark: #f1ead7; --on-dark-2: #bdb3a2; --h1: #fff;
+  --badge-text: #ffd36b; --badge-bg: rgba(255, 255, 255, .06); --badge-border: rgba(255, 194, 26, .5); --orn: #ffc21a;
+  --glow1: rgba(255, 74, 43, .32); --glow2: rgba(255, 194, 26, .11); --glow3: rgba(255, 74, 43, .17); --pg1: #08070a; --pg2: #140b0d; --pg3: #0b0a0d; --sheet-shadow: rgba(0, 0, 0, .7);
+}
+/* the title between corner-brackets, as in the closing of the film */
+.hero h1 { position: relative; display: block; width: fit-content; margin-inline: auto; padding: .1em .55em .16em; }
+.hero h1::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .95;
+  background:
+    linear-gradient(var(--primary), var(--primary)) top right / 2.2rem 4px no-repeat, linear-gradient(var(--primary), var(--primary)) top right / 4px 2.2rem no-repeat,
+    linear-gradient(var(--primary), var(--primary)) top left / 2.2rem 4px no-repeat, linear-gradient(var(--primary), var(--primary)) top left / 4px 2.2rem no-repeat,
+    linear-gradient(var(--primary), var(--primary)) bottom right / 2.2rem 4px no-repeat, linear-gradient(var(--primary), var(--primary)) bottom right / 4px 2.2rem no-repeat,
+    linear-gradient(var(--primary), var(--primary)) bottom left / 2.2rem 4px no-repeat, linear-gradient(var(--primary), var(--primary)) bottom left / 4px 2.2rem no-repeat; }
+/* halftone dots and a travelling spark behind the header */
+.hero { position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; width: min(46vw, 28rem); height: 20rem; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(circle, var(--yellow) 0 22%, transparent 24%); background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(circle at 0 0, #000 0, transparent 70%); mask-image: radial-gradient(circle at 0 0, #000 0, transparent 70%); }
+html[data-theme="dark"] .hero::before { opacity: .22; }
+.hero-in { position: relative; z-index: 1; }
+.hero::after { content: ""; position: absolute; top: 5.2rem; inset-inline-start: -4rem; width: .9rem; height: .9rem; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 18%, #ffb08a 30%, var(--ember) 55%, transparent 72%); box-shadow: 0 0 22px 8px rgba(255, 74, 43, .55), -60px 0 36px 2px rgba(255, 74, 43, .25), -120px 0 40px -4px rgba(255, 74, 43, .12); animation: spark 11s cubic-bezier(.4, 0, .2, 1) 1.4s infinite; opacity: 0; }
+@keyframes spark { 0% { transform: translate(0, 0); opacity: 0; } 6% { opacity: 1; } 45% { transform: translate(calc(-1 * (100vw + 8rem)), 7rem); opacity: 1; } 52%, 100% { transform: translate(calc(-1 * (100vw + 8rem)), 7rem); opacity: 0; } }
+html[dir="rtl"] .hero::after { animation-name: spark-rtl; } @keyframes spark-rtl { 0% { transform: translate(0, 0); opacity: 0; } 6% { opacity: 1; } 45% { transform: translate(calc(100vw + 8rem), 7rem); opacity: 1; } 52%, 100% { transform: translate(calc(100vw + 8rem), 7rem); opacity: 0; } }
+.badge-top svg { color: var(--ember); }
+/* the sheet: a striped yellow edge like the film's yellow scene */
+.sheet::before { content: ""; position: absolute; inset-inline: 1.75rem; top: 0; height: 7px; border-radius: 0 0 8px 8px; pointer-events: none; background: repeating-linear-gradient(135deg, var(--yellow) 0 10px, color-mix(in oklch, var(--yellow) 55%, var(--ember)) 10px 20px); opacity: .9; }
+/* tabs and pills: ember and yellow */
+.tabs { background: color-mix(in oklch, var(--gold) 14%, var(--card)); border-color: color-mix(in oklch, var(--gold) 55%, var(--border)); }
+.tab[data-state="active"] { background-image: linear-gradient(135deg, var(--ember), color-mix(in oklch, var(--ember) 78%, #7a1d00)); box-shadow: 0 10px 22px -10px rgba(255, 74, 43, .75), 0 1px 0 rgba(255, 255, 255, .3) inset; color: #fff; }
+.tab[data-state="inactive"]:hover { color: var(--primary); }
+.pill-sem { background: color-mix(in oklch, var(--yellow) 30%, var(--card)); color: color-mix(in oklch, var(--ink) 85%, var(--ember)); }
+.pill-text { background: color-mix(in oklch, var(--ember) 14%, transparent); color: var(--primary); }
+.go { background-image: linear-gradient(135deg, var(--ember), color-mix(in oklch, var(--ember) 80%, #8a2000)); color: #fff; box-shadow: 0 10px 22px -10px rgba(255, 74, 43, .8); }
+.go:hover:not([disabled]) { background-image: linear-gradient(135deg, color-mix(in oklch, var(--ember) 90%, white), var(--ember)); }
+.go[disabled] { background-image: none; background: color-mix(in oklch, var(--ember) 35%, var(--muted)); box-shadow: none; }
+.field input:focus, .deep-form textarea:focus { box-shadow: 0 0 0 3px color-mix(in oklch, var(--ember) 55%, transparent), 0 14px 34px -14px rgba(255, 74, 43, .6); border-color: var(--ember); }
+mark, .hit, .hl { background: color-mix(in oklch, var(--yellow) 55%, transparent); color: inherit; border-radius: .3em; padding: 0 .12em; }
+/* the cards: an ember-and-yellow rail and the corner brackets that snap on hover */
+.verse-card::before { background: linear-gradient(var(--ember), var(--yellow)); width: 5px; opacity: .95; }
+.verse-card::after { content: ""; position: absolute; inset: -5px; pointer-events: none; opacity: 0; transition: opacity .25s, inset .25s;
+  background:
+    linear-gradient(var(--ember), var(--ember)) top right / 1.4rem 3px no-repeat, linear-gradient(var(--ember), var(--ember)) top right / 3px 1.4rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) top left / 1.4rem 3px no-repeat, linear-gradient(var(--ember), var(--ember)) top left / 3px 1.4rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) bottom right / 1.4rem 3px no-repeat, linear-gradient(var(--ember), var(--ember)) bottom right / 3px 1.4rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) bottom left / 1.4rem 3px no-repeat, linear-gradient(var(--ember), var(--ember)) bottom left / 3px 1.4rem no-repeat; }
+.verse-card:hover::after { opacity: 1; inset: -2px; } .panel .verse-card:hover::after { opacity: 0; }
+.verse-card:hover { border-color: color-mix(in oklch, var(--ember) 55%, var(--border)); box-shadow: 0 22px 44px -22px rgba(255, 74, 43, .45); }
+/* the menu: yellow chips, ember arrow */
+.drawer-ic { background: color-mix(in oklch, var(--yellow) 32%, var(--card)); border-color: color-mix(in oklch, var(--yellow) 70%, transparent); }
+.drawer-item:hover { background: color-mix(in oklch, var(--yellow) 22%, var(--card)); } .drawer-item:hover .drawer-go { color: var(--ember) !important; }
+.menu-toggle, .theme-toggle { box-shadow: 0 8px 20px -10px rgba(255, 74, 43, .5); }
+.deep-chip[data-on="true"] { background: linear-gradient(135deg, var(--ember), color-mix(in oklch, var(--ember) 78%, #7a1d00)); box-shadow: 0 8px 18px -10px rgba(255, 74, 43, .85); }
+.deep-group legend, .dream-label, .rule-title, .about-title { color: color-mix(in oklch, var(--ember) 82%, var(--ink)); }
+html[data-theme="dark"] .deep-group legend, html[data-theme="dark"] .dream-label, html[data-theme="dark"] .rule-title { color: var(--yellow); }
+.about-hero { background: linear-gradient(135deg, var(--night), color-mix(in oklch, var(--night) 70%, var(--ember))); color: #f1ead7; box-shadow: 0 18px 40px -22px rgba(255, 74, 43, .7); }
+.about-hero svg { color: var(--yellow); }
+.panel-head { border-bottom-color: color-mix(in oklch, var(--yellow) 55%, transparent); }
+.ornament-divider::after { color: var(--ember); }
+.hero h1 { background-image: linear-gradient(100deg, var(--h1) 0%, var(--h1) 38%, var(--ember) 50%, var(--h1) 62%, var(--h1) 100%); text-shadow: 0 10px 40px rgba(255, 74, 43, .2); }
+@media (prefers-reduced-motion: reduce) { .hero::after { display: none; } }

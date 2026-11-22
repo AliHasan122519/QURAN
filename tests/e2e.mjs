@@ -271,7 +271,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // «أحاديث الرؤيا» (البخاري ومسلم)
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'أحاديث الرؤيا' }).click(); await page.waitForSelector('.rule-card');
   const hSub = await page.locator('.panel-sub').innerText(); const hTxt = await page.locator('.rule-card').first().innerText();
-  log('أحاديث الرؤيا', 'تُفتح بـ٦٦ حديثاً للبخاري و٤٠ لمسلم (١٠٦) والكتاب مسمّى تحت كل نص', toNum(hSub.split(' ')[0]) === 106 && /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
+  log('أحاديث الرؤيا', 'تُفتح بـ١٧٢ حديثاً من البخاري ومسلم والترمذي وابن ماجه والموطأ، والكتاب مسمّى تحت كل نص', toNum(hSub.split(' ')[0]) === 172 && /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
   await page.locator('#q-rules').fill('جزء من ستة وأربعين'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
   log('أحاديث الرؤيا', 'البحث عن «جزء من ستة وأربعين» يجد أحاديث', (await page.locator('.rule-card').count()) > 3);
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
