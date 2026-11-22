@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 204,
- "updated": "2026-11-22T22:40:26Z",
+ "version": 206,
+ "updated": "2026-11-22T22:59:37Z",
  "apk": {
   "versionCode": 29923122,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -63,6 +63,19 @@
    "smart": "full",
    "placeholder": "اكتب هنا",
    "hint": "اكتب الكلمة ويفهم التطبيق مرادفاتها وما يقابلها بالعامية، وتظهر الأبيات التي ورد فيها المعنى."
+  },
+  {
+   "id": "taweel",
+   "label": "التأويل العميق",
+   "kind": "generic",
+   "file": "taweel.json",
+   "sha256": "8aa7741eb3ea25171a49535813de82fab21252fec37fcb1eeabeffe6345f5654",
+   "count": 1,
+   "drawer": true,
+   "card": "deep",
+   "menu": "التأويل العميق",
+   "placeholder": "اكتب هنا",
+   "hint": "اكتب رؤياك فيأتيك تأويلها من الأصول."
   },
   {
    "id": "ruaa",
@@ -155,8 +168,8 @@
    "label": "حول التطبيق",
    "kind": "generic",
    "file": "about.json",
-   "sha256": "f185ec7f6348ca70ff9143048d0e2a97cea4fd805b8ad28132ea8c5778608640",
-   "count": 6,
+   "sha256": "dc1f80e4b2a1c799b198112e44d67046367a07a7d4b53f3585ff4d43f9213608",
+   "count": 1,
    "drawer": true,
    "card": "about",
    "menu": "حول التطبيق",

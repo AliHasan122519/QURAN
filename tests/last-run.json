@@ -1,5 +1,5 @@
 {
- "at": "2026-11-22T22:38:52.363Z",
+ "at": "2026-11-22T23:09:02.349Z",
  "axe": {
   "الصفحة الرئيسية (قرآن)": [],
   "السنة النبوية": []
@@ -226,7 +226,7 @@
    "group": "المصادر",
    "name": "لا تُحمَّل بيانات سوى مصادر الموقع",
    "pass": true,
-   "detail": "manifest.json, quran.json, jami.json, amthal.json, alfiya.json, books.json, shawahid.json, ruaa.json, anbiya.json, muabbirun.json, qawaid.json, ruyahadith.json, muqaranat.json, about.json"
+   "detail": "manifest.json, quran.json, jami.json, amthal.json, alfiya.json, books.json, shawahid.json, taweel.json, ruaa.json, anbiya.json, muabbirun.json, qawaid.json, ruyahadith.json, muqaranat.json, about.json"
   },
   {
    "group": "الألفية الوردية",
@@ -622,7 +622,7 @@
    "group": "القائمة الجانبية",
    "name": "لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر، قواعد، أحاديث، مقارنة، حول)",
    "pass": true,
-   "detail": "lucide lucide-cloud-moon | lucide lucide-sparkles | lucide lucide-book-user | lucide lucide-scale | lucide lucide-scroll-text | lucide lucide-git-compare-arrows | lucide lucide-info"
+   "detail": "lucide lucide-wand-sparkles | lucide lucide-cloud-moon | lucide lucide-sparkles | lucide lucide-book-user | lucide lucide-scale | lucide lucide-scroll-text | lucide lucide-git-compare-arrows | lucide lucide-info"
   },
   {
    "group": "القائمة الجانبية",
@@ -692,9 +692,9 @@
   },
   {
    "group": "المزيد",
-   "name": "سبعة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون، قواعد علم التعبير، أحاديث الرؤيا، مقارنة المعبِّرين، حول التطبيق",
+   "name": "ثمانية أزرار أولها «التأويل العميق»، بأسهم لا بعدّادات",
    "pass": true,
-   "detail": "رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق"
+   "detail": "التأويل العميق|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق"
   },
   {
    "group": "رؤى الأنبياء والصالحين",
@@ -812,9 +812,45 @@
   },
   {
    "group": "حول التطبيق",
-   "name": "وصف التطبيق وعدّادات المحتوى الحيّة (٦٢٣٦ آية…) وإشعار الخصوصية",
+   "name": "وصف واحد لما تفعله المنصة، بلا أرقام ولا عدّادات ولا بطاقات أخرى",
    "pass": true,
-   "detail": "10 counters"
+   "detail": ""
+  },
+  {
+   "group": "القوائم",
+   "name": "زر الإغلاق/الرجوع يبقى ظاهراً حتى بعد النزول إلى أسفل القائمة",
+   "pass": true,
+   "detail": "{\"x\":805.26123046875,\"y\":32,\"width\":40,\"height\":40}"
+  },
+  {
+   "group": "التأويل العميق",
+   "name": "زر «التأويل» معطّل حتى يختار المستخدم عمره وحالته الاجتماعية",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "group": "التأويل العميق",
+   "name": "يُفعَّل الزر بعد اختيار الخيارين",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "group": "التأويل العميق",
+   "name": "يبدأ بـ«والله أعلم» ويخاطب المستخدم بحاله ويأتي بتأويل «حية» و«ماء» و«بيتي» وقسم «وبحسب حالك»",
+   "pass": true,
+   "detail": "والله أعلم، فإن في رؤياك رموزاً ظاهرة: «حية»، «بيتي»، «ماء». وهذا ما يُفهم منها "
+  },
+  {
+   "group": "التأويل العميق",
+   "name": "لا يذكر اسم كتاب ولا «قال فلان» أثناء التأويل",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "group": "التأويل العميق",
+   "name": "يذكر الأصول التي بُني عليها التأويل ويختم بـ«والله أعلم»",
+   "pass": true,
+   "detail": ""
   },
   {
    "group": "الأمثال",

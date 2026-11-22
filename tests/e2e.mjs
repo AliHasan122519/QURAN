@@ -69,7 +69,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|about|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|about|taweel|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -188,14 +188,14 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('القائمة الجانبية', 'زر «المزيد» في أعلى الصفحة وله اسم وصول', (await page.locator('button.menu-toggle').getAttribute('aria-label')) === 'المزيد');
   log('القائمة الجانبية', 'قسم «رؤى عبّرت» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: /رؤى/ }).count()));
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
-  log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى عبّرت'));
+  log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item', { hasText: 'رؤى عبّرت' }).count()) === 1);
   { const ics = await page.locator('.drawer .drawer-item .drawer-ic svg').count(), its = await page.locator('.drawer .drawer-item').count();
     const kinds = await page.locator('.drawer .drawer-item .drawer-ic svg').evaluateAll((a) => a.map((x) => x.getAttribute('class') || ''));
     log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر، قواعد، أحاديث، مقارنة، حول)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
-  await page.click('button.menu-toggle'); await page.click('.drawer-item'); await page.waitForSelector('.panel .dream-card');
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'رؤى عبّرت' }).click(); await page.waitForSelector('.panel .dream-card');
   log('القائمة الجانبية', 'زر «رؤى عبّرت» يفتح القائمة الخاصة «رؤى وتعبيرها»', (await page.locator('.panel .panel-head h2').innerText()).includes('رؤى وتعبيرها'));
   const n0 = await page.locator('.dream-card').count();
   const sub = await page.locator('.panel-sub').innerText();
@@ -222,8 +222,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'سبعة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون، قواعد علم التعبير، أحاديث الرؤيا، مقارنة المعبِّرين، حول التطبيق', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق', items.join('|'));
-  await page.locator('.drawer-item').nth(1).click(); await page.waitForSelector('.panel .dream-card');
+  log('المزيد', 'ثمانية أزرار أولها «التأويل العميق»، بأسهم لا بعدّادات', items.join('|') === 'التأويل العميق|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 8, items.join('|'));
+  await page.locator('.drawer-item', { hasText: 'رؤى الأنبياء والصالحين' }).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
   const sub = await page.locator('.panel-sub').innerText();
@@ -231,7 +231,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   const opts = await page.locator('.panel select[aria-label="المرجع"] option').allInnerTexts();
   log('رؤى الأنبياء والصالحين', 'المراجع: القرآن والجامع الصغير وكتب التعبير والمنامات', ['القرآن الكريم', 'الجامع الصغير', 'المنامات', 'القادري'].every((k) => opts.some((o) => o.includes(k))), opts.length + ' مرجعاً');
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
-  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(2).click(); await page.waitForSelector('.person-card');
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'المعبِّرون' }).click(); await page.waitForSelector('.person-card');
   const nPeople = await page.locator('.person-card').count();
   const sirin = await page.locator('.person-card', { hasText: 'محمد بن سيرين' }).first().innerText();
   log('المعبِّرون', 'بطاقات المعبِّرين (١٣) وفي ابن سيرين نص الذهبي كما هو مع اسم المصدر', nPeople === 13 && sirin.includes('فلم أر أجبن من فتوى منه، ولا أجرأ على رؤيا منه') && sirin.includes('سير أعلام النبلاء للذهبي'), String(nPeople));
@@ -245,7 +245,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('المعبِّرون', 'Escape ثانية يغلق القائمة كلها', (await page.locator('.panel-back').count()) === 0);
   // «قواعد علم التعبير»
-  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(3).click(); await page.waitForSelector('.rule-card');
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'قواعد علم التعبير' }).click(); await page.waitForSelector('.rule-card');
   const nRules = await page.locator('.rule-card').count();
   const ruleSub = await page.locator('.panel-sub').innerText();
   log('قواعد علم التعبير', 'تُفتح بقواعدها (٥٩) مع عدد الكتب في العنوان الفرعي', toNum(ruleSub.split(' ')[0]) === 59 && /كتب التعبير/.test(ruleSub), `${nRules} | ${ruleSub}`);
@@ -269,22 +269,39 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('قواعد علم التعبير', 'Escape يغلق القائمة', (await page.locator('.panel-back').count()) === 0);
   // «أحاديث الرؤيا» (البخاري ومسلم)
-  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(4).click(); await page.waitForSelector('.rule-card');
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'أحاديث الرؤيا' }).click(); await page.waitForSelector('.rule-card');
   const hSub = await page.locator('.panel-sub').innerText(); const hTxt = await page.locator('.rule-card').first().innerText();
   log('أحاديث الرؤيا', 'تُفتح بـ٦٦ حديثاً للبخاري و٤٠ لمسلم (١٠٦) والكتاب مسمّى تحت كل نص', toNum(hSub.split(' ')[0]) === 106 && /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
   await page.locator('#q-rules').fill('جزء من ستة وأربعين'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
   log('أحاديث الرؤيا', 'البحث عن «جزء من ستة وأربعين» يجد أحاديث', (await page.locator('.rule-card').count()) > 3);
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // «مقارنة المعبِّرين»
-  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(5).click(); await page.waitForSelector('.rule-card');
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'مقارنة المعبِّرين' }).click(); await page.waitForSelector('.rule-card');
   await page.locator('#q-rules').fill('حية'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
   const cmp = await page.locator('.rule-card').first().innerText();
   log('مقارنة المعبِّرين', 'رمز «حية»: ما قاله أكثر من كتاب جنباً إلى جنب، واسم كل كتاب تحت نصه', /القادري في التعبير/.test(cmp) && /تعطير الأنام/.test(cmp) && /الإشارات في علم العبارات/.test(cmp) && !/اللحية/.test(cmp.split('\n')[0]), cmp.slice(0, 100));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
-  // «حول التطبيق»
-  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(6).click(); await page.waitForSelector('.about-hero');
-  const ab = await page.locator('.panel.about').innerText(); const nStat = await page.locator('.stat').count();
-  log('حول التطبيق', 'وصف التطبيق وعدّادات المحتوى الحيّة (٦٢٣٦ آية…) وإشعار الخصوصية', /منصّة بحث شرعي/.test(ab) && nStat >= 8 && /6236|6,236/.test(ab) && /لا يجمع التطبيق أي بيانات شخصية/.test(ab) && /إصدار المحتوى/.test(ab), `${nStat} counters`);
+  // «حول التطبيق»: one description, no numbers, no counters
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'حول التطبيق' }).click(); await page.waitForSelector('.about-hero');
+  const ab = await page.locator('.panel.about .about-hero').innerText();
+  log('حول التطبيق', 'وصف واحد لما تفعله المنصة، بلا أرقام ولا عدّادات ولا بطاقات أخرى', /منصّة بحث شرعي/.test(ab) && /التأويل العميق/.test(ab) && !/[0-9٠-٩]/.test(await page.locator('.panel.about').innerText()) && (await page.locator('.panel.about .stat, .panel.about article').count()) === 0);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // header of the list stays in view while scrolling (the back button is always at hand)
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'قواعد علم التعبير' }).click(); await page.waitForSelector('.rule-card');
+  await page.evaluate(() => { const p = document.querySelector('.panel'); p.scrollTop = p.scrollHeight; }); await page.waitForTimeout(250);
+  const xbox = await page.locator('.panel .drawer-x').boundingBox();
+  log('القوائم', 'زر الإغلاق/الرجوع يبقى ظاهراً حتى بعد النزول إلى أسفل القائمة', !!xbox && xbox.y >= 0 && xbox.y < 120, JSON.stringify(xbox));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // «التأويل العميق»
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'التأويل العميق' }).click(); await page.waitForSelector('#q-deep');
+  await page.fill('#q-deep', 'رأيت حية في بيتي وكنت أشرب ماء');
+  log('التأويل العميق', 'زر «التأويل» معطّل حتى يختار المستخدم عمره وحالته الاجتماعية', await page.locator('.deep-go').isDisabled());
+  await page.locator('.deep-chip', { hasText: 'من 18 إلى 35' }).click(); await page.locator('.deep-chip', { hasText: 'أعزب' }).click();
+  log('التأويل العميق', 'يُفعَّل الزر بعد اختيار الخيارين', !(await page.locator('.deep-go').isDisabled()));
+  await page.click('.deep-go'); await page.waitForSelector('.deep-card'); const dp = await page.locator('.deep-out').innerText();
+  log('التأويل العميق', 'يبدأ بـ«والله أعلم» ويخاطب المستخدم بحاله ويأتي بتأويل «حية» و«ماء» و«بيتي» وقسم «وبحسب حالك»', dp.trim().startsWith('والله أعلم') && /أنت شاب وأعزب/.test(dp) && /أما رؤيتك «حية»/.test(dp) && /أما رؤيتك «ماء»/.test(dp) && /وبحسب حالك/.test(dp), dp.slice(0, 80));
+  log('التأويل العميق', 'لا يذكر اسم كتاب ولا «قال فلان» أثناء التأويل', !/ابن سيرين|ابن نعمة|قال ابن|قال جعفر|قال دانيال|في كتاب|الإشارات في|تعطير الأنام|القادري|البدر المنير/.test(dp));
+  log('التأويل العميق', 'يذكر الأصول التي بُني عليها التأويل ويختم بـ«والله أعلم»', /وعلى ماذا بُني هذا التأويل/.test(dp) && /والله أعلم وأحكم/.test(dp));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // «الأمثال»: مجمع الأمثال
   await page.goto(URL_); await page.waitForTimeout(1200); await search('amthal', 'إن من البيان لسحرا');

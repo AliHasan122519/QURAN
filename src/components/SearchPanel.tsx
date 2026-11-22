@@ -58,7 +58,7 @@ function Skeleton() {
   return <div className="space" aria-hidden="true">{[0, 1, 2].map((i) => <div className="verse-card pulse" key={i} style={{ animationDelay: `${i * 120}ms` }}><div className="sk w32" /><div className="sk" /><div className="sk w11" /><div className="sk w3" /></div>)}</div>;
 }
 
-function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: 'meaning' | 'verse' | 'dream' | 'person' | 'rule' | 'about'; empty: string }) {
+function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: 'meaning' | 'verse' | 'dream' | 'person' | 'rule' | 'about' | 'deep'; empty: string }) {
   if (!res.results.length) {
     return <div className="soft" role="status">{empty}{res.expansion?.terms.length ? <div className="also">تم البحث أيضاً عن: {res.expansion.terms.slice(0, 8).join('، ')}</div> : null}</div>;
   }

@@ -189,7 +189,7 @@ html[data-theme="dark"] .menu-toggle { color: #efd28d; }
 .drawer-item { display: flex; align-items: center; gap: .7rem; width: 100%; padding: .85rem 1rem; border-radius: .9rem; text-align: start; font-size: 1rem; color: var(--ink); border: 1px solid color-mix(in oklch, var(--gold) 35%, var(--border)); background: color-mix(in oklch, var(--parchment) 90%, white); }
 .drawer-item:hover { background: color-mix(in oklch, var(--gold) 14%, var(--parchment)); } .drawer-ic { display: grid; place-items: center; flex: none; width: 2.4rem; height: 2.4rem; border-radius: .8rem; background: color-mix(in oklch, var(--gold) 20%, var(--parchment)); border: 1px solid color-mix(in oklch, var(--gold) 45%, transparent); }
 .drawer-item svg { color: var(--primary); flex: none; }
-.drawer-label { flex: 1; } .drawer-count { font-size: .75rem; padding: .1rem .6rem; border-radius: 9999px; background: var(--secondary); color: var(--secondary-foreground); }
+.drawer-label { flex: 1; }
 .drawer-empty { font-size: .85rem; color: var(--muted-foreground); }
 .panel-back { position: fixed; inset: 0; z-index: 90; display: flex; justify-content: flex-start; background: rgba(2, 10, 8, .55); backdrop-filter: blur(2px); animation: fade .18s ease-out; }
 .panel { width: min(36rem, 100%); height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1.1rem 2rem; color: var(--foreground); background: var(--background);
@@ -245,3 +245,25 @@ html[data-theme="dark"] .menu-toggle { color: #efd28d; }
 .stat svg { grid-row: span 2; color: var(--primary); } .stat b { font-size: 1.35rem; line-height: 1.2; color: var(--ink); font-variant-numeric: tabular-nums; } .stat span { font-size: .72rem; color: var(--muted-foreground); line-height: 1.5; }
 .about-card { margin-bottom: .8rem; } .about-title { display: flex; align-items: center; gap: .45rem; margin: 0 0 .35rem; font-size: 1.1rem; color: var(--gold); } .about-title svg { color: var(--primary); }
 .about-ver { margin: 1.2rem 0 .4rem; text-align: center; font-size: .78rem; color: var(--muted-foreground); }
+
+/* the header of every list stays in view (so the back button is always at hand) */
+.panel-head { position: sticky; top: 0; z-index: 8; margin: calc(-1 * (env(safe-area-inset-top, 0px) + 1rem)) -1.1rem .6rem; padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1.1rem .75rem; background: color-mix(in oklch, var(--background) 93%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid color-mix(in oklch, var(--gold) 28%, transparent); }
+/* the side menu: an arrow instead of a counter */
+.drawer-go { margin-inline-start: auto; color: var(--muted-foreground) !important; transition: transform .2s, color .2s; } .drawer-item:hover .drawer-go { transform: translateX(-4px); color: var(--primary) !important; }
+/* «التأويل العميق» */
+.deep-form { display: grid; gap: .9rem; margin-top: .6rem; }
+.deep-form textarea { width: 100%; padding: 1rem 1.1rem; border-radius: 1rem; border: 1px solid color-mix(in oklch, var(--gold) 35%, var(--border)); background: var(--card); color: var(--foreground); font: inherit; font-size: 1.02rem; line-height: 2; resize: vertical; min-height: 8.5rem; transition: box-shadow .25s, border-color .25s; }
+.deep-form textarea:focus { outline: 0; box-shadow: 0 0 0 3px color-mix(in oklch, var(--gold) 55%, transparent); }
+.deep-group { border: 0; padding: 0; margin: 0; min-width: 0; } .deep-group legend { padding: 0; margin-bottom: .45rem; font-size: .92rem; color: var(--gold); }
+.deep-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.deep-chip { padding: .55rem 1rem; border-radius: 999px; font-size: .88rem; border: 1px solid color-mix(in oklch, var(--gold) 40%, var(--border)); background: var(--card); color: var(--foreground); transition: background .2s, color .2s, transform .15s, box-shadow .2s; }
+.deep-chip:hover { transform: translateY(-1px); }
+.deep-chip[data-on="true"] { background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 70%, var(--gold))); color: var(--primary-foreground); border-color: transparent; box-shadow: 0 8px 18px -10px color-mix(in oklch, var(--primary) 85%, transparent); }
+.deep-note { margin: 0; font-size: .78rem; color: var(--muted-foreground); line-height: 1.8; }
+.deep-go { width: 100%; height: 3rem; font-size: 1rem; } .deep-need { margin: 0; text-align: center; font-size: .82rem; color: var(--gold); }
+.deep-out { display: grid; gap: .8rem; margin-top: 1.1rem; scroll-margin-top: 6.8rem; }
+.deep-open { margin: 0; font-size: 1.12rem; line-height: 2.2; color: var(--ink); } .deep-close { margin: .4rem 0 1rem; text-align: center; font-size: .9rem; line-height: 2; color: var(--muted-foreground); }
+.deep-card .bio-line { margin-top: .35rem; }
+.deep-pt { padding: .15rem 0; } .deep-pt + .deep-pt { border-top: 1px dashed color-mix(in oklch, var(--gold) 30%, transparent); margin-top: .5rem; padding-top: .55rem; }
+.deep-why { margin: .25rem 0 0; font-size: .92rem; line-height: 2; color: var(--muted-foreground); } .deep-why b { color: var(--gold); }
+.deep-lead { margin: .1rem 0 .2rem; font-size: .92rem; color: var(--muted-foreground); }

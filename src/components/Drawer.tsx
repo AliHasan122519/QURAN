@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Menu, X, MoonStar, CloudMoon, Sparkles, BookUser, Scale, GitCompareArrows, ScrollText, Info } from 'lucide-react';
+import { Menu, X, MoonStar, CloudMoon, Sparkles, BookUser, Scale, GitCompareArrows, ScrollText, Info, ChevronLeft, Wand2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { toAr } from '../lib/format';
 
 /** a small icon that says what each button of the side menu is (a dream, the prophets and the righteous, the interpreters); a new list falls back to the moon */
-const ICONS: Record<string, LucideIcon> = { ruaa: CloudMoon, anbiya: Sparkles, muabbirun: BookUser, qawaid: Scale, muqaranat: GitCompareArrows, ruyahadith: ScrollText, about: Info };
+const ICONS: Record<string, LucideIcon> = { ruaa: CloudMoon, anbiya: Sparkles, muabbirun: BookUser, qawaid: Scale, muqaranat: GitCompareArrows, ruyahadith: ScrollText, about: Info, taweel: Wand2 };
 
-export interface DrawerItem { id: string; label: string; count?: number; }
+export interface DrawerItem { id: string; label: string; }
 
 /** Button fixed at the top (the side opposite the theme button): opens the side menu. */
 export function MenuButton({ open, onClick }: { open: boolean; onClick: () => void }) {
@@ -40,7 +39,7 @@ export function Drawer({ open, items, onPick, onClose }: { open: boolean; items:
             <button type="button" key={it.id} className="drawer-item" onClick={() => onPick(it.id)}>
               <span className="drawer-ic" aria-hidden="true">{(() => { const Ic = ICONS[it.id] ?? MoonStar; return <Ic size={20} strokeWidth={1.9} />; })()}</span>
               <span className="drawer-label">{it.label}</span>
-              {it.count ? <span className="drawer-count">{toAr(it.count)}</span> : null}
+              <ChevronLeft className="drawer-go" size={20} aria-hidden="true" />
             </button>
           ))}
           {!items.length && <p className="drawer-empty">لا توجد أقسام الآن.</p>}
