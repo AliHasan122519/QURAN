@@ -189,6 +189,9 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('القائمة الجانبية', 'قسم «رؤى عبّرت» ليس تبويباً (تبقى ستة تبويبات)', (await page.getByRole('tab').count()) === 6 && !(await page.getByRole('tab', { name: /رؤى/ }).count()));
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى عبّرت'));
+  { const ics = await page.locator('.drawer .drawer-item .drawer-ic svg').count(), its = await page.locator('.drawer .drawer-item').count();
+    const kinds = await page.locator('.drawer .drawer-item .drawer-ic svg').evaluateAll((a) => a.map((x) => x.getAttribute('class') || ''));
+    log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);

@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { Menu, X, MoonStar } from 'lucide-react';
+import { Menu, X, MoonStar, CloudMoon, Sparkles, BookUser } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { toAr } from '../lib/format';
+
+/** a small icon that says what each button of the side menu is (a dream, the prophets and the righteous, the interpreters); a new list falls back to the moon */
+const ICONS: Record<string, LucideIcon> = { ruaa: CloudMoon, anbiya: Sparkles, muabbirun: BookUser };
 
 export interface DrawerItem { id: string; label: string; count?: number; }
 
@@ -34,7 +38,7 @@ export function Drawer({ open, items, onPick, onClose }: { open: boolean; items:
         <nav className="drawer-list" aria-label="أقسام المزيد">
           {items.map((it) => (
             <button type="button" key={it.id} className="drawer-item" onClick={() => onPick(it.id)}>
-              <MoonStar size={20} aria-hidden="true" />
+              <span className="drawer-ic" aria-hidden="true">{(() => { const Ic = ICONS[it.id] ?? MoonStar; return <Ic size={20} strokeWidth={1.9} />; })()}</span>
               <span className="drawer-label">{it.label}</span>
               {it.count ? <span className="drawer-count">{toAr(it.count)}</span> : null}
             </button>
