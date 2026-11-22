@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { Menu, X, MoonStar, CloudMoon, Sparkles, BookUser, Scale } from 'lucide-react';
+import { Menu, X, MoonStar, CloudMoon, Sparkles, BookUser, Scale, GitCompareArrows, ScrollText, Info } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toAr } from '../lib/format';
 
 /** a small icon that says what each button of the side menu is (a dream, the prophets and the righteous, the interpreters); a new list falls back to the moon */
-const ICONS: Record<string, LucideIcon> = { ruaa: CloudMoon, anbiya: Sparkles, muabbirun: BookUser, qawaid: Scale };
+const ICONS: Record<string, LucideIcon> = { ruaa: CloudMoon, anbiya: Sparkles, muabbirun: BookUser, qawaid: Scale, muqaranat: GitCompareArrows, ruyahadith: ScrollText, about: Info };
 
 export interface DrawerItem { id: string; label: string; count?: number; }
 

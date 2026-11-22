@@ -13,7 +13,7 @@ const CLITIC = '(?:وال|فال|بال|كال|لل|ول|ال|و|ف|ب|ك|ل)?';
 const passages = (s?: string) => (s ?? '').split('\n').filter(Boolean).map((l) => { const [t, src] = l.split('\t'); return { t, src: src ?? '' }; });
 
 /** One rule of interpretation, as the books themselves put it: the passages that state it (each with its book), then the passages that give examples. */
-const RuleCard = memo(function RuleCard({ doc, words }: { doc: Doc; words: Set<string> }) {
+const RuleCard = memo(function RuleCard({ doc, words, l1, l2 }: { doc: Doc; words: Set<string>; l1?: string; l2?: string }) {
   const rule = passages(doc.text); const ex = passages(doc.explanation);
   return (
     <article className="verse-card rule-card" data-src="rule">
@@ -21,10 +21,10 @@ const RuleCard = memo(function RuleCard({ doc, words }: { doc: Doc; words: Set<s
         <h3 className="rule-title">{doc.ref}</h3>
         {doc.by && <div className="dream-pills"><span className="pill pill-sem"><i />{doc.by}</span></div>}
       </div>
-      <h3 className="dream-label">{rule.length > 1 ? 'ما نصّت عليه الكتب' : 'ما نصّ عليه الكتاب'}</h3>
+      {(l1 ?? (rule.length > 1 ? 'ما نصّت عليه الكتب' : 'ما نصّ عليه الكتاب')) && <h3 className="dream-label">{l1 ?? (rule.length > 1 ? 'ما نصّت عليه الكتب' : 'ما نصّ عليه الكتاب')}</h3>}
       {rule.map((p, i) => <p dir="rtl" className="bio-line" key={i}><Rich text={p.t} words={words} />{p.src ? <span className="bio-src"> — {p.src}</span> : null}</p>)}
       {ex.length > 0 && <>
-        <h3 className="dream-label">أمثلة</h3>
+        <h3 className="dream-label">{l2 ?? 'أمثلة'}</h3>
         {ex.map((p, i) => <p dir="rtl" className="bio-line" key={i}><Rich text={p.t} words={words} />{p.src ? <span className="bio-src"> — {p.src}</span> : null}</p>)}
       </>}
     </article>
@@ -33,7 +33,7 @@ const RuleCard = memo(function RuleCard({ doc, words }: { doc: Doc; words: Set<s
 
 /** «قواعد علم التعبير»: the rules that the reference books state (derivation, misreading, likeness, the opposite, the proverb, the verse, what changes the interpretation, the interpreter's manners…),
  *  each passage word for word with the name of its book; searchable and filterable by group. */
-export function RulesPanel({ title, docs, onClose }: { title: string; docs: Doc[]; onClose: () => void }) {
+export function RulesPanel({ title, docs, onClose, unit, sub, l1, l2 }: { title: string; docs: Doc[]; onClose: () => void; unit?: string; sub?: string; l1?: string; l2?: string }) {
   const [q, setQ] = useState(''); const [applied, setApplied] = useState(''); const [group, setGroup] = useState(''); const [limit, setLimit] = useState(PAGE);
   const back = useRef<HTMLDivElement>(null); const top = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -71,7 +71,7 @@ export function RulesPanel({ title, docs, onClose }: { title: string; docs: Doc[
     <div ref={back} className="panel-back" onClick={onClose}>
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head" ref={top}>
-          <div><h2>{title}</h2><p className="panel-sub">{toAr(docs.length)} قاعدة وضابطاً من {toAr(books)} من كتب التعبير، بنصوصها وأمثلتها</p></div>
+          <div><h2>{title}</h2><p className="panel-sub">{toAr(docs.length)} {unit ?? 'قاعدة وضابطاً'} {sub ?? `من ${toAr(books)} من كتب التعبير، بنصوصها وأمثلتها`}</p></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>
         </div>
         <form className="sform" onSubmit={submit}>
@@ -91,9 +91,9 @@ export function RulesPanel({ title, docs, onClose }: { title: string; docs: Doc[
           </div>
         </form>
         {applied && <div className="stats"><div><span>نتائج البحث عن «<b>{applied}</b>»: <b>{toAr(list.length)}</b></span></div><button type="button" className="retry" onClick={() => { setApplied(''); setLimit(PAGE); }}>عرض الكل</button></div>}
-        <div className="space rule-list" role="region" aria-label="القواعد" aria-live="polite">
-          {shown.map((d) => <RuleCard key={d.id} doc={d} words={words} />)}
-          {!list.length && <div className="soft" role="status">لم نعثر على قاعدة تطابق بحثك.</div>}
+        <div className="space rule-list" role="region" aria-label="القائمة" aria-live="polite">
+          {shown.map((d) => <RuleCard key={d.id} doc={d} words={words} l1={l1} l2={l2} />)}
+          {!list.length && <div className="soft" role="status">لم نعثر على ما يطابق بحثك.</div>}
           {list.length > limit && <button type="button" className="go more" onClick={() => setLimit((n) => n + PAGE)}>عرض المزيد ({toAr(list.length - limit)} متبقية)</button>}
         </div>
       </div>

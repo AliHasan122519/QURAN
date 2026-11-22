@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 194,
- "updated": "2026-11-22T20:46:36Z",
+ "version": 204,
+ "updated": "2026-11-22T22:40:26Z",
  "apk": {
   "versionCode": 29923014,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -29,8 +29,8 @@
    "label": "الأمثال",
    "kind": "generic",
    "file": "amthal.json",
-   "sha256": "9a62f37a06b576b76eb11e276cf6439f42153ff8909065275fe28c3fabf8a0fb",
-   "count": 3174
+   "sha256": "092cbabf6f14692301bd105a9e9c1c66f35dd12d440c4c4968ffff638ddb9564",
+   "count": 7930
   },
   {
    "id": "alfiya",
@@ -115,6 +115,53 @@
    "menu": "قواعد علم التعبير",
    "placeholder": "اكتب هنا",
    "hint": "أصول التأويل وضوابطه كما نصّت عليها كتب التعبير: الاشتقاق، والتصحيف، والتشبيه، والضد، والمثل، والشعر…، مع أمثلتها."
+  },
+  {
+   "id": "ruyahadith",
+   "label": "أحاديث الرؤيا",
+   "kind": "generic",
+   "file": "ruyahadith.json",
+   "sha256": "575a6e182d737728a906c0f319ee29b8e7f0ddaef941e2941f603fa728e1d219",
+   "count": 106,
+   "drawer": true,
+   "card": "rule",
+   "menu": "أحاديث الرؤيا",
+   "placeholder": "اكتب هنا",
+   "hint": "كتاب التعبير من صحيح البخاري وكتاب الرؤيا من صحيح مسلم، بنصهما.",
+   "unit": "حديثاً",
+   "l1": "الحديث",
+   "l2": "",
+   "sub": "من صحيح البخاري وصحيح مسلم"
+  },
+  {
+   "id": "muqaranat",
+   "label": "مقارنة المعبِّرين",
+   "kind": "generic",
+   "file": "muqaranat.json",
+   "sha256": "bb29e1d3ac0d5a4e65ec729e4f7cf098bfdcb9b0493915364c843b3e45ca2885",
+   "count": 147,
+   "drawer": true,
+   "card": "rule",
+   "menu": "مقارنة المعبِّرين",
+   "placeholder": "اكتب هنا",
+   "hint": "رمز واحد وما قاله فيه كل كتاب، جنباً إلى جنب.",
+   "unit": "رمزاً",
+   "l1": "ما قالته الكتب فيه",
+   "l2": "",
+   "sub": "ما قاله كل كتاب في الرمز نفسه"
+  },
+  {
+   "id": "about",
+   "label": "حول التطبيق",
+   "kind": "generic",
+   "file": "about.json",
+   "sha256": "f185ec7f6348ca70ff9143048d0e2a97cea4fd805b8ad28132ea8c5778608640",
+   "count": 6,
+   "drawer": true,
+   "card": "about",
+   "menu": "حول التطبيق",
+   "placeholder": "اكتب هنا",
+   "hint": "ما هو الباحث القرآني وما يحويه."
   }
  ]
 }

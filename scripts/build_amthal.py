@@ -1,4 +1,4 @@
-"""Builds the «الأمثال» tab from «الأمثال العامية» (أحمد تيمور باشا; public-domain text, see AMTHAL_SOURCE_NOTES.md).
+"""Builds the «الأمثال» tab from «الأمثال العامية» (أحمد تيمور باشا; public-domain text, see AMTHAL_SOURCE_NOTES.md) and «مجمع الأمثال» (الميداني).
 Input: data/amthal/amthal_parsed.json (made by scripts/parse_amthal.py from the digital text in data/amthal/).
 Output: content/amthal.json  [chapter, proverb, explanation]  + manifest (version, SHA-256, count).  usage: python3 -I scripts/build_amthal.py"""
 import json, os, sys
@@ -21,4 +21,8 @@ def fix_row(e):
             for a, b in subs: x = x.replace(a, b, 1)
     return x
 rows = [[e['chapter'], re.sub(r'\s+([:،؛؟])', r'\1', e['proverb']).strip(), fix_row(e)] for e in E if e['proverb'].strip()]
+# + «مجمع الأمثال» (الميداني): the proverbs of the classical book, each with its explanation as printed (data/amthal/majma_parsed.json, scripts/parse_majma.py)
+if os.path.exists('data/amthal/majma_parsed.json'):
+    M = json.load(open('data/amthal/majma_parsed.json', encoding='utf8'))
+    rows += [[e['chapter'], e['proverb'], e['explanation']] for e in M]
 CL.publish('amthal', 'الأمثال', 'generic', {'h': rows}, len(rows))

@@ -69,7 +69,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|about|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -191,7 +191,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('القائمة الجانبية', 'تنفتح قائمة «المزيد» الجانبية وفيها زر «رؤى عبّرت»', (await page.locator('.drawer-head h2').innerText()) === 'المزيد' && (await page.locator('.drawer .drawer-item').first().innerText()).includes('رؤى عبّرت'));
   { const ics = await page.locator('.drawer .drawer-item .drawer-ic svg').count(), its = await page.locator('.drawer .drawer-item').count();
     const kinds = await page.locator('.drawer .drawer-item .drawer-ic svg').evaluateAll((a) => a.map((x) => x.getAttribute('class') || ''));
-    log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر، قواعد)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
+    log('القائمة الجانبية', 'لكل زر في «المزيد» أيقونة مصغّرة تعبّر عنه (حلم، أنبياء وصالحون، معبِّر، قواعد، أحاديث، مقارنة، حول)', its > 0 && ics === its && new Set(kinds).size === its, kinds.join(' | ')); }
   await page.screenshot({ path: 'tests/screenshots/drawer.png' });
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('القائمة الجانبية', 'Escape يغلق القائمة', (await page.locator('.drawer').count()) === 0);
@@ -222,7 +222,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'أربعة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون، قواعد علم التعبير', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير', items.join('|'));
+  log('المزيد', 'سبعة أزرار: رؤى عبّرت، رؤى الأنبياء والصالحين، المعبِّرون، قواعد علم التعبير، أحاديث الرؤيا، مقارنة المعبِّرين، حول التطبيق', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق', items.join('|'));
   await page.locator('.drawer-item').nth(1).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
@@ -268,6 +268,27 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('قواعد علم التعبير', 'لا بقايا طباعة في النصوص (علامات صفحات، أرقام حواشٍ، رموز @ و^)', !/PageV|\bms\d|@QB|@QE|\^|\[؟؟/.test(pageText));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   log('قواعد علم التعبير', 'Escape يغلق القائمة', (await page.locator('.panel-back').count()) === 0);
+  // «أحاديث الرؤيا» (البخاري ومسلم)
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(4).click(); await page.waitForSelector('.rule-card');
+  const hSub = await page.locator('.panel-sub').innerText(); const hTxt = await page.locator('.rule-card').first().innerText();
+  log('أحاديث الرؤيا', 'تُفتح بـ٦٦ حديثاً للبخاري و٤٠ لمسلم (١٠٦) والكتاب مسمّى تحت كل نص', toNum(hSub.split(' ')[0]) === 106 && /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
+  await page.locator('#q-rules').fill('جزء من ستة وأربعين'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  log('أحاديث الرؤيا', 'البحث عن «جزء من ستة وأربعين» يجد أحاديث', (await page.locator('.rule-card').count()) > 3);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // «مقارنة المعبِّرين»
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(5).click(); await page.waitForSelector('.rule-card');
+  await page.locator('#q-rules').fill('حية'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  const cmp = await page.locator('.rule-card').first().innerText();
+  log('مقارنة المعبِّرين', 'رمز «حية»: ما قاله أكثر من كتاب جنباً إلى جنب، واسم كل كتاب تحت نصه', /القادري في التعبير/.test(cmp) && /تعطير الأنام/.test(cmp) && /الإشارات في علم العبارات/.test(cmp) && !/اللحية/.test(cmp.split('\n')[0]), cmp.slice(0, 100));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // «حول التطبيق»
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item').nth(6).click(); await page.waitForSelector('.about-hero');
+  const ab = await page.locator('.panel.about').innerText(); const nStat = await page.locator('.stat').count();
+  log('حول التطبيق', 'وصف التطبيق وعدّادات المحتوى الحيّة (٦٢٣٦ آية…) وإشعار الخصوصية', /منصّة بحث شرعي/.test(ab) && nStat >= 8 && /6236|6,236/.test(ab) && /لا يجمع التطبيق أي بيانات شخصية/.test(ab) && /إصدار المحتوى/.test(ab), `${nStat} counters`);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // «الأمثال»: مجمع الأمثال
+  await page.goto(URL_); await page.waitForTimeout(1200); await search('amthal', 'إن من البيان لسحرا');
+  log('الأمثال', 'مجمع الأمثال: «إن من البيان لسحرا» مع شرحه', /إن من البيان لسحرا/.test(await panel('amthal').innerText()) && (await cards('amthal').count()) > 0);
   await page.goto(URL_); await page.waitForTimeout(1200);
   await search('quran', 'يجتبيك ربك'); await page.waitForTimeout(500);
   log('الخط', 'علامة U+065E (ينقصها خط Amiri Quran) تُرسم بخط احتياطي لا مربعاً فارغاً', await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.family.includes('Quran Marks') && f.status === 'loaded'); }));
