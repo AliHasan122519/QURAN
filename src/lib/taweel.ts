@@ -7,8 +7,10 @@ import { dialectVariants } from './dialect';
  *  linking phrases (the opening «والله أعلم»، «أما رؤيتك…»، «وبحسب حالك…») are the app's. Offline, on the device. */
 export type Age = 'child' | 'young' | 'adult' | 'elder';
 export type Marital = 'single' | 'married' | 'divorced' | 'widowed';
-export const AGES: { id: Age; label: string }[] = [
-  { id: 'child', label: 'دون الثامنة عشرة' }, { id: 'young', label: 'من 18 إلى 35' }, { id: 'adult', label: 'من 36 إلى 55' }, { id: 'elder', label: 'فوق 55' }];
+/** the age group that the books speak of (a boy, a youth, a man in his prime, an old man), from the dreamer's age in years */
+export const ageGroup = (years: number): Age => (years < 18 ? 'child' : years <= 35 ? 'young' : years <= 55 ? 'adult' : 'elder');
+/** «سنة واحدة»، «سنتان»، «٣ سنوات»… «١١ سنة» */
+export const ageLabel = (n: number) => (n === 1 ? 'سنة واحدة' : n === 2 ? 'سنتان' : n <= 10 ? `${n} سنوات` : `${n} سنة`);
 export const MARITALS: { id: Marital; label: string }[] = [
   { id: 'single', label: 'أعزب / عزباء' }, { id: 'married', label: 'متزوج / متزوجة' }, { id: 'divorced', label: 'مطلّق / مطلّقة' }, { id: 'widowed', label: 'أرمل / أرملة' }];
 // how the books speak of each state (a clause that names it is the clause that concerns him)

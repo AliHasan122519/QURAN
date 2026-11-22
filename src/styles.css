@@ -360,3 +360,63 @@ html[data-theme="dark"] .deep-group legend, html[data-theme="dark"] .dream-label
   .ornament-divider { margin-top: 1.4rem; }
   .hero-in { padding-bottom: 2.6rem; }
 }
+
+/* ===================================================================================================
+   CALM — the same style, easier on the eye: no travelling spark, no halftone, no striped edge; a brick red in place of the
+   flaming orange, a soft gold in place of the bright yellow, quiet shadows. (Colours of the film stay in the film.)
+   =================================================================================================== */
+:root {
+  --ember: #b4452c; --yellow: #d8b45a; --primary: oklch(49% .125 38); --ring: oklch(56% .1 40);
+  --orn: #a8552f; --badge-text: #6e3a1c; --badge-border: rgba(110, 60, 30, .28);
+  --h1: #231a15; --on-dark: #231a15; --on-dark-2: #5a4d44;
+  --glow1: rgba(180, 69, 44, .06); --glow2: rgba(216, 180, 90, .14); --glow3: rgba(180, 69, 44, .04);
+  --pg1: #f7f2e8; --pg2: #f0e8d9; --pg3: #f4eee1; --page-dark: #f4eee1; --page-mid: #f4eee1; --sheet-shadow: rgba(60, 40, 25, .16);
+  --border: oklch(87% .02 85); --gold: oklch(74% .09 82);
+}
+html[data-theme="dark"] {
+  --ember: #d4694e; --yellow: #cdaa5c; --primary: oklch(52% .13 38); --ring: oklch(62% .1 40);
+  --orn: #d7b46a; --badge-text: #e4c98a; --badge-border: rgba(214, 180, 106, .35);
+  --h1: #fff; --on-dark: #efe8da; --on-dark-2: #b9afa0;
+  --glow1: rgba(212, 105, 78, .12); --glow2: rgba(205, 170, 92, .05); --glow3: rgba(212, 105, 78, .06);
+  --pg1: #0e0d0f; --pg2: #15110f; --pg3: #100f11; --page-dark: #0e0d0f; --page-mid: #100f11; --sheet-shadow: rgba(0, 0, 0, .55);
+  --gold: oklch(74% .09 82);
+}
+.hero::after { display: none; }
+.hero::before { opacity: .1; } html[data-theme="dark"] .hero::before { opacity: .07; }
+.sheet::before { display: none; }
+.hero h1 { background-image: none; -webkit-text-fill-color: var(--h1); color: var(--h1); text-shadow: none; }
+.hero h1::before { opacity: .75;
+  background:
+    linear-gradient(var(--ember), var(--ember)) top right / 1.6rem 2px no-repeat, linear-gradient(var(--ember), var(--ember)) top right / 2px 1.6rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) top left / 1.6rem 2px no-repeat, linear-gradient(var(--ember), var(--ember)) top left / 2px 1.6rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) bottom right / 1.6rem 2px no-repeat, linear-gradient(var(--ember), var(--ember)) bottom right / 2px 1.6rem no-repeat,
+    linear-gradient(var(--ember), var(--ember)) bottom left / 1.6rem 2px no-repeat, linear-gradient(var(--ember), var(--ember)) bottom left / 2px 1.6rem no-repeat; }
+.tab[data-state="active"], .deep-chip[data-on="true"] { background-image: none; background-color: var(--primary); box-shadow: 0 4px 12px -6px rgba(60, 30, 15, .5); }
+.go { background-image: none; background-color: var(--primary); box-shadow: 0 4px 12px -6px rgba(60, 30, 15, .45); }
+.go:hover:not([disabled]) { background-image: none; background-color: color-mix(in oklch, var(--primary) 88%, black); }
+.go[disabled] { background: color-mix(in oklch, var(--primary) 28%, var(--muted)); }
+.menu-toggle, .theme-toggle { box-shadow: 0 3px 10px -6px rgba(60, 30, 15, .4); }
+.field input:focus, .deep-form textarea:focus, .deep-select:focus { box-shadow: 0 0 0 3px color-mix(in oklch, var(--ember) 30%, transparent); border-color: var(--ember); outline: 0; }
+mark, .hit, .hl { background: color-mix(in oklch, var(--yellow) 38%, transparent); }
+.verse-card::before { background: linear-gradient(var(--ember), var(--yellow)); width: 4px; opacity: .8; }
+.verse-card::after { display: none; }
+.verse-card:hover { border-color: color-mix(in oklch, var(--ember) 35%, var(--border)); box-shadow: 0 14px 30px -20px rgba(60, 30, 15, .35); }
+.about-hero { background: linear-gradient(135deg, #2a201b, #3a2a22); box-shadow: 0 12px 28px -20px rgba(40, 20, 10, .5); }
+.pill-text { background: color-mix(in oklch, var(--ember) 10%, transparent); color: color-mix(in oklch, var(--ember) 85%, var(--ink)); }
+html[data-theme="dark"] .pill-text { color: #f0a78f; }
+.deep-group legend, .deep-legend, .dream-label, .rule-title, .about-title { color: color-mix(in oklch, var(--ember) 80%, var(--ink)); }
+html[data-theme="dark"] .deep-group legend, html[data-theme="dark"] .deep-legend, html[data-theme="dark"] .dream-label, html[data-theme="dark"] .rule-title { color: #e8c98a; }
+.ornament-divider::after { animation: none; color: var(--orn); }
+.badge-top svg { color: var(--ember); }
+html[data-theme="dark"] .tab[data-state="inactive"]:hover, .tab[data-state="inactive"]:hover { color: var(--foreground); }
+
+/* «التأويل العميق»: the age (1–100) and the marital state as pop-up lists */
+.deep-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; } @media (max-width: 520px) { .deep-pair { grid-template-columns: 1fr; } }
+.deep-pair .deep-group { display: grid; gap: .4rem; }
+.deep-legend { font-size: .92rem; }
+.deep-select { width: 100%; height: 3.1rem; padding: 0 1rem; padding-inline-end: 2.4rem; border-radius: 1rem; font-size: 1rem; color: var(--foreground); background-color: var(--card);
+  border: 1px solid color-mix(in oklch, var(--gold) 45%, var(--border)); appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: left 1rem center; }
+.deep-select:invalid, .deep-select:has(option[value=""]:checked) { color: var(--muted-foreground); }
+.deep-select option { color: var(--foreground); background: var(--card); }
