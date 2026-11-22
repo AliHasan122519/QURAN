@@ -11,7 +11,7 @@ TIR = f'{OITI}/0300AH/data/0279Tirmidhi/0279Tirmidhi.Sunan/0279Tirmidhi.Sunan.Sh
 MAJ = f'{OITI}/0275AH/data/0273IbnMaja/0273IbnMaja.Sunan/0273IbnMaja.Sunan.Shamela0001198-ara1'
 MWT = f'{OITI}/0200AH/data/0179MalikIbnAnas/0179MalikIbnAnas.Muwatta/0179MalikIbnAnas.Muwatta.Shamela0001699-ara1.completed'
 def clean(t):
-    t = re.sub(r'PageV\d+P\d+', ' ', t); t = t.replace('@MATN@', ' '); t = re.sub(r'\bms\d+\b', ' ', t); t = re.sub(r'\[\s*ص\s*:?\s*\d+\s*\]', ' ', t); t = t.replace('{', '﴿').replace('}', '﴾')
+    t = re.sub(r'PageV\d+P\d+', ' ', t); t = t.replace('@MATN@', ' '); t = re.sub(r'@(?:QB|QE)@', ' ', t); t = re.sub(r'[\u200b-\u200d\ufeff]', '', t); t = re.sub(r'\bms\d+\b', ' ', t); t = re.sub(r'\[\s*ص\s*:?\s*\d+\s*\]', ' ', t); t = t.replace('{', '﴿').replace('}', '﴾')
     t = re.sub(r'\s+([،؛:.؟!)»])', r'\1', t); t = re.sub(r'\(\s+', '(', t); t = re.sub(r'«\s+', '«', t)
     return re.sub(r'\s+', ' ', t).strip()
 def parse(path, start_re, end_re, num_re, book, kitab):
@@ -46,6 +46,7 @@ def main():
     T = parse(TIR, r'^### \| ٣٢ - أبواب الرؤيا', r'^### \| ٣٣ - أبواب', r'^### \|\|\| ([٠-٩]+) -\s*$', 'سنن الترمذي', 'أبواب الرؤيا')
     J = parse(MAJ, r'^### \| كتاب تعبير الرؤيا', r'^### \| كتاب الفتن', r'^### \| (\d+) - ?$', 'سنن ابن ماجه', 'كتاب تعبير الرؤيا')
     W = parse(MWT, r'^### \| 52 - كتاب الرؤيا', r'^### \| 53 - ', r'^# (\d+) - ?$', 'موطأ مالك', 'كتاب الرؤيا')
+    W = [r for r in W if 'النرد' not in r[0]]         # the last chapter of the Muwatta's book (the dice) is not about dreams
     for lst, k in ((T, 'أبواب الرؤيا'), (J, 'كتاب تعبير الرؤيا'), (W, 'كتاب الرؤيا')):
         for r in lst: r[0] = r[0] or k
     for r in W: r[1] = re.sub(r' — حديث \d+(?=$)', '', r[1])           # the Muwatta's numbers of the chapter restart: not shown

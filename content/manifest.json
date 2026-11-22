@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 209,
- "updated": "2026-11-22T23:26:53Z",
+ "version": 213,
+ "updated": "2026-11-22T23:44:07Z",
  "apk": {
   "versionCode": 29923175,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -29,8 +29,8 @@
    "label": "الأمثال",
    "kind": "generic",
    "file": "amthal.json",
-   "sha256": "e4bd56365fa70457743091a5ace911abc1fcc4e4f2b13fe8e21fd6a31725a83f",
-   "count": 9893
+   "sha256": "67fb6410e374b34f0e9b5208de700c502ba5e3849c8598115562e30452faff5c",
+   "count": 9896
   },
   {
    "id": "alfiya",
@@ -57,7 +57,7 @@
    "label": "أبيات الإستشهاد",
    "kind": "generic",
    "file": "shawahid.json",
-   "sha256": "30b8e11139ec0f0864cc93eee9b2e51294e454fa501a705331f3510639907e56",
+   "sha256": "ed110af67e35ac307ef00ac7649cb8514a272b04acbefc3e7bffeb19a153842e",
    "count": 14808,
    "card": "verse",
    "smart": "full",
@@ -134,8 +134,8 @@
    "label": "أحاديث الرؤيا",
    "kind": "generic",
    "file": "ruyahadith.json",
-   "sha256": "fcf23a386815145a3ec2bf4fa45e610b998e838ce580a703b38b0d2e56547e55",
-   "count": 172,
+   "sha256": "a2637c3ebf085b5708157e3937d3acb6311128758f5a8f20e7419275819b16d4",
+   "count": 170,
    "drawer": true,
    "card": "rule",
    "menu": "أحاديث الرؤيا",

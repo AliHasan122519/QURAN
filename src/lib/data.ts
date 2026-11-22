@@ -35,9 +35,17 @@ export async function loadContent(): Promise<Content> {
   return { manifest: bundled, files: new Map(), fromStore: false };
 }
 
+/** Starts downloading every bundled file at once (the network overlaps with the indexing of the previous tab); loadTab takes each one when its turn comes. */
+const early = new Map<string, Promise<ArrayBuffer | null>>();
+export function prefetch(c: Content) {
+  early.clear();
+  for (const t of c.manifest.tabs) if (t.file && !c.files.has(t.file)) early.set(t.file, fetchBuf(`${base}content/${t.file}`).catch(() => null));
+}
+
 export async function loadTab(tab: Tab, c: Content): Promise<Doc[] | null> {
   if (!tab.file) return null;
-  const buf = c.files.get(tab.file) ?? (await fetchBuf(`${base}content/${tab.file}`));
+  const pre = early.get(tab.file); early.delete(tab.file);
+  const buf = c.files.get(tab.file) ?? (pre ? await pre : null) ?? (await fetchBuf(`${base}content/${tab.file}`));
   if (!buf) return null;
   const src = tab.id;
   if (tab.kind === 'quran') {

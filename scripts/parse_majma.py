@@ -8,7 +8,7 @@ P = f'{OITI}/0525AH/data/0518IbnMuhammadMaydaniNaysaburi/0518IbnMuhammadMaydaniN
 L = open(P, encoding='utf8').read().split('\n')
 i0 = next(k for k, l in enumerate(L) if re.match(r'^### \| الباب الأول', l))
 def clean(t):
-    t = re.sub(r'PageV\d+P\d+', ' ', t); t = re.sub(r'\bms\d+\b', ' ', t); t = re.sub(r'\[\s*ص\s*:?\s*\d+\s*\]', ' ', t)
+    t = re.sub(r'</?span[^>]*>', '', t); t = re.sub(r'PageV\d+P\d+', ' ', t); t = re.sub(r'\bms\d+\b', ' ', t); t = re.sub(r'\[\s*ص\s*:?\s*\d+\s*\]', ' ', t)
     t = t.replace('{', '﴿').replace('}', '﴾'); t = re.sub(r'\s+([،؛:.؟!)])', r'\1', t); t = re.sub(r'\(\s+', '(', t)
     return re.sub(r'\s+', ' ', t).strip()
 LETTER = {'همزة': 'الألف', 'ألف': 'الألف'}
@@ -37,7 +37,17 @@ for l in L[i0:]:
         if re.match(r'الباب التاسع والعشرون', m.group(1)): break              # the names of the days of the Arabs, and the last chapter (sayings): not proverbs
         c = chapter(m.group(1))
         if c: flush(); ch = c; continue
+    if re.match(r'^(?:### \||#) المولدون\.?\s*$', l): flush(); continue     # the appendix of each chapter («المولدون»: later sayings, unnumbered and not separable into proverb + explanation) is not part of the last proverb above it
     if cur is None: continue
+    m = re.match(r'^# (.*)</span>\s*$', l)
+    real = [q for q in cur['paras'] if clean(' '.join(q))]
+    if m and (not real or (not cur['title'] and len(real) == 1)):                                               # a word of the proverb itself that the digital copy put after a stray tag («ألأم من راضع» + «اللبن»)
+        f = m.group(1).strip()
+        if f and cur['title']: cur['title'] = (cur['title'] + ('' if len(f) <= 2 else ' ') + f).strip()
+        elif f and real:                                                         # (the title is the first paragraph)
+            if len(f) <= 2: real[0][-1] = real[0][-1].rstrip() + f
+            else: real[0].append(f)
+        continue
     if l.startswith('### '):
         t = l[5:]
         if re.match(r'^\[\s*ص', t.strip()): continue

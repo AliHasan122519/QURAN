@@ -1,5 +1,5 @@
 """Checks the lists added with «مجمع الأمثال», «أحاديث الرؤيا» and «مقارنة المعبِّرين» against their sources (the check does not trust the builders):
- 1) every proverb and every explanation of «مجمع الأمثال» (4756) and «جمهرة الأمثال» (1963) added to «الأمثال» is a contiguous run of the letters of the digital text of the book;
+ 1) every proverb and every explanation of «مجمع الأمثال» (4756) and «جمهرة الأمثال» (1966) added to «الأمثال» is a contiguous run of the letters of the digital text of the book;
  2) every hadith of «أحاديث الرؤيا» is a contiguous run of the letters of Sahih al-Bukhari / Sahih Muslim, and the counts are 66 + 40;
  3) every passage of «مقارنة المعبِّرين» is, word for word, an entry of the «الكتب» tab of the book named under it, and every symbol has at least two books.
 usage: OITI=/home/user/openiti python3 -I tests/new_lists_check.py"""
@@ -16,7 +16,7 @@ S = stream(f'{OITI}/0525AH/data/0518IbnMuhammadMaydaniNaysaburi/0518IbnMuhammadM
 am = json.load(open('content/amthal.json', encoding='utf8'))['h']; M = json.load(open('data/amthal/majma_parsed.json', encoding='utf8'))
 J = json.load(open('data/amthal/jamhara_parsed.json', encoding='utf8')); SJ = stream(f'{OITI}/0400AH/data/0395AbuHilalCaskari/0395AbuHilalCaskari.JamharatAmthal/0395AbuHilalCaskari.JamharatAmthal.Shamela0006897-ara1.completed')
 tail = am[len(am) - len(M) - len(J):]
-if len(M) != 4756 or len(J) != 1963: bad.append(f'proverb counts {len(M)} / {len(J)}')
+if len(M) != 4756 or len(J) != 1966: bad.append(f'proverb counts {len(M)} / {len(J)}')
 for (ch, pr, ex), e, S_ in [(a, b, S) for a, b in zip(tail[:len(M)], M)] + [(a, b, SJ) for a, b in zip(tail[len(M):], J)]:
     if (ch, pr, ex) != (e['chapter'], e['proverb'], e['explanation']): bad.append(f'amthal row differs from parsed: {pr[:30]}'); continue
     for t in (pr, ex):
@@ -31,7 +31,7 @@ SRC = {'صحيح البخاري': f'{OITI}/0275AH/data/0256Bukhari/0256Bukhari.S
 STREAMS = {k: stream(v).replace('', '') for k, v in SRC.items()}
 import collections
 cnt = collections.Counter(r[4] for r in rh)
-if dict(cnt) != {'صحيح البخاري': 66, 'صحيح مسلم': 40, 'سنن الترمذي': 25, 'سنن ابن ماجه': 34, 'موطأ مالك': 7}: bad.append(f'hadith counts {dict(cnt)}')
+if dict(cnt) != {'صحيح البخاري': 66, 'صحيح مسلم': 40, 'سنن الترمذي': 25, 'سنن ابن ماجه': 34, 'موطأ مالك': 5}: bad.append(f'hadith counts {dict(cnt)}')
 for r in rh:
     t, src = r[1].split('\t'); lt = letters(re.sub(r'﴿|﴾', '', t)); st = STREAMS[r[4]]
     if lt not in st: bad.append(f'hadith NOT in source: {t[:60]}')

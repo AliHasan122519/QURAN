@@ -10,7 +10,7 @@ import { RulesPanel } from './components/RulesPanel';
 import { AboutPanel } from './components/AboutPanel';
 import { DeepPanel } from './components/DeepPanel';
 import { Engine } from './lib/engine';
-import { loadContent, loadTab, checkForUpdate, type Content } from './lib/data';
+import { loadContent, loadTab, prefetch, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
 import { SearchPanel, type SourceState } from './components/SearchPanel';
 
@@ -21,6 +21,7 @@ export function App() {
   const [engine, setEngine] = useState(() => new Engine());
   const [manifest, setManifest] = useState<Manifest | null>(null);
   const [tab, setTab] = useState<SourceId>('quran');
+  const tabNow = useRef<SourceId>('quran');
   const [states, setStates] = useState<Record<SourceId, SourceState>>({});
   const [attempt, setAttempt] = useState(0);
   const [apkNotice, setApkNotice] = useState<Manifest['apk']>();
@@ -30,6 +31,7 @@ export function App() {
   const [panel, setPanel] = useState<SourceId | null>(null);   // the list opened from the side menu («رؤى وتعبيرها»)
   const [lists, setLists] = useState<Record<SourceId, Doc[]>>({});   // the content of the tabs that live in the side menu instead of the tab bar
   const content = useRef<Content | null>(null);
+  useEffect(() => { tabNow.current = tab; }, [tab]);
   const lastCheck = useRef(Date.now());
 
   // 1) load the content in use (bundled, or a newer downloaded one) and index every tab
@@ -43,14 +45,19 @@ export function App() {
       content.current = c; setManifest(c.manifest);
       setStates(Object.fromEntries(c.manifest.tabs.map((t) => [t.id, 'loading' as SourceState])));
       setTab((cur) => (c.manifest.tabs.some((t) => t.id === cur && !t.drawer) ? cur : c.manifest.tabs.find((t) => !t.drawer)?.id ?? cur));
-      for (const t of c.manifest.tabs) {
+      prefetch(c);
+      // the order of indexing: the first tab, then the small lists of the side menu, then the rest; whichever tab the user opens meanwhile jumps the queue
+      const all = c.manifest.tabs; const firstTab = all.find((t) => !t.drawer);
+      const queue = [...(firstTab ? [firstTab] : []), ...all.filter((t) => t.drawer), ...all.filter((t) => !t.drawer && t !== firstTab)];
+      while (queue.length) {
+        const i = queue.findIndex((q) => q.id === tabNow.current); const t = queue.splice(i > 0 ? i : 0, 1)[0];
         const set = (s: SourceState) => !dead && setStates((p) => ({ ...p, [t.id]: s }));
         try {
           const docs = await loadTab(t, c);
           if (dead) return;
           if (!docs) { set('absent'); continue; }
-          if (t.drawer) { setLists((p) => ({ ...p, [t.id]: docs })); set('ready'); continue; }      // not searched with the tabs: shown by the side menu
-          await eng.addSource(t.id, docs, t.kind, { refFirst: t.card === 'meaning', smart: t.smart, cap: t.card === 'verse' ? 200 : undefined }); await eng.finalize(); set('ready');
+          if (t.drawer) { setLists((p) => ({ ...p, [t.id]: docs })); performance.mark('tab:' + t.id); set('ready'); continue; }      // not searched with the tabs: shown by the side menu
+          await eng.addSource(t.id, docs, t.kind, { refFirst: t.card === 'meaning', smart: t.smart, cap: t.card === 'verse' ? 200 : undefined }); await eng.finalize(); performance.mark('tab:' + t.id); set('ready');
         } catch { set('error'); }
       }
       if (dead) return;

@@ -20,7 +20,7 @@ for key, title in BOOKS:
     paras = []; cur = None
     for l in lines[i0:]:
         if l.startswith('### '):
-            h = re.sub(r'^###\s*\|*\s*(?:AUTO|CHECK)?\s*', '', l).strip(); h = re.sub(r'[\[\]]', '', h)
+            h = re.sub(r'^###\s*\|*\s*(?:AUTO|CHECK)?\s*', '', l).strip(); h = re.sub(r'[\[\]]', '', h); h = re.sub(r'\bms\d+\b|PageV\d+P\d+', ' ', h); h = re.sub(r'\s+', ' ', h).strip()
             if h and not h.startswith('فائدة'): ref = h
             cur = None; continue
         if l.startswith('# '): cur = [l[2:]]; paras.append((ref, cur))

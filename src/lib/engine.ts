@@ -25,6 +25,7 @@ export class Engine {
   private refFirst = new Set<SourceId>();           // tabs whose entries are ranked first when the searched word is in the entry's heading (the symbol)
   private skel = new Map<string, Set<string>>();   // stem/skeleton key -> vocabulary words
   private vocab = new Map<string, number>();       // word -> document frequency (all sources)
+  private fresh: string[] = [];                  // words that entered the vocabulary since the last finalize()
   private sorted: string[] = [];
   private byId = new Map<string, Doc>();
   private quranByRef = new Map<string, Doc>();
@@ -53,15 +54,17 @@ export class Engine {
     }
     this.idx.set(src, ix);
     for (const [w, l] of ix.post) {
-      this.vocab.set(w, (this.vocab.get(w) ?? 0) + l.length);
+      const n = this.vocab.get(w); if (n === undefined) this.fresh.push(w);
+      this.vocab.set(w, (n ?? 0) + l.length);
     }
     await yieldUI();
   }
   /** Call once after all sources are added. */
   async finalize() {
-    this.skel.clear();
-    for (const w of this.vocab.keys()) for (const k of stemKeys(w)) { let s = this.skel.get(k); if (!s) this.skel.set(k, (s = new Set())); s.add(w); }
-    this.sorted = [...this.vocab.keys()].sort();
+    if (this.fresh.length) {                       // incremental: only the words the last source brought (the index of the earlier ones is kept)
+      for (const w of this.fresh) for (const k of stemKeys(w)) { let s = this.skel.get(k); if (!s) this.skel.set(k, (s = new Set())); s.add(w); }
+      this.sorted = [...this.vocab.keys()].sort(); this.fresh = [];
+    }
     await yieldUI();
   }
   has(src: SourceId) { return this.idx.has(src); }
