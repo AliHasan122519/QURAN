@@ -4,7 +4,7 @@ import json, re
 MARKS = re.compile('[ً-ٰٟۖ-ۭـ]')
 def f(s, deep=False):
     s = MARKS.sub('', s).replace('ٰ', ''); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ة', 'ه'); s = re.sub(r'[^ء-ي ]', ' ', s); s = re.sub(r'\s+', ' ', s).strip()
-    return re.sub('ا+', 'ا', s.replace('ء', '')) if deep else s
+    return s.replace('ء', '').replace('ا', '') if deep else s
 def load(n): return json.load(open(f'content/{n}.json', encoding='utf8'))
 J = [r[2] for r in load('jami')['h']]; R = [r[1] for r in load('ruyahadith')['h']]; Q = [r[2] for r in load('quran')['a']]; B = load('books')['h']
 SRC = {'حديث': J + R, 'آية': Q}
@@ -17,7 +17,7 @@ for r in rows:
     if r[4] != 'rule': continue
     o = json.loads(r[1]); n += 1
     if o['kind'] == 'head' and not o.get('verdict'): bad.append(o['id'] + ': no verdict')
-    for e in o['ev']:
+    for e in o['ev'] + [x for a in o.get('alts', []) for x in a['ev']]:
         q = f(e['q'], e['t'] == 'آية')
         if not any(q in f(t, e['t'] == 'آية') for t in SRC[e['t']]): bad.append(o['id'] + ': evidence not in its source: ' + e['q'][:50])
     spec_r = next(x for x in RULES if x['id'] == o['id'])

@@ -11,7 +11,7 @@ MARKS = re.compile('[ً-ٰٟۖ-ۭـ]')
 def fold(s, deep=False):
     s = MARKS.sub('', s); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ة', 'ه')
     s = re.sub(r'\s+', ' ', re.sub(r'[^ء-ي ]', ' ', s)).strip()
-    return re.sub('ا+', 'ا', s.replace('ء', '')) if deep else s
+    return s.replace('ء', '').replace('ا', '') if deep else s            # (the Uthmani spelling keeps or drops alefs differently from the plain one: compare without them)
 def fold_map(s):
     """the folded text and, for every folded character, its place in the original"""
     out, idx = [], []
@@ -19,7 +19,7 @@ def fold_map(s):
         if ch == '\u0670': ch = 'ا'                                                 # the dagger alef is an alef
         elif MARKS.match(ch): continue
         c = {'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ى': 'ي', 'ة': 'ه'}.get(ch, ch)
-        if c == 'ء' or (c == 'ا' and out and out[-1] == 'ا'): continue        # the Uthmani spelling (ءَامَنُواْ) against the plain one (آمنوا)
+        if c in ('ء', 'ا'): continue                                            # the Uthmani spelling (ءَامَنُواْ، هَٰذِه) against the plain one (آمنوا، هذه): letters compared without alefs
         if not re.match('[ء-ي]', c): c = ' '
         if c == ' ' and out and out[-1] == ' ': continue
         out.append(c); idx.append(i)
@@ -36,8 +36,13 @@ def resolve(ev, S):
             f, idx = fold_map(t); n = fold(q, True); k = f.find(n)
             if k >= 0:
                 end = idx[k + len(n) - 1] + 1
-                while end < len(t) and MARKS.match(t[end]): end += 1                 # the marks that belong to the last letter
-                return t[idx[k]:end]
+                while end < len(t):                                                  # the marks and the alef that belong to the last word (it was skipped in the comparison)
+                    if MARKS.match(t[end]): end += 1
+                    elif t[end] in 'اٱأإآ' and (end + 1 >= len(t) or t[end + 1] == ' ' or MARKS.match(t[end + 1])): end += 1
+                    else: break
+                start = idx[k]
+                while start > 0 and (t[start - 1] in 'اٱأإآ' or MARKS.match(t[start - 1])): start -= 1      # the alef that opens the first word
+                return t[start:end]
         elif q in t: return q
     raise SystemExit(f'evidence not found in {ev["src"]}: {q[:60]}')
 def check_anchor(a, books):
@@ -51,9 +56,10 @@ def main():
         assert r['anchors'], r['id']
         for a in r['anchors']: check_anchor(a, books)
         rule = {k: r[k] for k in ('id', 'stems', 'name', 'kind', 'family', 'verdict') if k in r}
-        for k in ('acts', 'why', 'dua', 'owner'):
+        for k in ('acts', 'why', 'dua', 'owner', 'play'):
             if k in r: rule[k] = r[k]
         rule['ev'] = [{'t': e['t'], 'q': resolve(e, S)} for e in r.get('ev', [])]
+        if 'alts' in r: rule['alts'] = [{**{k: v for k, v in a.items() if k != 'ev'}, 'ev': [{'t': e['t'], 'q': resolve(e, S)} for e in a.get('ev', [])]} for a in r['alts']]
         rows.append([r['id'], json.dumps(rule, ensure_ascii=False, separators=(',', ':')), '', '', 'rule'])
     acts = ['الأفعال', json.dumps(ACTS, ensure_ascii=False, separators=(',', ':')), '', '', 'acts']
     rows.append(acts)
