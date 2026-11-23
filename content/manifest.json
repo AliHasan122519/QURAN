@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 221,
- "updated": "2026-11-23T02:14:47Z",
+ "version": 223,
+ "updated": "2026-11-23T02:47:39Z",
  "apk": {
   "versionCode": 29923339,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -69,8 +69,8 @@
    "label": "التأويل العميق",
    "kind": "generic",
    "file": "taweel.json",
-   "sha256": "791ac0053651a2c1b2b844535596c5b446ec8daa73983941844be175879fc1da",
-   "count": 36,
+   "sha256": "888e448c1ef8b164d2a582a4342cc950b18079b4a7b0853e8d8ebc2000bed904",
+   "count": 41,
    "drawer": true,
    "card": "deep",
    "menu": "التأويل العميق",

@@ -1,6 +1,5 @@
 import type { Doc } from './types';
 import { normalize, tokens } from './arabic';
-import { dialectVariants } from './dialect';
 
 /** «التأويل العميق»: the dreamer writes the dream, says his age and his marital state, and gets what the reference books say of every symbol of it — the books' own sentences, put as one
  *  interpreter would speak to him, without naming any author or book. Nothing is invented: every interpretation, every reason and every rule is a sentence of the books; only the
@@ -22,13 +21,6 @@ const AGE_RX: Record<Age, RegExp> = {
   child: /صبي|غلام|طفل|الصبيان|للأطفال/, young: /(?:^|\s)(?:ل|ال)?شاب(?:اً)?(?:\s|$)|شباب|للشاب/, adult: /كهل|متوسط العمر|بين الشباب والشيخوخة/, elder: /شيخ|كبير السن|مسن|عجوز|هرم/ };
 const AGE_TEXT: Record<Age, string> = { child: 'دون الثامنة عشرة', young: 'شاب', adult: 'في منتصف العمر', elder: 'كبير في السن' };
 const MAR_TEXT: Record<Marital, string> = { single: 'أعزب', married: 'متزوج', divorced: 'مطلّق', widowed: 'أرمل' };
-// the verbs and the pronouns of the telling of a dream are not symbols
-const VERB = /^[أاتين]?(?:ركض|ركب|مشي|مش|جري|جر|سقط|وقع|نزل|طلع|دخل|خرج|اكل|شرب|فتح|اخذ|اعط|ضحك|بكي|صرخ|هرب|طار|طير|سبح|غرق|كلم|قتل|عمل|لقي|وجد|ذهب|رجع|جلس|وقف|نام|قام|سمع|قال|قلت|جاء|اجي|اتي|اري|ارا|اشوف|اشاهد)\w*$/;
-
-const STOP = new Set(('في من على الى إلى عن ان أن إن إني اني انه إنه انها إنها كان كانت كنت كنا يكون تكون وكان وكانت فكان فكانت ثم مع بعد قبل كل لا ما هل قد كأن كان كاني كأني كانني كأنني رأيت رايت رأى ' +
-  'رايتني رأيتني شفت شفنا حلمت حلم رؤيا رؤيتي رويا المنام منام منامي بالمنام نومي نمت فجأة فجاة وهو وهي هو هي هذا هذه ذلك تلك الذي التي الى حتى لكن لكني بس مرة اخرى أخرى ثم ثمة هناك هنا ' +
-  'فيه فيها منه منها عليه عليها له لها لي لك به بها بي مني ثم أنا انا نحن انت أنت وكانوا كانوا لم لن ليس ولم ولا وما وقد وإن وان إذا اذا حين عندما لما عند بين تحت فوق وكأن يعني قال قلت ' +
-  'أحد احد واحد شخص شيء شي اشياء كثير كثيرا كبير صغير جدا يوم ليلة اليوم').split(/\s+/));
 const core = (w: string) => w.replace(/^(?:وال|فال|بال|كال|لل|ولل|ال|و)/, '');
 const same = (w: string, q: string) => w === q || (q.length >= 3 && w.length >= 3 && (w.startsWith(q) || q.startsWith(w)) && Math.abs(w.length - q.length) <= 2);
 // the books that tell meanings of symbols (the dream tales and the author's own «قلت» are not rules)
@@ -120,7 +112,7 @@ function compose(words: string[], rules: Rule[], acts: Acts) {
     const verdict = alt ? alt.verdict : act ? r.acts![act.id] : r.verdict; const why = alt ? alt.why ?? r.why : r.why; const ev = alt && alt.ev.length ? alt.ev : r.ev;
     if (r.play) methods.add(r.play);
     const subject = act ? `${act.a.noun} ${words[i].replace(/^(?:[وفبكل]?ال)/, '').replace(/^/, 'ال')}` : `رؤيتك ${r.name}`;
-    story.push(`${n ? 'وأما ' : ''}${subject}${n ? ' فقد' : ' قد'} تدلّ على ${verdict}${r.dua ? '، والله المستعان' : ''}.`);
+    story.push(`${n ? 'وأما ' : ''}${subject}${n ? ' فتدلّ' : ' تدلّ'} على ${verdict}${r.dua ? '، والله المستعان' : ''}.`);
     if (why || ev.length) story.push(`${r.play ? `وهذا من التأويل ${r.play === 'اسم' ? 'بالاسم' : r.play === 'تصحيف' ? 'بالتصحيف' : r.play === 'عكس' ? 'بالعكس' : 'بالاشتقاق'}، ` : ''}والوجه في ذلك${why ? ` أن ${why}` : ''}${ev.length ? `${why ? '،' : ''} ${proofs(ev)}` : ''}.`);
     // what the other things of the dream add: the nearest head takes each modifier
     for (const m of mods) {
@@ -131,61 +123,23 @@ function compose(words: string[], rules: Rule[], acts: Acts) {
       story.push(`${same ? `وبما أنه ${via ? `من ${w}` : `اقترن به ${w}`} فزاد الأمر تأكيداً` : `وقد ${via ? `كان من ${w}` : `اقترن به ${w}`}، وهو يدلّ على ${m.r.verdict}، فيُضاف ذلك إلى ما سبق`}${m.r.why ? `، لأن ${m.r.why}` : ''}${m.r.ev.length ? `، ${proofs(m.r.ev)}` : ''}.`);
     }
   });
+  // the one face of the dream: the family that most of what he saw points to; when each points elsewhere, what he began with is the main thing
+  const grp = (f: string) => (f === 'رزق' ? 'مال' : f);
+  const tally = new Map<string, string[]>();
+  for (const x of [...heads, ...mods]) { const f = grp(x.r.family); tally.set(f, [...(tally.get(f) ?? []), x.r.name]); }
+  if (heads.length + mods.length >= 2) {
+    const top = [...tally].sort((a, b) => b[1].length - a[1].length)[0];
+    if (top[1].length >= 2) story.push(`فخلاصة رؤياك: أن الغالب عليها ${LABEL[top[0]] ?? top[0]}، فقد اجتمع فيها ${top[1].join(' و')}، وكلها من هذا الباب.`);
+    else { const f = heads[0]; story.push(`فخلاصة رؤياك: أن وجهها المقدَّم ${LABEL[grp(f.r.family)] ?? f.r.family}، لأن ${f.r.name} هو أول ما رأيتَ في منامك.`); }
+  }
   return { story, claimed, heads: heads.map((h) => h.r), methods };
 }
-
-// a passage that hesitates («وقيل»، «وربما»، «أو… أو…») is a weaker word than one that decides
-const hedges = (t: string) => (t.match(/(?:\sأو\s|وربما|وقد يكون|ويحتمل|فلعل|لعل|وقيل|ويجوز|وإما)/g) ?? []).length;
-/** the passage up to the point where the book itself begins to hesitate or to quote another opinion */
-function decisive(t: string) { const m = /\s(?:وقيل|وربما|وقد يكون|ويحتمل|وفيه قول|وقال قوم|ومنهم من قال)(?=\s)/.exec(t); return m && m.index >= 30 ? t.slice(0, m.index).replace(/[\s،؛:]+$/, '') : t; }
+const LABEL: Record<string, string> = { فتنة: 'الفتنة والذنب', علم: 'العلم', دين: 'الدين', عدو: 'العدو', رحمة: 'الرحمة والرزق', سفر: 'السفر', مال: 'المال والرزق', سلطان: 'السلطان', ضلال: 'الضلال والحيرة', خير: 'الخير', ذكر: 'الذكر والقرآن', بركة: 'البركة', ثبات: 'الثبات', عافية: 'العافية', فرج: 'الفرج', عودة: 'العودة', ارتفاع: 'الارتفاع', خسارة: 'الخسارة', سرور: 'السرور', نجاة: 'النجاة', رجل: 'الرجال' };
 
 export function interpret(dream: string, books: Doc[], rules: Doc[], age: Age, marital: Marital, know: Doc[] = []): Result {
   const surface = dream.trim().split(/\s+/).map((w) => w.replace(/^[^ء-ي]+|[^ء-ي]+$/g, '')).filter(Boolean);
   const K = knowledge(know); const chain = compose(surface, K.rules, K.acts);
-  const claimedWords = new Set([...chain.claimed].map((i) => core(normalize(surface[i]))));
-  const seen = new Set<string>(); const syms: { word: string; stems: string[] }[] = [];
-  for (const w of surface) {
-    const n = normalize(w); if (n.length < 3 || STOP.has(n) || STOP.has(core(n)) || VERB.test(core(n)) || claimedWords.has(core(n))) continue;
-    const stems = [...new Set([n, ...dialectVariants(w).variants.flatMap((v) => tokens(normalize(v))).filter((x) => x.length >= 3 && !STOP.has(x))].map(core))].filter((x) => x.length >= 2);
-    const key = stems[0]; if (seen.has(key)) continue; seen.add(key); syms.push({ word: w, stems });
-  }
-  const sections: Section[] = []; let usedQuran = false;
-  const MEAN = /(?:يدل|تدل|دل |تؤول|يؤول|تعبر|يعبر|فهو|فهي|فإنه|فإنها|عدو|مال|امرأة|رجل|خير|شر)/;
-  for (const s of syms) {
-    const cand = new Map<string, Entry>();
-    for (const st of s.stems) for (const e of lookup(books, st)) { const o = cand.get(e.d.id); if (!o || e.pos < o.pos) cand.set(e.d.id, e); }
-    const all = [...cand.values()]; if (!all.length) continue;
-    // the strongest word for the whole dream: the passage that decides (no hesitation), that is about the symbol itself, that gives its reason, and that meets the other symbols of the dream
-    const others = syms.filter((x) => x !== s).map((x) => x.stems);
-    const SUBJ2 = new Set(['في', 'عدو', 'عدوا', 'يدل', 'تدل', 'هو', 'هي', 'تؤول', 'فتؤول', 'يؤول', 'يعبر', 'تعبر', 'فهي', 'فهو', 'مال', 'رجل', 'امرأة', 'ملك']);
-    const score = (e: Entry) => {
-      const c = clean(e.d.text), tk = tokens(normalize(c)).map(core);
-      const general = e.pos === 0 && (SUBJ2.has(tk[1] ?? '') || tk.length < 4) ? -16 : 0;          // «الحية عدو…»: the symbol itself, then its meaning
-      const meet = others.filter((st) => st.some((q) => tk.some((w) => same(w, q)))).length;
-      return e.pos * 10 + hedges(c) * 14 + (c.length > 420 ? 25 : 0) + (e.d.explanation ? -6 : 0) + (MEAN.test(c.slice(0, 160)) ? -8 : 0) + (!/[.؛]/.test(e.d.text) && e.d.text.length > 200 ? 20 : 0) + Math.min(c.length, 420) / 100 - Math.min(meet, 2) * 12 + general;
-    };
-    const ok = all.filter((e) => { const c = clean(e.d.text); return c.length >= 25 && !DECENCY.test(c) && !/^(?:و?قيل|و?ربما)\b/.test(c); });
-    if (!ok.length) continue;
-    ok.sort((a, b) => score(a) - score(b));
-    let best: Entry | null = null; let verdict = '';
-    for (const e of ok) { const v = decisive(clean(e.d.text, 300)); if (v.length >= 30 && (v.split(' ').pop() ?? '').length >= 2 && MEAN.test(v)) { best = e; verdict = v; break; } }       // a complete statement that gives a meaning
-    if (!best) continue;
-    let why = best.d.explanation ? clean(best.d.explanation, 260) : ''; if (why && verdict.includes(why.replace(/^قوله تعالى\s*:?\s*/, '').slice(0, 25))) why = '';
-    const tv = new Set(tokens(normalize(verdict)).map(core).filter((w) => w.length >= 3 && !STOP.has(w))); const shared = tokens(normalize(why)).map(core).filter((w) => w.length >= 3 && tv.has(w)).length;
-    if (why && shared < 3 && !/تعالى|﴿/.test(why)) why = '';            // the reason must be about the very sentence that is shown
-    const nv = normalize(verdict), nw = normalize(why); if (DECENCY.test(why) || why.length <= 12 || /[:،]\.?$/.test(why) || (nw.length > 24 && nv.includes(nw.slice(4, 24)))) why = '';       // a reason already said, or cut short, is not shown
-    if (/تعالى|﴿/.test(verdict + ' ' + why)) usedQuran = true;
-    // what concerns his state, from the best passages of the symbol: the clause that names his state is the word for him
-    const mine: string[] = [];
-    for (const e of ok.slice(0, 40)) {
-      for (const rx of [MARITAL_RX[marital], AGE_RX[age]]) { const c = clauseFor(e.d.text, rx); if (c && !DECENCY.test(c) && !mine.some((m) => m.slice(0, 30) === c.slice(0, 30))) mine.push(c); }
-      if (mine.length >= 2) break;
-    }
-    if (chain.story.length) continue;                                   // the chain has spoken: the other words are not symbols we have a rule for
-    sections.push({ symbol: s.word, verdict, why: why || undefined, mine: mine.slice(0, 2) });
-    if (sections.length >= 5) break;
-  }
-  // what concerns his own state, for the symbols that the chain explained
+  // what concerns his own state, for the symbols that the chain explained (the clause of the book that names his state)
   const own: string[] = [];
   for (const h of chain.heads) {
     outer: for (const st of h.stems) for (const e of lookup(books, normalize(st)).sort((a, b) => a.pos - b.pos).slice(0, 40)) {
@@ -193,14 +147,13 @@ export function interpret(dream: string, books: Doc[], rules: Doc[], age: Age, m
       if (own.length >= 1) break outer;
     }
   }
-  if (own.length) chain.story.push(`وبحسب حالك وأنت ${AGE_TEXT[age]} ${MAR_TEXT[marital]}: ${own[0]}`);
-  if (chain.story.length) chain.story.push('وهذا ما اتضح من رموز رؤياك المذكورة التي لها أصل أبني عليه؛ وما سواها لم أجد فيه أصلاً أبني عليه تأويلاً، فاذكر ما رأيت بتفصيل أكثر إن شئت.');
-  const found = sections.length + chain.story.length;
-  const opening = found ? 'بدايةً نقول والله أعلم، وهذا في أصل التفسير وليس أعلى منه.' : 'بدايةً نقول والله أعلم، لم أقف في الأصول على رمز يطابق ما كتبت؛ فاكتب ما رأيت بكلمات أخرى، وسمِّ أبرز ما كان في الرؤيا: ما رأيت، وأين، ومع من.';
+  const story = [...chain.story]; if (own.length) story.splice(story.length - (story.length > 1 && story[story.length - 1].startsWith('فخلاصة') ? 1 : 0), 0, `وبحسب حالك وأنت ${AGE_TEXT[age]} ${MAR_TEXT[marital]}: ${own[0]}`);
+  const found = story.length;
+  const opening = found ? 'بدايةً نقول والله أعلم، وهذا في أصل التفسير وليس أعلى منه.' : 'بدايةً نقول والله أعلم، لم أقف في رؤياك على رمز له أصل أبني عليه تأويلاً قاطعاً؛ فسمِّ أبرز ما رأيت بكلمة واضحة (مثل: بحر، حية، لبن، قميص، مطر، ورد، بركة) أو اكتبه بكلمات أخرى.';
   const pick = (title: string) => { const r = rules.find((d) => d.ref === title); const t = r?.text.split('\n')[0]?.split('\t')[0]; return r && t ? { title, text: clean(t, 420) } : null; };
-  const said = chain.story.join(' ');
+  const said = story.join(' ');
   const METHOD: Record<string, string> = { اشتقاق: 'الاشتقاق', اسم: 'التأويل بالأسماء', تصحيف: 'التصحيف', عكس: 'المعكوس' };
-  const used = found ? [...[...chain.methods].map((m) => pick(METHOD[m])), said.includes('«') ? pick('التأويل بالسنة') : null, usedQuran || said.includes('﴿') ? pick('التأويل بالقرآن') : null, own.length || sections.some((x) => x.mine.length) || !chain.story.length ? pick('الشيء الواحد يختلف باختلاف حال الرائي') : null] : [];
-  return { opening, story: chain.story, sections, rules: used.filter((x): x is { title: string; text: string } => !!x), found,
+  const used = found ? [...[...chain.methods].map((m) => pick(METHOD[m])), said.includes('«') ? pick('التأويل بالسنة') : null, said.includes('﴿') ? pick('التأويل بالقرآن') : null, own.length ? pick('الشيء الواحد يختلف باختلاف حال الرائي') : null] : [];
+  return { opening, story, sections: [], rules: used.filter((x): x is { title: string; text: string } => !!x), found,
     closing: 'والله أعلم وأحكم. وهذا من نصوص أهل العلم بالتعبير، وليس فتوى؛ فاعرض رؤياك على عالمٍ ناصح.' };
 }

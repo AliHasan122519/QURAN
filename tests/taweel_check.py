@@ -3,7 +3,7 @@ It reads the raw content files, not the builder's code.   usage: python3 -I test
 import json, re
 MARKS = re.compile('[ً-ٰٟۖ-ۭـ]')
 def f(s, deep=False):
-    s = MARKS.sub('', s).replace('ٰ', ''); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ة', 'ه'); s = re.sub(r'[^ء-ي ]', ' ', s); s = re.sub(r'\s+', ' ', s).strip()
+    s = MARKS.sub('', s).replace('ٰ', ''); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ئ', 'ي').replace('ؤ', 'و').replace('ة', 'ه'); s = re.sub(r'[^ء-ي ]', ' ', s); s = re.sub(r'\s+', ' ', s).strip()
     return s.replace('ء', '').replace('ا', '') if deep else s
 def load(n): return json.load(open(f'content/{n}.json', encoding='utf8'))
 J = [r[2] for r in load('jami')['h']]; R = [r[1] for r in load('ruyahadith')['h']]; Q = [r[2] for r in load('quran')['a']]; B = load('books')['h']

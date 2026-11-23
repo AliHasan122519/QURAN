@@ -9,7 +9,7 @@ import content_lib as CL
 from rules import RULES, ACTS
 MARKS = re.compile('[ً-ٰٟۖ-ۭـ]')
 def fold(s, deep=False):
-    s = MARKS.sub('', s); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ة', 'ه')
+    s = MARKS.sub('', s); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ئ', 'ي').replace('ؤ', 'و').replace('ة', 'ه')
     s = re.sub(r'\s+', ' ', re.sub(r'[^ء-ي ]', ' ', s)).strip()
     return s.replace('ء', '').replace('ا', '') if deep else s            # (the Uthmani spelling keeps or drops alefs differently from the plain one: compare without them)
 def fold_map(s):
@@ -18,7 +18,7 @@ def fold_map(s):
     for i, ch in enumerate(s):
         if ch == '\u0670': ch = 'ا'                                                 # the dagger alef is an alef
         elif MARKS.match(ch): continue
-        c = {'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ى': 'ي', 'ة': 'ه'}.get(ch, ch)
+        c = {'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ى': 'ي', 'ئ': 'ي', 'ؤ': 'و', 'ة': 'ه'}.get(ch, ch)
         if c in ('ء', 'ا'): continue                                            # the Uthmani spelling (ءَامَنُواْ، هَٰذِه) against the plain one (آمنوا، هذه): letters compared without alefs
         if not re.match('[ء-ي]', c): c = ' '
         if c == ' ' and out and out[-1] == ' ': continue
