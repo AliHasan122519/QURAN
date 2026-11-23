@@ -2,6 +2,9 @@ package com.alboheth.quran;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -41,6 +44,7 @@ public class ApkInstallerPlugin extends Plugin {
                 File apk = new File(dir, "update.apk");
                 download(url, apk);
                 Context ctx = getContext();
+                check(ctx, apk);                                  // a file the phone itself cannot read, or one that cannot replace this app, is refused here with its real reason
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !ctx.getPackageManager().canRequestPackageInstalls()) {
                     // Android asks the user once to allow this app to install updates; the file stays downloaded
                     Intent s = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + ctx.getPackageName()));
@@ -63,9 +67,41 @@ public class ApkInstallerPlugin extends Plugin {
         }, "apk-download").start();
     }
 
+    /** Reads the downloaded APK the way the system installer will (PackageManager) and compares it with the installed app:
+     *  invalid_package = the phone cannot parse the file (cut download, wrong file); signature_mismatch = signed with another key; not_newer = not a newer version. */
+    private void check(Context ctx, File apk) throws Exception {
+        if (apk.length() < 1000000) throw new Exception("invalid_package");
+        try (java.io.FileInputStream in = new java.io.FileInputStream(apk)) {
+            byte[] m = new byte[4];
+            if (in.read(m) != 4 || m[0] != 'P' || m[1] != 'K' || m[2] != 3 || m[3] != 4) throw new Exception("invalid_package");
+        }
+        PackageManager pm = ctx.getPackageManager();
+        boolean p28 = Build.VERSION.SDK_INT >= 28;
+        int flags = p28 ? PackageManager.GET_SIGNING_CERTIFICATES : PackageManager.GET_SIGNATURES;
+        PackageInfo ni = pm.getPackageArchiveInfo(apk.getAbsolutePath(), flags);
+        if (ni == null) throw new Exception("invalid_package");
+        if (!ctx.getPackageName().equals(ni.packageName)) throw new Exception("invalid_package");
+        PackageInfo cur = pm.getPackageInfo(ctx.getPackageName(), flags);
+        long nv = p28 ? ni.getLongVersionCode() : ni.versionCode, cv = p28 ? cur.getLongVersionCode() : cur.versionCode;
+        if (nv <= cv) throw new Exception("not_newer");
+        Signature[] a = signers(ni, p28), b = signers(cur, p28);
+        if (a != null && b != null && a.length > 0 && b.length > 0) {      // only when both are known: never refuse on a doubt
+            boolean same = false;
+            for (Signature x : a) for (Signature y : b) if (x.equals(y)) same = true;
+            if (!same) throw new Exception("signature_mismatch");
+        }
+    }
+
+    private static Signature[] signers(PackageInfo info, boolean p28) {
+        if (p28) return info.signingInfo == null ? null : info.signingInfo.getApkContentsSigners();
+        return info.signatures;
+    }
+
     private void download(String urlStr, File out) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(urlStr).openConnection();
         c.setConnectTimeout(20000); c.setReadTimeout(30000); c.setInstanceFollowRedirects(true);
+        c.setRequestProperty("Accept-Encoding", "identity");             // the file as it is: no transparent compression that would change the length
+        c.setRequestProperty("User-Agent", "AlboheathQuran");
         try {
             int code = c.getResponseCode();
             if (code != 200) throw new Exception("download failed: HTTP " + code);

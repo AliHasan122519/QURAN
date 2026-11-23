@@ -82,6 +82,16 @@ log('B2: native update shows a progress bar while downloading', (await pn.locato
 await pn.waitForFunction(() => document.querySelector('#upd-desc')?.textContent.includes('اضغط «تثبيت»'), null, { timeout: 5000 }).catch(() => {});
 log('B2: when the download ends it asks the user to press «تثبيت» in Android\'s installer', (await pn.locator('#upd-desc').innerText()).includes('اضغط «تثبيت»') && (await pn.evaluate(() => window.__url)) === 'https://example.com/app.apk');
 await ctxN.close();
+// B3) when Android's installer would refuse the file, the dialog says why (the plugin rejects with the reason) and offers the browser download
+for (const [code, text] of [['invalid_package', 'لم يقرأه جوالك'], ['signature_mismatch', 'موقَّعة بمفتاح غير مفتاح هذا التحديث'], ['not_newer', 'هو الأحدث']]) {
+  const cx = await browser.newContext({ locale: 'ar' }); const pe = await cx.newPage();
+  await pe.addInitScript((c) => { window.__qsInstaller = { install: async () => { throw new Error(c); } }; }, code);
+  await pe.goto(BASE + '/'); await pe.waitForFunction(() => document.querySelector('[role=dialog]'), null, { timeout: 30000 });
+  await pe.getByRole('button', { name: 'تحديث الآن' }).click(); await pe.waitForFunction((t) => document.querySelector('#upd-desc')?.textContent.includes(t), text, { timeout: 5000 }).catch(() => {});
+  log('B3: «' + code + '» is explained in the dialog', (await pe.locator('#upd-desc').innerText()).includes(text));
+  if (code !== 'not_newer') log('B3: «' + code + '» offers «تنزيل من المتصفح»', (await pe.getByRole('button', { name: 'تنزيل من المتصفح' }).count()) === 1);
+  await cx.close();
+}
 
 // C) offline: the downloaded content is kept and used
 offline = true; await page.reload(); await ready();
