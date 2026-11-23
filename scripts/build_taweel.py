@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import content_lib as CL
 from rules import RULES, ACTS, COMBOS
 from families import FAMILIES
+from lexicon import ROOTS, CATS, COLORS, AS, QS
 MARKS = re.compile('[ً-ٰٟۖ-ۭـ]')
 def fold(s, deep=False):
     s = MARKS.sub('', s); s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ئ', 'ي').replace('ؤ', 'و').replace('ة', 'ه')
@@ -71,6 +72,18 @@ def main():
         for a in c['anchors']: check_anchor(a, books, qawaid)
         o = {k: c[k] for k in ('id', 'm', 'all', 'name', 'family', 'verdict', 'why')}; o['ev'] = [{'t': e['t'], 'q': resolve(e, S)} for e in c['ev']]
         rows.append([c['id'], json.dumps(o, ensure_ascii=False, separators=(',', ':')), '', '', 'combo'])
+    # the general lexicon: roots (الاشتقاق), analogies (القياس والتشبيه والضد), colours; every one with a method rule of the books and a verse that is checked word for word
+    METHOD_RULE = {'الاشتقاق': AS, 'القياس': QS, 'التشبيه': QS, 'الضد': {'qawaid': 'التأويل بالضد والمقلوب', 'needle': 'في البكاء إنه فرح'}}
+    for m_, a_ in METHOD_RULE.items(): check_anchor(a_, books, qawaid)
+    for r_, cn, rd, fam_, q, ex in ROOTS:
+        o = {'t': 'root', 'r': r_, 'cn': cn, 'rd': rd, 'fam': fam_, 'ex': ex, 'ev': [{'t': 'آية', 'q': resolve({'t': 'آية', 'src': 'quran', 'q': q}, S)}]}
+        rows.append(['جذر ' + r_, json.dumps(o, ensure_ascii=False, separators=(',', ':')), '', '', 'gen'])
+    for id_, words, rd, fam_, m_, why, qs in CATS:
+        o = {'t': 'cat', 'id': id_, 'words': words, 'rd': rd, 'fam': fam_, 'm': m_, 'why': why, 'ev': [{'t': 'آية', 'q': resolve({'t': 'آية', 'src': 'quran', 'q': q}, S)} for q in qs]}
+        rows.append(['باب ' + id_, json.dumps(o, ensure_ascii=False, separators=(',', ':')), '', '', 'gen'])
+    for id_, words, rd, fam_, why, q in COLORS:
+        o = {'t': 'color', 'id': id_, 'words': words, 'rd': rd, 'fam': fam_, 'why': why, 'ev': [{'t': 'آية', 'q': resolve({'t': 'آية', 'src': 'quran', 'q': q}, S)}]}
+        rows.append(['لون ' + id_, json.dumps(o, ensure_ascii=False, separators=(',', ':')), '', '', 'gen'])
     fams = {k: {'label': v['label'], 'maal': v['maal'], 'ev': [{'t': e['t'], 'q': resolve(e, S)} for e in v['ev']]} for k, v in FAMILIES.items()}
     rows.append(['الأبواب', json.dumps(fams, ensure_ascii=False, separators=(',', ':')), '', '', 'fams'])
     acts = ['الأفعال', json.dumps(ACTS, ensure_ascii=False, separators=(',', ':')), '', '', 'acts']

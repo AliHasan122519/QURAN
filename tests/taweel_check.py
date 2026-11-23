@@ -13,6 +13,7 @@ bad = []; n = 0
 rows = load('taweel')['h']
 spec = {r[0] for r in rows if r[4] == 'rule'}
 import sys, os; sys.path.insert(0, 'data/taweel'); from rules import RULES, COMBOS
+from lexicon import ROOTS, CATS, COLORS
 if spec != {r['id'] for r in RULES}: bad.append('the published rules differ from data/taweel/rules.py')
 for r in rows:
     if r[4] != 'rule': continue
@@ -36,7 +37,18 @@ for c in (json.loads(r[1]) for r in rows if r[4] == 'combo'):
             if not any(r[0] == a['qawaid'] and f(a['needle']) in f(r[1]) for r in QW): bad.append(c['id'] + ': method anchor missing')
         elif not any(a['book'] in (b[3] or '') and f(a['needle']) in f(b[1]) for b in B): bad.append(c['id'] + ': anchor not in ' + a['book'])
     n += 1
+gen = [json.loads(r[1]) for r in rows if r[4] == 'gen']
+if len(gen) != len(ROOTS) + len(CATS) + len(COLORS): bad.append('the general lexicon is not fully published')
+for g in gen:
+    for e in g['ev']:
+        if not any(f(e['q'], True) in f(t, True) for t in Q): bad.append('lexicon: verse not in the Qur\'an: ' + e['q'][:40])
+    n += 1
+if not any(r[0] == 'الاشتقاق' and f('واعتبر الاشتقاق في الأسماء') in f(r[1]) for r in QW): bad.append('lexicon: the rule of derivation is not in «قواعد علم التعبير»')
+if not any(r[0] == 'العبارة قياس واعتبار وتشبيه وظن' for r in QW): bad.append('lexicon: the rule of analogy is not in «قواعد علم التعبير»')
 fams = next(json.loads(r[1]) for r in rows if r[4] == 'fams')
+for g in gen:
+    fam_ = g.get('fam')
+    if fam_ and fam_ not in fams and fam_ not in ('رزق',): bad.append('lexicon: family without a maal: ' + fam_)
 for k, v in fams.items():
     for e in v['ev']:
         if not any(f(e['q'], True) in f(t, True) for t in Q): bad.append('باب ' + k + ': evidence not in the Qur\'an: ' + e['q'][:40])
