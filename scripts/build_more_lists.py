@@ -129,17 +129,24 @@ def main():
     CL.publish('anbiya', 'رؤى الأنبياء والصالحين', 'generic', {'h': rows}, len(rows), extra={'drawer': True, 'card': 'dream', 'menu': 'رؤى الأنبياء والصالحين', 'placeholder': 'اكتب هنا',
                'hint': 'رؤى الأنبياء والنبي ﷺ وأصحابه، ورؤى عبّرها النبي ﷺ أو أحد الصحابة، من القرآن والسنة وكتب التعبير.'})
     # ---- the interpreters
-    ex = json.load(open('data/muabbirun/excerpts.json', encoding='utf8'))
+    # brief profile cards: «label: value» lines copied word for word from the two biographical dictionaries (data/muabbirun/profiles.json,
+    # produced by scripts/extract_muabbirun_profiles.py; a field the dictionary does not state is simply absent), then the dictionary's name
+    ex = json.load(open('data/muabbirun/profiles.json', encoding='utf8'))
     count = collections.Counter(r[4] for r in RUAA)
     people = []
     for pp in ex:
-        parts = '\n'.join(f"{x['text']}\t{x['src']} — {x['loc']}" for x in pp['parts'])
-        people.append([pp['name'], parts, '', '', pp['key']])
+        lines = [f"{k}\t{v}" for k, v in pp['lines']] + [f"المصدر\t{pp['src']}"]
+        people.append([pp['title'], '\n'.join(lines), '', '', pp['key']])
     # Yusuf: the ayat that say he was taught the interpretation (word for word from the mushaf)
-    yus = '\n'.join(f"﴿{VERSE[(12, a)]}﴾\tالقرآن الكريم — سورة يوسف: {a}" for a in (6, 21, 101))
-    people.insert(0, ['يوسف عليه السلام', yus, '', '', 'يوسف عليه السلام'])
+    def clause(v):   # the literal words of the ayah around «تأويل الأحاديث»
+        w = v.split(); i = next(k for k, x in enumerate(w) if 'أَحَادِيثِ' in x or 'ٱلۡأَحَادِيثِ' in x)
+        return ' '.join(w[max(0, i - 3):i + 1])
+    CL_ = {a_: clause(VERSE[(12, a_)]) for a_ in (6, 21, 101)}
+    for a_, c_ in CL_.items(): assert c_ in VERSE[(12, a_)], a_
+    yus = '\n'.join([f"من علّمه التعبير\t﴿… {c_} …﴾ (سورة يوسف: {a_})" for a_, c_ in CL_.items()] + ['المصدر\tالقرآن الكريم'])
+    people.insert(0, ['نبي الله يوسف عليه السلام', yus, '', '', 'يوسف عليه السلام'])
     CL.publish('muabbirun', 'المعبِّرون', 'generic', {'h': people}, len(people), extra={'drawer': True, 'card': 'person', 'menu': 'المعبِّرون', 'placeholder': 'اكتب هنا',
-               'hint': 'من هم المعبِّرون الذين ورد ذكرهم في الكتب، وما قالته عنهم كتب التراجم.'})
+               'hint': 'بطاقة مختصرة لكل معبِّر: الولادة، ومكانها، ومن تعلم على يده، ومن أخذ عنه، والوفاة، ومؤلفاته، كما في كتب التراجم.'})
     return rows, people, count
 if __name__ == '__main__':
     rows, people, count = main()

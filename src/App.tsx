@@ -8,7 +8,6 @@ import { DreamsPanel } from './components/DreamsPanel';
 import { PeoplePanel } from './components/PeoplePanel';
 import { RulesPanel } from './components/RulesPanel';
 import { AboutPanel } from './components/AboutPanel';
-import { DeepPanel } from './components/DeepPanel';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, prefetch, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
@@ -97,8 +96,6 @@ export function App() {
         ? <PeoplePanel title={opened.label} people={lists[opened.id] ?? []} dreams={dreamsOf(lists)} onClose={() => setPanel(null)} />
         : opened.card === 'rule'
           ? <RulesPanel title={opened.label} docs={lists[opened.id] ?? []} unit={opened.unit} sub={opened.sub} l1={opened.l1} l2={opened.l2} onClose={() => setPanel(null)} />
-          : opened.card === 'deep'
-          ? <DeepPanel title={opened.label} books={engine.docsOf('books')} rules={lists.qawaid ?? []} know={lists.taweel ?? []} onClose={() => setPanel(null)} />
           : opened.card === 'about'
           ? <AboutPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />
           : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}

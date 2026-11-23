@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 232,
- "updated": "2026-11-23T12:22:54Z",
+ "version": 239,
+ "updated": "2026-11-23T22:30:15Z",
  "apk": {
   "versionCode": 29923955,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -65,19 +65,6 @@
    "hint": "اكتب الكلمة ويفهم التطبيق مرادفاتها وما يقابلها بالعامية، وتظهر الأبيات التي ورد فيها المعنى."
   },
   {
-   "id": "taweel",
-   "label": "التأويل العميق",
-   "kind": "generic",
-   "file": "taweel.json",
-   "sha256": "5898349ffd1db945a8c912e4e22265d5190474c1f5aecd076d983a7e9b5cc570",
-   "count": 128,
-   "drawer": true,
-   "card": "deep",
-   "menu": "التأويل العميق",
-   "placeholder": "اكتب هنا",
-   "hint": "اكتب رؤياك فيأتيك تأويلها من الأصول."
-  },
-  {
    "id": "ruaa",
    "label": "رؤى وتعبيرها",
    "kind": "generic",
@@ -108,13 +95,13 @@
    "label": "المعبِّرون",
    "kind": "generic",
    "file": "muabbirun.json",
-   "sha256": "9a62c019962b95cb7a612afaddd6ee96ebfe4877d5b9435b237f9be91dcb7d06",
+   "sha256": "53b884c1c6707b54701e4a5a2a87f64091fcc2b9373f29a8f9f99578f7b8e7e6",
    "count": 13,
    "drawer": true,
    "card": "person",
    "menu": "المعبِّرون",
    "placeholder": "اكتب هنا",
-   "hint": "من هم المعبِّرون الذين ورد ذكرهم في الكتب، وما قالته عنهم كتب التراجم."
+   "hint": "بطاقة مختصرة لكل معبِّر: الولادة، ومكانها، ومن تعلم على يده، ومن أخذ عنه، والوفاة، ومؤلفاته، كما في كتب التراجم."
   },
   {
    "id": "qawaid",
@@ -168,7 +155,7 @@
    "label": "حول التطبيق",
    "kind": "generic",
    "file": "about.json",
-   "sha256": "dc1f80e4b2a1c799b198112e44d67046367a07a7d4b53f3585ff4d43f9213608",
+   "sha256": "9cebdab18917a815f975002efb3bcbab7f03c31bec30223cca2380b47cf61191",
    "count": 1,
    "drawer": true,
    "card": "about",
