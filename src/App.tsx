@@ -98,7 +98,7 @@ export function App() {
         : opened.card === 'rule'
           ? <RulesPanel title={opened.label} docs={lists[opened.id] ?? []} unit={opened.unit} sub={opened.sub} l1={opened.l1} l2={opened.l2} onClose={() => setPanel(null)} />
           : opened.card === 'deep'
-          ? <DeepPanel title={opened.label} books={engine.docsOf('books')} rules={lists.qawaid ?? []} onClose={() => setPanel(null)} />
+          ? <DeepPanel title={opened.label} books={engine.docsOf('books')} rules={lists.qawaid ?? []} know={lists.taweel ?? []} onClose={() => setPanel(null)} />
           : opened.card === 'about'
           ? <AboutPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />
           : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}

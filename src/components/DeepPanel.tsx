@@ -10,7 +10,7 @@ import { topmost } from './DreamsPanel';
 
 const NONE = new Set<string>();
 /** «التأويل العميق»: the dream, the age and the marital state (both chosen, for the sake of accuracy), and the interpretation as one interpreter would address the dreamer. */
-export function DeepPanel({ title, books, rules, onClose }: { title: string; books: Doc[]; rules: Doc[]; onClose: () => void }) {
+export function DeepPanel({ title, books, rules, know, onClose }: { title: string; books: Doc[]; rules: Doc[]; know: Doc[]; onClose: () => void }) {
   const [dream, setDream] = useState(''); const [age, setAge] = useState(''); const [marital, setMarital] = useState<Marital | ''>('');
   const [res, setRes] = useState<Result | null>(null); const [busy, setBusy] = useState(false);
   const back = useRef<HTMLDivElement>(null); const top = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null); const out = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export function DeepPanel({ title, books, rules, onClose }: { title: string; boo
   const submit = (e: React.FormEvent) => {
     e.preventDefault(); if (!ready || !marital) return;
     setBusy(true);
-    setTimeout(() => { setRes(interpret(dream, books, rules, ageGroup(years), marital)); setBusy(false); setTimeout(() => out.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); }, 30);
+    setTimeout(() => { setRes(interpret(dream, books, rules, ageGroup(years), marital, know)); setBusy(false); setTimeout(() => out.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); }, 30);
   };
   const empty = useMemo(() => books.length === 0, [books]);
   return (
@@ -59,9 +59,15 @@ export function DeepPanel({ title, books, rules, onClose }: { title: string; boo
         <div ref={out} className="deep-out" aria-live="polite">
           {res && (
             <>
+              {res.story.length > 0 && (
+                <article className="verse-card deep-card deep-story">
+                  <p dir="rtl" className="deep-open">{res.opening}</p>
+                  {res.story.map((p, i) => <p dir="rtl" className="deep-verdict" key={i}><Rich text={p} words={NONE} /></p>)}
+                </article>
+              )}
               {res.sections.map((s, i) => (
                 <article className="verse-card deep-card" key={s.symbol + i}>
-                  {i === 0 && <p dir="rtl" className="deep-open">{res.opening}</p>}
+                  {i === 0 && !res.story.length && <p dir="rtl" className="deep-open">{res.opening}</p>}
                   <h3 className="rule-title">رؤيتك «{s.symbol}»</h3>
                   <p dir="rtl" className="deep-verdict"><Rich text={s.verdict} words={NONE} /></p>
                   {s.why && <p dir="rtl" className="deep-why"><b>ووجه ذلك:</b> <Rich text={s.why} words={NONE} /></p>}

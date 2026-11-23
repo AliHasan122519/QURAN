@@ -294,14 +294,14 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // «التأويل العميق»
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'التأويل العميق' }).click(); await page.waitForSelector('#q-deep');
-  await page.fill('#q-deep', 'رأيت حية في بيتي وكنت أشرب ماء');
+  await page.fill('#q-deep', 'رأيت إني أسبح في بحر من دم');
   log('التأويل العميق', 'زر «التأويل» معطّل حتى يختار المستخدم عمره وحالته الاجتماعية', await page.locator('.deep-go').isDisabled());
   const ageOpts = await page.locator('#deep-age option').allInnerTexts();
   log('التأويل العميق', 'العمر قائمة منبثقة من ١ إلى ١٠٠ (لا «من… إلى…») والحالة الاجتماعية قائمة منبثقة', ageOpts.length === 101 && ageOpts[1] === 'سنة واحدة' && ageOpts[2] === 'سنتان' && ageOpts[100] === '100 سنة' && (await page.locator('#deep-marital option').count()) === 5 && !(await page.locator('.deep-chip').count()), ageOpts.length + ' خياراً');
   await page.selectOption('#deep-age', '28'); await page.selectOption('#deep-marital', 'single');
   log('التأويل العميق', 'يُفعَّل الزر بعد اختيار الخيارين', !(await page.locator('.deep-go').isDisabled()));
   await page.click('.deep-go'); await page.waitForSelector('.deep-card'); const dp = await page.locator('.deep-out').innerText();
-  log('التأويل العميق', 'يبدأ بـ«بدايةً نقول والله أعلم،» ثم التأويل مباشرة: تأويل واحد نهائي لكل رمز («حية» و«ماء» و«بيتي») وقسم «وبحسب حالك»', dp.trim().startsWith('بدايةً نقول والله أعلم،') && /رؤيتك «حية»/.test(dp) && /رؤيتك «ماء»/.test(dp) && /وبحسب حالك/.test(dp) && (await page.locator('.deep-card:has(.deep-verdict)').count()) >= 3 && (await page.locator('.deep-card').first().locator('.deep-verdict').count()) === 1 + (await page.locator('.deep-card').first().locator('.dream-label ~ .deep-verdict').count()), dp.slice(0, 80));
+  log('التأويل العميق', 'يبدأ بـ«بدايةً نقول والله أعلم،» ثم تأويل متسلسل: الرمز ثم ما يدل عليه ثم وجه ذلك من الحديث ثم أثر «الدم»', dp.trim().startsWith('بدايةً نقول والله أعلم،') && /سباحتك في البحر قد تدلّ على ذنبٍ خضتَ فيه، والله المستعان/.test(dp) && /والوجه في ذلك أن البحر يدلّ على وسوسة إبليس/.test(dp) && /إن إبليس يضع عرشه على الماء/.test(dp) && /وبما أنه من دم فزاد الأمر تأكيداً/.test(dp) && /إن الشيطان يجري من ابن آدم مجرى الدم/.test(dp) && dp.indexOf('سباحتك') < dp.indexOf('وبما أنه من دم'));
   log('التأويل العميق', 'لا يذكر اسم كتاب ولا «قال فلان» أثناء التأويل', !/ابن سيرين|ابن نعمة|قال ابن|قال جعفر|قال دانيال|في كتاب|الإشارات في|تعطير الأنام|القادري|البدر المنير/.test(dp));
   log('التأويل العميق', 'يذكر الأصول التي بُني عليها التأويل ويختم بـ«والله أعلم»', /وعلى ماذا بُني هذا التأويل/.test(dp) && /والله أعلم وأحكم/.test(dp));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
