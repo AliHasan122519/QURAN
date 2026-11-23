@@ -62,18 +62,13 @@ export function DeepPanel({ title, books, rules, know, onClose }: { title: strin
               {res.story.length > 0 && (
                 <article className="verse-card deep-card deep-story">
                   <p dir="rtl" className="deep-open">{res.opening}</p>
-                  {res.story.map((p, i) => <p dir="rtl" className="deep-verdict" key={i}><Rich text={p} words={NONE} /></p>)}
+                  {res.story.map((l, i) => l.k === 'h'
+                    ? <h3 className="dream-label deep-h" key={i}>{l.t}</h3>
+                    : l.k === 'e'
+                      ? <p dir="rtl" className="deep-ev" key={i}><b>{l.l}:</b> <Rich text={l.t} words={NONE} /></p>
+                      : <p dir="rtl" className="deep-verdict" key={i}><Rich text={l.t} words={NONE} /></p>)}
                 </article>
               )}
-              {res.sections.map((s, i) => (
-                <article className="verse-card deep-card" key={s.symbol + i}>
-                  {i === 0 && !res.story.length && <p dir="rtl" className="deep-open">{res.opening}</p>}
-                  <h3 className="rule-title">رؤيتك «{s.symbol}»</h3>
-                  <p dir="rtl" className="deep-verdict"><Rich text={s.verdict} words={NONE} /></p>
-                  {s.why && <p dir="rtl" className="deep-why"><b>ووجه ذلك:</b> <Rich text={s.why} words={NONE} /></p>}
-                  {s.mine.length > 0 && <><h3 className="dream-label">وبحسب حالك</h3>{s.mine.map((m, j) => <p dir="rtl" className="deep-verdict" key={j}><Rich text={m} words={NONE} /></p>)}</>}
-                </article>
-              ))}
               {res.found === 0 && <article className="verse-card deep-card"><p dir="rtl" className="deep-open">{res.opening}</p></article>}
               {res.rules.length > 0 && (
                 <article className="verse-card deep-card">

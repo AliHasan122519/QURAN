@@ -425,3 +425,8 @@ html[data-theme="dark"] .tab[data-state="inactive"]:hover, .tab[data-state="inac
 /* the title of the home page: one steady colour — it does not shimmer, change colour or move */
 .hero h1, html[data-theme="dark"] .hero h1 { animation: none !important; background: none !important; -webkit-text-fill-color: var(--h1); color: var(--h1); text-shadow: none; }
 .hero h1::before { opacity: .6; }
+
+/* «التأويل العميق»: the message, point by point — headings, and each proof under its point */
+.deep-h { margin: 1.1rem 0 .1rem; font-size: 1rem; }
+.deep-ev { margin: .25rem 0 0; padding: .45rem .8rem; border-inline-start: 3px solid color-mix(in oklch, var(--gold) 70%, transparent); background: color-mix(in oklch, var(--gold) 9%, transparent); border-radius: .5rem; font-size: .98rem; line-height: 2.1; color: var(--ink); }
+.deep-ev b { color: color-mix(in oklch, var(--ember) 80%, var(--ink)); } html[data-theme="dark"] .deep-ev b { color: #e8c98a; }

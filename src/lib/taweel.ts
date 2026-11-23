@@ -75,85 +75,103 @@ function clauseFor(text: string, rx: RegExp): string | null {
   const c = clean(seg, 240); return c.length > 12 ? c : null;
 }
 
-export interface Section { symbol: string; verdict: string; why?: string; mine: string[]; }
-export interface Result { opening: string; story: string[]; sections: Section[]; rules: { title: string; text: string }[]; closing: string; found: number; }
+/** one line of the message: a heading, a paragraph, or a piece of evidence (with its kind) */
+export interface Line { k: 'h' | 'p' | 'e'; l?: string; t: string }
+export interface Result { opening: string; story: Line[]; rules: { title: string; text: string }[]; closing: string; found: number; }
 
 // ===== أصول التأويل: the curated rules (content/taweel.json) — each is a symbol, what it points to, why, and the text that proves it =====
 interface Ev { t: string; q: string }
-interface Rule { id: string; stems: string[]; name: string; kind: 'head' | 'mod'; family: string; verdict: string; acts?: Record<string, string>; why?: string; dua?: boolean; ev: Ev[]; play?: string; alts?: { ctx: string[]; verdict: string; why?: string; ev: Ev[] }[]; }
-interface Acts { [id: string]: { stems: string[]; noun: string } }
-const kcache = new WeakMap<Doc[], { rules: Rule[]; acts: Acts }>();
+interface Rule { id: string; stems: string[]; name: string; kind: 'head' | 'mod'; family: string; verdict: string; m?: string; tail?: string; acts?: Record<string, string>; why?: string; dua?: boolean; ev: Ev[]; play?: string; alts?: { ctx: string[]; verdict: string; why?: string; ev: Ev[] }[]; }
+interface Acts { [id: string]: { stems: string[]; noun: string; label: string } }
+interface Fam { label: string; maal: string; ev: Ev[] }
+interface Combo { id: string; m: string; all: string[][]; name: string; family: string; verdict: string; why: string; ev: Ev[] }
+const kcache = new WeakMap<Doc[], { rules: Rule[]; acts: Acts; fams: Record<string, Fam>; combos: Combo[] }>();
 function knowledge(docs: Doc[]) {
   let k = kcache.get(docs); if (k) return k;
-  const rules: Rule[] = []; let acts: Acts = {};
-  for (const d of docs) { try { if (d.by === 'rule') rules.push(JSON.parse(d.text)); else if (d.by === 'acts') acts = JSON.parse(d.text); } catch { /* a malformed row is skipped */ } }
-  k = { rules, acts }; kcache.set(docs, k); return k;
+  const rules: Rule[] = []; let acts: Acts = {}; let fams: Record<string, Fam> = {}; const combos: Combo[] = [];
+  for (const d of docs) { try { if (d.by === 'rule') rules.push(JSON.parse(d.text)); else if (d.by === 'acts') acts = JSON.parse(d.text); else if (d.by === 'fams') fams = JSON.parse(d.text); else if (d.by === 'combo') combos.push(JSON.parse(d.text)); } catch { /* a malformed row is skipped */ } }
+  k = { rules, acts, fams, combos }; kcache.set(docs, k); return k;
 }
 /** the word without its attached particles (و ف ب ك ل and the article), to meet the stem of a rule */
 const forms = (t: string) => [t, t.replace(/^[وفبكل]?ال/, ''), t.replace(/^[وفبكل](?=[ء-ي]{3,})/, '')];       // the word as written, without «ال», without one particle («لبنا» is not «ل + بنا»)
 const SUF = new Set(['', 'ا', 'ي', 'ه', 'ها', 'ك', 'نا', 'ات', 'ان', 'ين', 'ون', 'ة']);      // what may follow a stem: the accusative, a pronoun, a plural — not a verb ending («ذهبت» is not «ذهب»)
 const meets = (tok: string, stem: string) => forms(tok).some((a) => a === stem || (stem.length >= 3 && a.startsWith(stem) && SUF.has(a.slice(stem.length))));
-const proof = (e: Ev) => e.t === 'آية' ? `وذلك لقوله تعالى: ﴿${e.q}﴾` : `وذلك للحديث النبوي الشريف: «${e.q.replace(/«/g, '“').replace(/»/g, '”')}»`;       // (a quotation inside the quotation takes curly marks)
+const KINDS: Record<string, { label: string; order: number; q: (t: string) => string }> = {
+  'آية': { label: 'الآية', order: 0, q: (t) => `﴿${t}﴾` }, 'حديث': { label: 'الحديث', order: 1, q: (t) => `«${t.replace(/«/g, '“').replace(/»/g, '”')}»` },
+  'ألفية': { label: 'الألفية الوردية', order: 2, q: (t) => t }, 'بيت': { label: 'البيت', order: 3, q: (t) => t }, 'مثل': { label: 'المثل', order: 4, q: (t) => `«${t}»` } };
+const inline = (e: Ev) => (e.t === 'آية' ? `وذلك لقوله تعالى: ﴿${e.q}﴾` : `وذلك للحديث النبوي الشريف: «${e.q.replace(/«/g, '“').replace(/»/g, '”')}»`);
+const evLines = (ev: Ev[]): Line[] => [...ev].filter((e) => KINDS[e.t]).sort((a, b) => KINDS[a.t].order - KINDS[b.t].order).slice(0, 4).map((e) => ({ k: 'e' as const, l: KINDS[e.t].label, t: KINDS[e.t].q(e.q) }));
+const AR = (n: number) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]);
+const PLAY: Record<string, string> = { اشتقاق: 'التأويل بالاشتقاق', اسم: 'التأويل بالاسم', تصحيف: 'التأويل بالتصحيف', عكس: 'التأويل بالعكس' };
+const methodOf = (r: Rule) => r.m ?? (r.play ? PLAY[r.play] : 'التشبيه');
+const LABEL: Record<string, string> = { رزق: 'المال والرزق', رحمة: 'الرحمة والرزق', ثبات: 'الثبات', عافية: 'العافية', فرج: 'الفرج', عودة: 'العودة', ارتفاع: 'الارتفاع', خسارة: 'الخسارة', سرور: 'السرور', رجل: 'الرجال', سلطان: 'السلطان', خير: 'الخير', خبر: 'الخبر' };
 
-/** The chain of one dream, told as an interpreter tells it: what the symbol points to; why (the text that proves it); and what the other things of the dream add to it. */
-const proofs = (ev: Ev[]) => ev.slice(0, 2).map((e, i) => (i ? proof(e).replace(/^وذلك /, 'و') : proof(e))).join('، ');
-function compose(words: string[], rules: Rule[], acts: Acts) {
+/** The whole message of one dream, told as an interpreter tells it, point by point: what he saw; each thing with the method that reads it, its reason and its proofs (verse, hadith, poem, proverb);
+ *  what the whole of it comes to; and the message of the dream to him, with where it ends (the maal) and the verse that proves it. */
+function compose(words: string[], K: { rules: Rule[]; acts: Acts; fams: Record<string, Fam>; combos: Combo[] }) {
+  const { rules, acts, fams, combos } = K;
   const toks = words.map((w) => normalize(w));
   const at = (stems: string[]) => { const ss = stems.map((x) => normalize(x)); return toks.findIndex((t) => ss.some((x) => meets(t, x))); };
-  const found = rules.map((r) => ({ r, i: at(r.stems) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i);
+  const met = combos.filter((c) => c.all.every((g) => at(g) >= 0));
+  const partOf = (r: Rule) => met.some((c) => c.all.some((g) => g.some((x) => r.stems.includes(x))));
+  const found0 = rules.map((r) => ({ r, i: at(r.stems) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i);
+  // a pair that the books of the method read together (the opposite, the analogy) is read as one thing: «ظلمة + نور»، «بحر + سفينة»
+  const asRules: Rule[] = met.map((c) => ({ id: c.id, stems: c.all.flat(), name: c.name, kind: 'head' as const, family: c.family, verdict: c.verdict, m: c.m, why: c.why, ev: c.ev }));
+  const found = [...found0.filter((x) => !partOf(x.r)), ...asRules.map((r, k) => ({ r, i: Math.min(...met[k].all.map((g) => at(g))) }))].sort((a, b) => a.i - b.i);
   const heads = found.filter((x) => x.r.kind === 'head').slice(0, 3); const mods = found.filter((x) => x.r.kind === 'mod');
-  const actHit = Object.entries(acts).filter(([, a]) => at(a.stems) >= 0).map(([id]) => id);
-  const story: string[] = []; const claimed = new Set<number>(); const methods = new Set<string>();
-  heads.forEach(({ r, i }, n) => {
-    claimed.add(i);
-    const act = actHit.map((id) => ({ id, a: acts[id] })).find((x) => r.acts?.[x.id]);
-    // the same word, read in the sense that the rest of the dream calls for («ورد» + طبيب: the vein, not the dhikr)
-    const alt = r.alts?.find((a) => at(a.ctx) >= 0);
+  const actHit = Object.entries(acts).filter(([, a]) => at(a.stems) >= 0).map(([id]) => ({ id, a: acts[id], i: at(acts[id].stems) }));
+  const lines: Line[] = []; const methods = new Set<string>();
+  if (!heads.length) return { lines, methods, heads: [] as Rule[] };
+  // 1) what he saw, in the order he told it
+  const seen = [...actHit.map((x) => ({ i: x.i, n: x.a.label })), ...heads.map((x) => ({ i: x.i, n: x.r.name })), ...mods.map((x) => ({ i: x.i, n: x.r.name }))].sort((a, b) => a.i - b.i).map((x) => x.n);
+  lines.push({ k: 'h', t: 'أولاً: ما رأيتَ' }, { k: 'p', t: `عناصر رؤياك: ${[...new Set(seen)].join('، ')}.` }, { k: 'h', t: 'ثانياً: التأويل نقطةً نقطة' });
+  // 2) each thing, then what is joined to it
+  let n = 0; const verdicts: string[] = []; const tails: string[] = [];
+  heads.forEach(({ r, i }) => {
+    const act = actHit.find((x) => r.acts?.[x.id]);
+    const alt = r.alts?.find((a) => at(a.ctx) >= 0);       // the same word read in the sense that the rest of the dream calls for («ورد» + طبيب: the vein, not the dhikr)
     const verdict = alt ? alt.verdict : act ? r.acts![act.id] : r.verdict; const why = alt ? alt.why ?? r.why : r.why; const ev = alt && alt.ev.length ? alt.ev : r.ev;
-    if (r.play) methods.add(r.play);
-    const subject = act ? `${act.a.noun} ${words[i].replace(/^(?:[وفبكل]?ال)/, '').replace(/^/, 'ال')}` : `رؤيتك ${r.name}`;
-    story.push(`${n ? 'وأما ' : ''}${subject}${n ? ' فتدلّ' : ' تدلّ'} على ${verdict}${r.dua ? '، والله المستعان' : ''}.`);
-    if (why || ev.length) story.push(`${r.play ? `وهذا من التأويل ${r.play === 'اسم' ? 'بالاسم' : r.play === 'تصحيف' ? 'بالتصحيف' : r.play === 'عكس' ? 'بالعكس' : 'بالاشتقاق'}، ` : ''}والوجه في ذلك${why ? ` أن ${why}` : ''}${ev.length ? `${why ? '،' : ''} ${proofs(ev)}` : ''}.`);
-    // what the other things of the dream add: the nearest head takes each modifier
-    for (const m of mods) {
-      const own = heads.reduce((b, h) => (Math.abs(h.i - m.i) < Math.abs(b.i - m.i) ? h : b), heads[0]);
+    const m = methodOf(r); methods.add(m); verdicts.push(verdict);
+    const subject = act ? `${act.a.noun} ${r.name}` : `رؤيتك ${r.name}`;
+    lines.push({ k: 'p', t: `${AR(++n)}. ${subject} — ${m}: تدلّ على ${verdict}${r.dua ? '، والله المستعان' : ''}.` });
+    if (why) lines.push({ k: 'p', t: `ووجه ذلك: أن ${why}.` });
+    lines.push(...evLines(ev));
+    for (const x of mods) {
+      const own = heads.reduce((b, h) => (Math.abs(h.i - x.i) < Math.abs(b.i - x.i) ? h : b), heads[0]);
       if (own.r !== r) continue;
-      claimed.add(m.i); const via = toks[m.i - 1] === 'من'; const w = words[m.i];
-      const same = m.r.family === r.family;
-      story.push(`${same ? `وبما أنه ${via ? `من ${w}` : `اقترن به ${w}`} فزاد الأمر تأكيداً` : `وقد ${via ? `كان من ${w}` : `اقترن به ${w}`}، وهو يدلّ على ${m.r.verdict}، فيُضاف ذلك إلى ما سبق`}${m.r.why ? `، لأن ${m.r.why}` : ''}${m.r.ev.length ? `، ${proofs(m.r.ev)}` : ''}.`);
+      const via = toks[x.i - 1] === 'من'; const w = words[x.i]; const same = x.r.family === r.family; const mm = methodOf(x.r); methods.add(mm); if (x.r.tail) tails.push(x.r.tail);
+      lines.push({ k: 'p', t: `${AR(++n)}. ${via ? `وبما أنه من ${w}` : `وبما اقترن به من ${w}`} — ${mm}: ${same ? 'فزاد الأمر تأكيداً' : `يُضاف إلى ما سبق أنه يدلّ على ${x.r.verdict}`}${x.r.why ? `، لأن ${x.r.why}` : ''}.` });
+      lines.push(...evLines(x.r.ev));
     }
   });
-  // the one face of the dream: the family that most of what he saw points to; when each points elsewhere, what he began with is the main thing
+  // 3) what the whole comes to: the family that most of what he saw points to; when each points elsewhere, what he began with
   const grp = (f: string) => (f === 'رزق' ? 'مال' : f);
   const tally = new Map<string, string[]>();
   for (const x of [...heads, ...mods]) { const f = grp(x.r.family); tally.set(f, [...(tally.get(f) ?? []), x.r.name]); }
+  const top = [...tally].sort((a, b) => b[1].length - a[1].length)[0]; const fam = top[1].length >= 2 || heads.length === 1 ? top[0] : grp(heads[0].r.family);
+  const label = fams[fam]?.label ?? LABEL[fam] ?? fam;
   if (heads.length + mods.length >= 2) {
-    const top = [...tally].sort((a, b) => b[1].length - a[1].length)[0];
-    if (top[1].length >= 2) story.push(`فخلاصة رؤياك: أن الغالب عليها ${LABEL[top[0]] ?? top[0]}، فقد اجتمع فيها ${top[1].join(' و')}، وكلها من هذا الباب.`);
-    else { const f = heads[0]; story.push(`فخلاصة رؤياك: أن وجهها المقدَّم ${LABEL[grp(f.r.family)] ?? f.r.family}، لأن ${f.r.name} هو أول ما رأيتَ في منامك.`); }
+    lines.push({ k: 'h', t: 'ثالثاً: الجمع بين ما رأيت' });
+    lines.push({ k: 'p', t: top[1].length >= 2 ? `فاجتمع في رؤياك ${top[1].join(' و')}، وكلها من باب ${label}، فالغالب على رؤياك ${label}.` : `ولم يجتمع في رؤياك ما يتفق في باب واحد، فالمقدَّم فيها ${heads[0].r.name} لأنه أول ما رأيتَ، وبابه ${label}.` });
   }
-  return { story, claimed, heads: heads.map((h) => h.r), methods };
+  // 4) the message of the dream to him, and where it ends
+  lines.push({ k: 'h', t: heads.length + mods.length >= 2 ? 'رابعاً: رسالة منامك' : 'ثالثاً: رسالة منامك' });
+  const f = fams[fam];
+  lines.push({ k: 'p', t: `رسالة منامك إليك: أن رؤياك تدلّ على ${verdicts.join('، وعلى ')}${tails.length ? `، ${tails.join('، ')}` : ''}${f ? `؛ ${f.maal}${f.ev[0] ? `، ${inline(f.ev[0])}` : ''}` : ''}.` });
+  return { lines, methods, heads: heads.map((h) => h.r) };
 }
-const LABEL: Record<string, string> = { فتنة: 'الفتنة والذنب', علم: 'العلم', دين: 'الدين', عدو: 'العدو', رحمة: 'الرحمة والرزق', سفر: 'السفر', مال: 'المال والرزق', سلطان: 'السلطان', ضلال: 'الضلال والحيرة', خير: 'الخير', ذكر: 'الذكر والقرآن', بركة: 'البركة', ثبات: 'الثبات', عافية: 'العافية', فرج: 'الفرج', عودة: 'العودة', ارتفاع: 'الارتفاع', خسارة: 'الخسارة', سرور: 'السرور', نجاة: 'النجاة', رجل: 'الرجال' };
 
-export function interpret(dream: string, books: Doc[], rules: Doc[], age: Age, marital: Marital, know: Doc[] = []): Result {
+// the rule of the method that stands behind each way of reading (word for word from the books, in «قواعد علم التعبير»)
+const BASIS: Record<string, string> = { 'التأويل بالسنة': 'التأويل بالسنة', 'التأويل بالقرآن': 'التأويل بالقرآن', 'التأويل بالاشتقاق': 'الاشتقاق', 'التأويل بالاسم': 'التأويل بالأسماء', 'التأويل بالتصحيف': 'التصحيف', 'التأويل بالعكس': 'المعكوس',
+  'القياس': 'العبارة قياس واعتبار وتشبيه وظن', 'التشبيه': 'العبارة قياس واعتبار وتشبيه وظن', 'الضد': 'التأويل بالضد والمقلوب' };
+
+export function interpret(dream: string, _books: Doc[], rules: Doc[], _age: Age, _marital: Marital, know: Doc[] = []): Result {
   const surface = dream.trim().split(/\s+/).map((w) => w.replace(/^[^ء-ي]+|[^ء-ي]+$/g, '')).filter(Boolean);
-  const K = knowledge(know); const chain = compose(surface, K.rules, K.acts);
-  // what concerns his own state, for the symbols that the chain explained (the clause of the book that names his state)
-  const own: string[] = [];
-  for (const h of chain.heads) {
-    outer: for (const st of h.stems) for (const e of lookup(books, normalize(st)).sort((a, b) => a.pos - b.pos).slice(0, 40)) {
-      for (const rx of [MARITAL_RX[marital], AGE_RX[age]]) { const c = clauseFor(e.d.text, rx); if (c && c.length <= 170 && !DECENCY.test(c) && !own.some((m) => m.slice(0, 30) === c.slice(0, 30))) own.push(c); }
-      if (own.length >= 1) break outer;
-    }
-  }
-  const story = [...chain.story]; if (own.length) story.splice(story.length - (story.length > 1 && story[story.length - 1].startsWith('فخلاصة') ? 1 : 0), 0, `وبحسب حالك وأنت ${AGE_TEXT[age]} ${MAR_TEXT[marital]}: ${own[0]}`);
-  const found = story.length;
-  const opening = found ? 'بدايةً نقول والله أعلم، وهذا في أصل التفسير وليس أعلى منه.' : 'بدايةً نقول والله أعلم، لم أقف في رؤياك على رمز له أصل أبني عليه تأويلاً قاطعاً؛ فسمِّ أبرز ما رأيت بكلمة واضحة (مثل: بحر، حية، لبن، قميص، مطر، ورد، بركة) أو اكتبه بكلمات أخرى.';
+  const chain = compose(surface, knowledge(know));
+  const found = chain.lines.length;
+  const opening = found ? 'بدايةً نقول والله أعلم، وهذا في أصل التفسير وليس أعلى منه.' : 'بدايةً نقول والله أعلم، لم أقف في رؤياك على رمز أبني عليه تأويلاً قاطعاً؛ فسمِّ أبرز ما رأيت بكلمة واضحة (مثل: بحر، حية، لبن، قميص، مطر، ورد، بركة، سيارة) أو اكتبه بكلمات أخرى.';
   const pick = (title: string) => { const r = rules.find((d) => d.ref === title); const t = r?.text.split('\n')[0]?.split('\t')[0]; return r && t ? { title, text: clean(t, 420) } : null; };
-  const said = story.join(' ');
-  const METHOD: Record<string, string> = { اشتقاق: 'الاشتقاق', اسم: 'التأويل بالأسماء', تصحيف: 'التصحيف', عكس: 'المعكوس' };
-  const used = found ? [...[...chain.methods].map((m) => pick(METHOD[m])), said.includes('«') ? pick('التأويل بالسنة') : null, said.includes('﴿') ? pick('التأويل بالقرآن') : null, own.length ? pick('الشيء الواحد يختلف باختلاف حال الرائي') : null] : [];
-  return { opening, story, sections: [], rules: used.filter((x): x is { title: string; text: string } => !!x), found,
-    closing: 'والله أعلم وأحكم. وهذا من نصوص أهل العلم بالتعبير، وليس فتوى؛ فاعرض رؤياك على عالمٍ ناصح.' };
+  const used = found ? [...new Set([...chain.methods].map((m) => BASIS[m]).filter(Boolean))].map(pick) : [];
+  return { opening, story: chain.lines, rules: used.filter((x): x is { title: string; text: string } => !!x), found,
+    closing: 'والله أعلم وأحكم. وهذا اجتهادٌ في التأويل بحسب أصوله وليس فتوى؛ فاعرض رؤياك على عالمٍ ناصح.' };
 }
