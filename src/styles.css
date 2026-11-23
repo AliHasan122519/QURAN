@@ -403,3 +403,6 @@ html[data-theme="dark"] .tab[data-state="inactive"]:hover, .tab[data-state="inac
 /* «محبَّرة»: the verses are written in ink — the same Amiri Quran drawn heavier (the font has no bold, so a hairline stroke of the same colour thickens each stroke without touching the marks) and in the deepest ink of the page */
 .quran-font, .quran-inline { color: #0A100E; -webkit-text-stroke: .028em currentColor; paint-order: stroke fill; text-shadow: 0 0 .5px currentColor; }
 html[data-theme="dark"] .quran-font, html[data-theme="dark"] .quran-inline { color: #FBF7EA; }
+
+/* «المعبِّرون»: the labels of the card (الولادة، الوفاة…) are white and inked, on the deep green like the verse numbers */
+.person-card .bio-k { display: inline-block; padding: .02rem .7rem; margin-inline-end: .35rem; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 800; line-height: 1.9; -webkit-text-stroke: .02em currentColor; }

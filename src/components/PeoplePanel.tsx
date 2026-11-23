@@ -32,7 +32,7 @@ export function PeoplePanel({ title, people, dreams, onClose }: { title: string;
               <article className="verse-card person-card" key={p.id} data-src="person">
                 <h3 className="person-name">{p.ref}</h3>
                 {p.text.split('\n').map((line, i) => { const [k, v] = line.split('\t'); return (
-                  <p dir="rtl" className="bio-line" key={i}><span className="bio-k">{k}:</span> <Rich text={v ?? ''} words={none} /></p>
+                  <p dir="rtl" className="bio-line" key={i}><span className="bio-k">{k}</span> <Rich text={v ?? ''} words={none} /></p>
                 ); })}
                 {mine.length > 0
                   ? <button type="button" className="go person-btn" onClick={() => setOpen({ title: `رؤى عبّرها ${(p.ref ?? '').replace(/\s*\(.*$/, '')}`, docs: mine })}>رؤاه المعبَّرة في الكتب ({toAr(mine.length)})</button>

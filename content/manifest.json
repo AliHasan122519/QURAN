@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 239,
- "updated": "2026-11-23T22:30:15Z",
+ "version": 241,
+ "updated": "2026-11-23T23:33:40Z",
  "apk": {
   "versionCode": 29924609,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -95,7 +95,7 @@
    "label": "المعبِّرون",
    "kind": "generic",
    "file": "muabbirun.json",
-   "sha256": "53b884c1c6707b54701e4a5a2a87f64091fcc2b9373f29a8f9f99578f7b8e7e6",
+   "sha256": "f58af94572112eb914b3e5b6ca3eed7c4d30cfac33aaf6b0159e5de72da703d5",
    "count": 13,
    "drawer": true,
    "card": "person",
