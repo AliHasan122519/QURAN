@@ -480,3 +480,5 @@ html[data-theme="dark"] .lib-actions .lib-dl, html[data-theme="dark"] .lib-actio
 .rd-scroll:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px; }
 .lib-find { margin: .2rem 0 .4rem; height: 2.8rem; border-radius: .8rem; border: 1.5px solid var(--border); background: var(--card); color: var(--ink); padding: 0 1rem; font: inherit; width: 100%; }
 .lib-find:focus-visible { outline: 3px solid var(--ring); outline-offset: 1px; }
+/* the standalone site of the library: on a wide screen the covers fill the row (the app itself keeps two by two) */
+@media (min-width: 720px) { .lib-site-panel .lib-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.4rem 1.1rem; } }

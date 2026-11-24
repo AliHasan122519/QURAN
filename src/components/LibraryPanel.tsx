@@ -114,11 +114,33 @@ const MARKS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
 /** letters of a title without vocalisation, with hamza / ya / ta marbuta folded, so that «الاحلام» finds «الأحلام» */
 const plain = (t: string) => t.replace(MARKS, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/\s+/g, ' ').trim();
 
-export function LibraryPanel({ title, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
+/** the inside of a list of books (the count, the search by name, the covers two by two, the page of the book that is touched): shared by the panel of the app and by the standalone site of the library */
+export function LibraryView({ docs, load }: { docs: Doc[]; load: LoadFile }) {
   const all = useMemo(() => parse(docs), [docs]); const [open, setOpen] = useState<Book | null>(null); const [q, setQ] = useState('');
   const books = useMemo(() => { const w = plain(q).split(' ').filter(Boolean); return w.length ? all.filter((b) => { const hay = plain(`${b.title} ${b.card.author} ${b.card.authorFull} ${b.card.coverTitle}`); return w.every((x) => hay.includes(x)); }) : all; }, [all, q]);
-  const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
   const shut = useCallback(() => setOpen(null), []);
+  return (
+    <>
+      <p className="panel-sub lib-count" aria-live="polite">{q.trim() ? `${books.length} من ${all.length} كتاباً` : `عدد الكتب: ${all.length}`}</p>
+      <input type="search" className="lib-find" aria-label="ابحث عن كتاب باسمه أو باسم مؤلفه" placeholder="ابحث عن كتاب باسمه أو مؤلفه" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="lib-grid">
+        {books.map((b) => (
+          <button type="button" key={b.id} className="lib-tile" data-src="book" onClick={() => setOpen(b)}>
+            <Cover book={b} load={load} className="lib-cover" />
+            <span className="lib-title">{b.title}</span>
+            <span className="lib-author">{b.card.author}</span>
+          </button>
+        ))}
+      </div>
+      {!books.length && <p className="drawer-empty">{q.trim() ? 'لا يوجد كتاب بهذا الاسم.' : 'لا توجد كتب الآن.'}</p>}
+      {open && <BookDetail book={open} load={load} onClose={shut} />}
+    </>
+  );
+}
+
+/** «كتب علم التعبير» and «كتب الفراسة والشخصيات»: the books as covers, two by two; touching one opens its page. */
+export function LibraryPanel({ title, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
+  const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     close.current?.focus();
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape' && topmost(back.current)) onClose(); };
@@ -129,22 +151,11 @@ export function LibraryPanel({ title, docs, load, onClose }: { title: string; su
     <div ref={back} className="panel-back" onClick={onClose}>
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head">
-          <div><h2>{title}</h2><p className="panel-sub" aria-live="polite">{q.trim() ? `${books.length} من ${all.length} كتاباً` : `عدد الكتب: ${all.length}`}</p></div>
+          <div><h2>{title}</h2></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>
         </div>
-        <input type="search" className="lib-find" aria-label="ابحث عن كتاب باسمه أو باسم مؤلفه" placeholder="ابحث عن كتاب باسمه أو مؤلفه" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="lib-grid">
-          {books.map((b) => (
-            <button type="button" key={b.id} className="lib-tile" data-src="book" onClick={() => setOpen(b)}>
-              <Cover book={b} load={load} className="lib-cover" />
-              <span className="lib-title">{b.title}</span>
-              <span className="lib-author">{b.card.author}</span>
-            </button>
-          ))}
-        </div>
-        {!books.length && <p className="drawer-empty">{q.trim() ? 'لا يوجد كتاب بهذا الاسم.' : 'لا توجد كتب الآن.'}</p>}
+        <LibraryView docs={docs} load={load} />
       </div>
-      {open && <BookDetail book={open} load={load} onClose={shut} />}
     </div>
   );
 }
