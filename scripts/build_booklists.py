@@ -1,4 +1,4 @@
-"""Builds the two lists of the «المزيد» menu that hold books to read: «كتب علم التعبير» (content/kutubtabir.json) and «كتب الفراسة والشخصيات» (content/kutubfiras.json).
+"""Builds the two lists of the «المزيد» menu that hold books to read: «كتب علم التعبير» (content/kutubtabir.json) and «كتب الفراسة» (content/kutubfiras.json).
 Source: data/booklists/books.json — every passage quoted there is checked against the page or the text it names, and every link against the site, by
 scripts/verify_booklinks.py (needs the network). These books are NOT references of the «الكتب» tab and are never indexed for the search (drawer tabs are not).
 A row: [title, «label ⏎ value» lines (all that an app which does not know this list shows), '', sources, '', '', the details as JSON (the book card of the new app)].
@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
 B = json.load(open('data/booklists/books.json', encoding='utf8'))
 KINDS = {'tabir': ('kutubtabir', 'كتب علم التعبير', 'علم التعبير', 'أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.'),
-         'firasa': ('kutubfiras', 'كتب الفراسة والشخصيات', 'الفراسة والشخصية', 'كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
+         'firasa': ('kutubfiras', 'كتب الفراسة', 'الفراسة', 'كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
 W = str.maketrans('٠١٢٣٤٥٦٧٨٩٫', '0123456789.')
 def west(t): return t.translate(W) if isinstance(t, str) else t          # numbers the app writes itself use the digits 0-9 (quoted passages stay word for word)
 def mb(n): return ('%.1f' % (n / 1e6)) + ' ميغابايت'

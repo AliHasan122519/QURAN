@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 411,
- "updated": "2026-11-24T18:19:05Z",
+ "version": 415,
+ "updated": "2026-11-24T21:09:54Z",
  "apk": {
   "versionCode": 29925854,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -155,7 +155,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "3d85f9dbcf96fb3a7943537bf06b7c5465b4407c563443278cef52d6e4a2ee32",
+   "sha256": "851eece9161e07db8596d848be97fa1ca56f0d267416daded5c05abd9e9aae4f",
    "count": 12,
    "drawer": true,
    "card": "library",
@@ -166,14 +166,14 @@
   },
   {
    "id": "kutubfiras",
-   "label": "كتب الفراسة والشخصيات",
+   "label": "كتب الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "0561ae82c30454a81e415e98da29bf4f155f1f58d9129adeaa67d67746127ca4",
+   "sha256": "eef36fc8b1ef61746d67c645912e02efad4af76e155b6bd7ffc2c82effe500e7",
    "count": 27,
    "drawer": true,
    "card": "library",
-   "menu": "كتب الفراسة والشخصيات",
+   "menu": "كتب الفراسة",
    "sub": "كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».",
    "placeholder": "اكتب هنا",
    "hint": "كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب»."
