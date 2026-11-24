@@ -18,7 +18,9 @@ def card(b):
         cv['img'] = f"covers/{b['key']}.jpg"; CL.publish_bytes(cv['img'], open(img, 'rb').read())
     assert b['kind'] in KINDS and 0 <= b['cover']['p'] <= 9 and 0 <= b['cover']['m'] <= 7, b['key']
     assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
-    d = [{'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size'])} for x in b['dls']]
+    same = lambda i: sum(1 for y in b['dls'] if y['id'] == i) > 1                       # an item that holds several files (volumes) is opened by the name of the file in the viewer
+    d = [dict({'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size']), 'id': x['id']},
+              **({'sub': urllib.parse.quote(os.path.splitext(x['name'])[0])} if same(x['id']) else {})) for x in b['dls']]
     for x in b['dls']: assert x.get('size'), b['key'] + ': run verify_booklinks.py --write'
     rd = b['reader']; assert rd['mode'] in ('text', 'embed'), b['key']
     if rd['mode'] == 'text':

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { X, BookOpen, Download, ArrowRight, FileText } from 'lucide-react';
+import { X, BookOpen, Download, ArrowRight, FileText, Images } from 'lucide-react';
 import type { Doc } from '../lib/types';
 import { parseJson } from '../lib/data';
 import { downloadFile, saveTextFile, fileName, type SaveResult } from '../lib/downloader';
@@ -14,7 +14,7 @@ interface BookCard {
   info: [string, string][]; infoSrc: string; about: { t: string; s: string }[]; note: string; inApp: boolean;
   reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string };
   toc: [number, string, number | null, (number | null)?][]; tocSrc: string;
-  dls: { label: string; url: string; size: string }[];
+  dls: { label: string; url: string; size: string; id: string; sub?: string }[];
 }
 interface Book { id: string; title: string; card: BookCard; }
 export type LoadFile = (rel: string) => Promise<ArrayBuffer | null>;
@@ -45,7 +45,7 @@ function textOf(title: string, c: BookCard, d: BookData): string {
 /** one book: its cover, its table of contents (فهرس), what is known of it (every passage quoted from a named source), and the two buttons: read it (inside the app), download it (to the phone) */
 function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClose: () => void }) {
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
-  const c = book.card; const [read, setRead] = useState<{ at: number | null } | null>(null); const [all, setAll] = useState(false);
+  const c = book.card; const [read, setRead] = useState<{ at: number | null } | null>(null); const [scan, setScan] = useState<number | null>(null); const [all, setAll] = useState(false);
   const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
   useEffect(() => {
     close.current?.focus();
@@ -76,6 +76,8 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
         </div>
         <div className="lib-actions">
           <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />قراءة داخل التطبيق<small>{c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : 'صفحات الكتاب كما طُبعت مع فهرسه'}</small></button>
+          {c.dls.map((d, i) => (c.reader.mode === 'embed' && c.reader.id === d.id ? null : (
+            <button type="button" key={'s' + i} className="go lib-scan" onClick={() => setScan(i)}><Images size={18} aria-hidden="true" />قراءة الكتاب المصوَّر<small>{d.label.replace(/\s*\(PDF\)/, '')} · صور الصفحات كما طُبعت (تحتاج إنترنت)</small></button>)))}
           {c.dls.map((d, i) => (
             <button type="button" key={i} className="go lib-dl" disabled={!!busy} onClick={() => dl('d' + i, () => downloadFile(d.url, fileName(`${book.title} - ${c.author}${c.dls.length > 1 ? ' (' + (i + 1) + ')' : ''}`, 'pdf')))}><Download size={18} aria-hidden="true" />{busy === 'd' + i ? 'جارٍ البدء…' : 'تحميل'}<small>{d.label} · {d.size}</small></button>
           ))}
@@ -100,6 +102,7 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
         </section>
         <p className="lib-fine" dir="rtl">ملفات «تحميل» نسخ مصورة من أرشيف الإنترنت وقد تختلف طبعتها عن طبعة النص في القارئ.</p>
         {read && c.reader.mode === 'text' && <BookReader title={book.title} file={c.reader.file} load={load} scan={c.reader.scan || undefined} startAt={read.at ?? undefined} onClose={() => setRead(null)} />}
+        {scan !== null && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={[]} tocSrc="" onClose={() => setScan(null)} />}
         {read && c.reader.mode === 'embed' && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} onClose={() => setRead(null)} />}
       </div>
     </div>

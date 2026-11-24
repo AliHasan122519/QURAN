@@ -312,6 +312,10 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.lib-tile', { hasText: 'المنامات' }).first().click(); await page.waitForSelector('.lib-detail');
   const det = await page.locator('.lib-detail').innerText();
   log('كتب علم التعبير', 'صفحة الكتاب: الوصف من بطاقة الشاملة والمعلومات والمحقق والناشر ومصدر النص', det.includes('رؤية الأموات في المنام') && det.includes('عبد القادر أحمد عطا') && det.includes('مؤسسة الكتب الثقافية') && det.includes('مدونة OpenITI'), det.slice(0, 80).replace(/\s+/g, ' '));
+  log('كتب علم التعبير', 'خيار «قراءة الكتاب المصوَّر» بجانب خيارات التحميل (واحد لكل ملف مصوَّر) ويفتح صور الصفحات داخل التطبيق', (await page.locator('.lib-scan').count()) === (await page.locator('.lib-dl:not(.lib-txt)').count()) && (await page.locator('.lib-scan').count()) >= 1);
+  await page.locator('.lib-scan').first().click(); await page.waitForSelector('iframe.rd-frame'); const scanSrc = await page.locator('iframe.rd-frame').getAttribute('src');
+  log('كتب علم التعبير', 'القراءة المصوَّرة تفتح عارض صفحات الكتاب الذي يقابل ملف التحميل', /^https:\/\/archive\.org\/embed\/Heliopolis1957_gmail_20180617_2341/.test(scanSrc || ''), scanSrc || '');
+  await page.keyboard.press('Escape'); await page.waitForSelector('iframe.rd-frame', { state: 'detached' });
   log('كتب علم التعبير', 'كل شيء داخل التطبيق: لا رابط خارجي في صفحة الكتاب، «قراءة» و«تحميل» أزرار', (await page.locator('.lib-detail a[href]').count()) === 0 && /قراءة داخل التطبيق/.test(await page.locator('.lib-read').innerText()) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 1 && (await page.locator('.lib-txt').count()) === 1);
   const tocN = await page.locator('.lib-detail .lib-sec').first().locator('h3').innerText();
   log('كتب علم التعبير', 'فهرس الكتاب ظاهر في صفحته بعدد مدخلاته، ومصدره مسمّى', /فهرس الكتاب \(9\)/.test(tocN) && (await page.locator('.lib-toc li').count()) === 9 && det.includes('مصدر الفهرس'), tocN);
