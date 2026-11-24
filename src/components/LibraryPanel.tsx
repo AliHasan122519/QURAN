@@ -45,7 +45,7 @@ function textOf(title: string, c: BookCard, d: BookData): string {
 /** one book: its cover, its table of contents (فهرس), what is known of it (every passage quoted from a named source), and the two buttons: read it (inside the app), download it (to the phone) */
 function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClose: () => void }) {
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
-  const c = book.card; const textFile = c.reader.mode === 'text' ? c.reader.file : c.reader.text?.file; const [read, setRead] = useState<{ at: number | null } | null>(null); const [readScan, setReadScan] = useState<{ at: number | null } | null>(null); const [scan, setScan] = useState<number | null>(null); const [all, setAll] = useState(false);
+  const c = book.card; const textFile = c.reader.mode === 'text' ? c.reader.file : c.reader.text?.file; const [read, setRead] = useState<{ at: number | null } | null>(null); const [scan, setScan] = useState<number | null>(null); const [all, setAll] = useState(false);
   const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
   useEffect(() => {
     close.current?.focus();
@@ -75,17 +75,14 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
           <div className="lib-chips"><span className="lib-chip">{c.kind}</span><span className="lib-chip">{c.era}</span>{c.inApp && <span className="lib-chip lib-chip-app">من مراجع تبويب «الكتب»</span>}</div>
         </div>
         <div className="lib-actions">
-          <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />{c.reader.mode === 'embed' && c.reader.text ? 'قراءة النص المفرَّغ' : 'قراءة داخل التطبيق'}<small>{c.reader.mode === 'embed' && c.reader.text ? 'نص مقروء آلياً من صور الكتاب مع فهرسه وبحث داخله (بلا إنترنت)' : c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : c.toc.length ? 'صفحات الكتاب كما طُبعت مع فهرسه' : c.reader.manuscript ? 'صور صفحات المخطوطة (تحتاج إنترنت)' : 'صور صفحات الكتاب (تحتاج إنترنت)'}</small></button>
-          {c.reader.mode === 'embed' && c.reader.text && (
-            <button type="button" className="go lib-scan lib-scanmain" onClick={() => setReadScan({ at: null })}><Images size={18} aria-hidden="true" />قراءة الكتاب المصوَّر<small>صفحات الكتاب كما طُبعت مع فهرسه (تحتاج إنترنت)</small></button>
-          )}
-          {c.dls.map((d, i) => (d.view === false || (c.reader.mode === 'embed' && c.reader.id === d.id) ? null : (
+          <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />{textFile ? 'قراءة الكتاب المفرَّغ' : 'قراءة داخل التطبيق'}<small>{c.reader.mode === 'embed' && c.reader.text ? 'نص مقروء آلياً من صور الكتاب مع فهرسه وبحث داخله (بلا إنترنت)' : c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : c.toc.length ? 'صفحات الكتاب كما طُبعت مع فهرسه' : c.reader.manuscript ? 'صور صفحات المخطوطة (تحتاج إنترنت)' : 'صور صفحات الكتاب (تحتاج إنترنت)'}</small></button>
+          {c.dls.map((d, i) => (d.view === false || (c.reader.mode === 'embed' && !c.reader.text && c.reader.id === d.id) ? null : (
             <button type="button" key={'s' + i} className="go lib-scan" onClick={() => setScan(i)}><Images size={18} aria-hidden="true" />قراءة الكتاب المصوَّر<small>{d.label.replace(/\s*\(PDF\)/, '')} · صور الصفحات كما طُبعت (تحتاج إنترنت)</small></button>)))}
           {c.dls.map((d, i) => (
-            <button type="button" key={i} className="go lib-dl" disabled={!!busy} onClick={() => dl('d' + i, () => downloadFile(d.url, fileName(`${book.title} - ${c.author}${c.dls.length > 1 ? ' (' + (i + 1) + ')' : ''}`, 'pdf')))}><Download size={18} aria-hidden="true" />{busy === 'd' + i ? 'جارٍ البدء…' : 'تحميل'}<small>{d.label} · {d.size}</small></button>
+            <button type="button" key={i} className="go lib-dl" disabled={!!busy} onClick={() => dl('d' + i, () => downloadFile(d.url, fileName(`${book.title} - ${c.author}${c.dls.length > 1 ? ' (' + (i + 1) + ')' : ''}`, 'pdf')))}><Download size={18} aria-hidden="true" />{busy === 'd' + i ? 'جارٍ البدء…' : 'تحميل الكتاب المصوَّر'}<small>{d.label.replace(/\s*\(PDF\)/, '')} · PDF · {d.size}</small></button>
           ))}
           {textFile && (
-            <button type="button" className="go lib-dl lib-txt" disabled={!!busy} onClick={saveTxt}><FileText size={18} aria-hidden="true" />{busy === 'txt' ? 'جارٍ الحفظ…' : 'تحميل نص الكتاب (TXT)'}<small>ملف نصي يُحفظ على جهازك، يُقرأ بلا إنترنت</small></button>
+            <button type="button" className="go lib-dl lib-txt" disabled={!!busy} onClick={saveTxt}><FileText size={18} aria-hidden="true" />{busy === 'txt' ? 'جارٍ الحفظ…' : 'تحميل الكتاب المفرَّغ'}<small>ملف نصي (TXT) يُحفظ على جهازك، يُقرأ بلا إنترنت</small></button>
           )}
         </div>
         <p className="lib-status" role="status" aria-live="polite">{msg}</p>
@@ -103,11 +100,10 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
           <p className="takhrij" dir="rtl">المصدر: {c.infoSrc}</p>
           <p className="takhrij" dir="rtl">النص في القارئ: {c.reader.mode === 'embed' && c.reader.text ? c.reader.text.src : c.reader.src}</p>
         </section>
-        <p className="lib-fine" dir="rtl">ملفات «تحميل» نسخ مصورة من أرشيف الإنترنت وقد تختلف طبعتها عن طبعة النص في القارئ.</p>
+        <p className="lib-fine" dir="rtl">«تحميل الكتاب المصوَّر» ملف PDF من أرشيف الإنترنت، و«تحميل الكتاب المفرَّغ» ملف نصي (TXT) من النص الذي يُقرأ هنا؛ وقد تختلف طبعة الملف المصوَّر عن طبعة النص.</p>
         {read && textFile && <BookReader title={book.title} file={textFile} load={load} scan={c.reader.mode === 'text' ? c.reader.scan || undefined : (c.reader.text?.scanId ?? c.reader.id) || undefined} startAt={read.at ?? undefined} onClose={() => setRead(null)} />}
-        {scan !== null && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={[]} tocSrc="" onClose={() => setScan(null)} />}
+        {scan !== null && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? (c.toc as ScanToc) : []} tocSrc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? c.tocSrc : ''} manuscript={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id && !!c.reader.manuscript} onClose={() => setScan(null)} />}
         {read && c.reader.mode === 'embed' && !c.reader.text && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} manuscript={!!c.reader.manuscript} onClose={() => setRead(null)} />}
-        {readScan && c.reader.mode === 'embed' && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={readScan.at} manuscript={!!c.reader.manuscript} onClose={() => setReadScan(null)} />}
       </div>
     </div>
   );

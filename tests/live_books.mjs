@@ -35,7 +35,7 @@ for (const list of ['كتب علم التعبير', 'كتب الفراسة']) {
     log((await page.locator('.lib-toc li').count()) >= 1 || (await page.locator('.lib-toc').count()) === 0, `${tag}: table of contents listed (a scan-only book without a printed contents has no section)`, `${await page.locator('.lib-toc li').count()} shown`);
     // «قراءة داخل التطبيق» / «قراءة النص المفرَّغ»
     const scanCheck = async () => {                                                         // the viewer of the scan: page images, and every table-of-contents entry must land on the printed page it names
-      const info = await frameInfo(); log(!!info && info.imgs > 0, `${tag}: the scanned pages of the printed book load`, info ? `${info.imgs} images, ${info.label.join(' ')}` : 'no images');
+      const info = await frameInfo(); log(!!info && info.imgs > 0, `${tag}: «قراءة الكتاب المصوَّر» loads the page images`, info ? `${info.imgs} images, ${info.label.join(' ')}` : 'no images');
       if (info && (await page.locator('button[aria-label="فهرس الكتاب"]').count())) {
         const dig = (x) => String(x).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
         const openToc = async () => { if (!(await page.locator('.rd-toc li').count())) await page.locator('button[aria-label="فهرس الكتاب"]').click(); await page.waitForSelector('.rd-toc li'); };
@@ -64,12 +64,10 @@ for (const list of ['كتب علم التعبير', 'كتب الفراسة']) {
     } else await scanCheck();
     await page.keyboard.press('Escape'); await page.waitForTimeout(400);
     await page.waitForSelector('.lib-detail');
-    if (await page.locator('.lib-scanmain').count()) { await page.locator('.lib-scanmain').click(); await scanCheck(); await page.keyboard.press('Escape'); await page.waitForTimeout(400); await page.waitForSelector('.lib-detail'); }
     // every «قراءة الكتاب المصوَّر»
-    const scans = page.locator('.lib-scan:not(.lib-scanmain)'); const ns = await scans.count();
-    for (let s = 0; s < ns; s++) {
-      const lbl = (await scans.nth(s).innerText()).replace(/\n/g, ' ').slice(0, 60); await scans.nth(s).click(); const info = await frameInfo();
-      log(!!info && info.imgs > 0, `${tag}: «قراءة الكتاب المصوَّر» ${s + 1}/${ns} loads page images`, info ? `${info.imgs} images; viewer: ${info.label.join(' ')}; ${decodeURIComponent(info.url).slice(-40)}` : lbl + ' — no images');
+    const scans = page.locator('.lib-scan'); const ns = await scans.count();
+    for (let s = 0; s < ns; s++) {                                                          // every «قراءة الكتاب المصوَّر» (the pictures of the pages, and the table of contents of the book that has one)
+      await scans.nth(s).click(); await scanCheck();
       await page.keyboard.press('Escape'); await page.waitForTimeout(400);
     }
     // every «تحميل» (the native download is replaced by a recorder: this checks what the button hands over)

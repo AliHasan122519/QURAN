@@ -9,6 +9,7 @@ import { PeoplePanel } from './components/PeoplePanel';
 import { RulesPanel } from './components/RulesPanel';
 import { AboutPanel } from './components/AboutPanel';
 import { LibraryPanel } from './components/LibraryPanel';
+import { AssistantPanel } from './components/AssistantPanel';
 import { Engine } from './lib/engine';
 import { loadContent, loadTab, loadContentFile, prefetch, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
@@ -94,7 +95,9 @@ export function App() {
       <ThemeToggle />
       {side.length > 0 && <MenuButton open={menu} onClick={() => setMenu(true)} />}
       <Drawer open={menu} items={side.map((t) => ({ id: t.id, label: t.menu ?? t.label }))} onPick={(id) => { setMenu(false); setPanel(id); }} onClose={() => setMenu(false)} />
-      {opened && (opened.card === 'person'
+      {opened && (opened.card === 'assistant'
+        ? <AssistantPanel title={opened.label} sub={opened.sub} phrases={lists[opened.id] ?? []} lists={lists} engine={engine} load={loadFile} onClose={() => setPanel(null)} />
+        : opened.card === 'person'
         ? <PeoplePanel title={opened.label} people={lists[opened.id] ?? []} dreams={dreamsOf(lists)} onClose={() => setPanel(null)} />
         : opened.card === 'rule'
           ? <RulesPanel title={opened.label} docs={lists[opened.id] ?? []} unit={opened.unit} sub={opened.sub} l1={opened.l1} l2={opened.l2} onClose={() => setPanel(null)} />

@@ -69,7 +69,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|assistant|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -222,7 +222,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'تسعة أزرار أولها «رؤى عبّرت»، بأسهم لا بعدّادات', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 9, items.join('|'));
+  log('المزيد', 'عشرة أزرار أولها «المساعد الذكي»، بأسهم لا بعدّادات', items.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 10, items.join('|'));
   await page.locator('.drawer-item', { hasText: 'رؤى الأنبياء والصالحين' }).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
@@ -297,7 +297,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const libItems = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'تسعة أزرار: قائمتا الكتب (التعبير ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 9, libItems.join('|'));
+  log('المزيد', 'عشرة أزرار: «المساعد الذكي» أولها، وقائمتا الكتب (التعبير ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 10, libItems.join('|'));
   await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(900);
   const tiles = page.locator('.lib-tile'); const nTiles = await tiles.count();
   const bx = []; for (let i = 0; i < nTiles; i++) bx.push(await tiles.nth(i).boundingBox());
@@ -324,7 +324,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.lib-scan').first().click(); await page.waitForSelector('iframe.rd-frame'); const scanSrc = await page.locator('iframe.rd-frame').getAttribute('src');
   log('كتب علم التعبير', 'القراءة المصوَّرة تفتح عارض صفحات الكتاب الذي يقابل ملف التحميل', /^https:\/\/archive\.org\/embed\/Heliopolis1957_gmail_20180617_2341/.test(scanSrc || ''), scanSrc || '');
   await page.keyboard.press('Escape'); await page.waitForSelector('iframe.rd-frame', { state: 'detached' });
-  log('كتب علم التعبير', 'كل شيء داخل التطبيق: لا رابط خارجي في صفحة الكتاب، «قراءة» و«تحميل» أزرار', (await page.locator('.lib-detail a[href]').count()) === 0 && /قراءة داخل التطبيق/.test(await page.locator('.lib-read').innerText()) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 1 && (await page.locator('.lib-txt').count()) === 1);
+  log('كتب علم التعبير', 'كل شيء داخل التطبيق: لا رابط خارجي في صفحة الكتاب، «قراءة» و«تحميل» أزرار', (await page.locator('.lib-detail a[href]').count()) === 0 && /قراءة الكتاب المفرَّغ/.test(await page.locator('.lib-read').innerText()) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 1 && (await page.locator('.lib-txt').count()) === 1);
   const tocN = await page.locator('.lib-detail .lib-sec').first().locator('h3').innerText();
   log('كتب علم التعبير', 'فهرس الكتاب ظاهر في صفحته بعدد مدخلاته، ومصدره مسمّى', /فهرس الكتاب \(9\)/.test(tocN) && (await page.locator('.lib-toc li').count()) === 9 && det.includes('مصدر الفهرس'), tocN);
   // التحميل: يُسلَّم للتطبيق (في أندرويد DownloadManager) لا للمتصفح
@@ -332,7 +332,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.lib-dl:not(.lib-txt)').click(); await page.waitForFunction(() => window.__sv.length === 1); const sv1 = await page.evaluate(() => window.__sv[0]);
   log('تحميل', 'زر «تحميل» يطلب من التطبيق نفسه تنزيل ملف PDF من أرشيف الإنترنت باسم الكتاب، ويُخبر المستخدم أنه سيصله إشعار ويجده في «التنزيلات»', sv1.k === 'pdf' && /^https:\/\/archive\.org\/download\/Heliopolis1957_gmail_20180617_2341\/.+\.pdf$/i.test(decodeURIComponent(sv1.url)) && /\.pdf$/.test(sv1.filename) && sv1.filename.includes('المنامات') && /بدأ التحميل في الخلفية/.test(await page.locator('.lib-status').innerText()) && /[0-9]\.[0-9] ميغابايت/.test(await page.locator('.lib-dl:not(.lib-txt)').innerText()), sv1.filename);
   await page.locator('.lib-txt').click(); await page.waitForFunction(() => window.__sv.length === 2); const sv2 = await page.evaluate(() => window.__sv[1]);
-  log('تحميل', 'زر «تحميل نص الكتاب (TXT)» يحفظ نص الكتاب كاملاً على الجهاز (أكثر من ١٠٠ ألف حرف) باسمه', sv2.k === 'txt' && /\.txt$/.test(sv2.filename) && sv2.len > 100000 && sv2.head.startsWith('المنامات') && /تم حفظ الملف في مجلد «التنزيلات»/.test(await page.locator('.lib-status').innerText()), sv2.len + ' ' + sv2.filename);
+  log('تحميل', 'زر «تحميل الكتاب المفرَّغ» يحفظ نص الكتاب كاملاً على الجهاز (أكثر من ١٠٠ ألف حرف) باسمه', sv2.k === 'txt' && /\.txt$/.test(sv2.filename) && sv2.len > 100000 && sv2.head.startsWith('المنامات') && /تم حفظ الملف في مجلد «التنزيلات»/.test(await page.locator('.lib-status').innerText()), sv2.len + ' ' + sv2.filename);
   await page.evaluate(() => { delete window.__qsDownloader; });
   const [webTxt] = await Promise.all([page.waitForEvent('download'), page.locator('.lib-txt').click()]);
   log('تحميل', 'خارج تطبيق أندرويد (المتصفح) يُنزَّل ملف TXT تلقائياً بلا فتح صفحة أخرى', (await import('node:fs')).statSync(await webTxt.path()).size > 100000);
@@ -367,7 +367,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // ابن غنام: لا PDF موثوق، لكن له نص يُحمَّل
   await page.locator('.lib-tile', { hasText: 'تعبير الرؤيا (ابن غنام)' }).click(); await page.waitForSelector('.lib-detail');
-  log('كتب علم التعبير', 'ابن غنام: لا زر PDF وهمي، وله «تحميل نص الكتاب (TXT)» وقراءة داخلية', (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && (await page.locator('.lib-txt').count()) === 1 && (await page.locator('.lib-read').count()) === 1);
+  log('كتب علم التعبير', 'ابن غنام: لا زر PDF وهمي، وله «تحميل الكتاب المفرَّغ» وقراءة داخلية', (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && (await page.locator('.lib-txt').count()) === 1 && (await page.locator('.lib-read').count()) === 1);
   await page.keyboard.press('Escape'); await page.waitForTimeout(100);
   // القادري: نص آلي مع صور الصفحات
   await page.locator('.lib-tile', { hasText: 'القادري' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text');
@@ -405,6 +405,29 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForTimeout(1200);
   await search('quran', 'يجتبيك ربك'); await page.waitForTimeout(500);
   log('الخط', 'علامة U+065E (ينقصها خط Amiri Quran) تُرسم بخط احتياطي لا مربعاً فارغاً', await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.family.includes('Quran Marks') && f.status === 'loaded'); }));
+}
+{
+  // ---------- «المساعد الذكي»: أول خيار في «المزيد»، يجاوب من المراجع بلهجة سعودية ----------
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1500);
+  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
+  log('المساعد الذكي', 'هو أول اختيار في قائمة «المزيد»', (await page.locator('.drawer .drawer-item').first().innerText()).includes('المساعد الذكي'));
+  await page.locator('.drawer-item', { hasText: 'المساعد الذكي' }).click(); await page.waitForSelector('.as-chat .as-bot');
+  const hello = await page.locator('.as-bot .as-text').first().innerText();
+  log('المساعد الذكي', 'يرحّب بلهجة سعودية دارجة ويقترح أسئلة', /هلا|حيّاك|يا هلا|أهلين|يحييك/.test(hello) && (await page.locator('.as-chip').count()) >= 3, hello);
+  await page.locator('.as-input').fill('وش فسروا الثعبان في الحلم'); await page.locator('.as-send').click(); await page.waitForSelector('.as-card', { timeout: 30000 });
+  const ans = await page.locator('.as-bot:not(.as-typing)').last().innerText();
+  log('المساعد الذكي', 'يجيب من المراجع: بطاقات فيها نص الكتاب ومصدره، ويقول إنه نقل لا فتوى', (await page.locator('.as-card').count()) >= 2 && (await page.locator('.as-card .as-where').first().innerText()).length > 3 && /ثعبان/.test(await page.locator('.as-card').first().innerText()) && /نقل|مو فتوى|مو تفسير|مو تعبير/.test(ans), ans.slice(0, 160));
+  await page.locator('.as-input').fill('كم صفحة كتاب المرقبة العليا'); await page.locator('.as-send').click(); await page.waitForFunction(() => document.querySelectorAll('.as-bot:not(.as-typing)').length >= 3 && /443/.test(document.querySelector('.as-chat').innerText), null, { timeout: 30000 });
+  log('المساعد الذكي', 'يجيب عن عدد صفحات كتاب بالاسم من معلومات الكتاب (443)', true);
+  await page.locator('.as-input').fill('وش سعر الذهب اليوم'); await page.locator('.as-send').click(); await page.waitForFunction(() => /ما لقيت|ما أجاوب|ما أقدر|المراجع/.test([...document.querySelectorAll('.as-bot:not(.as-typing) .as-text')].pop().innerText), null, { timeout: 30000 });
+  log('المساعد الذكي', 'ما يجيب إلا من المراجع: سؤال خارجها يرفضه بلطف', (await page.locator('.as-bot:not(.as-typing)').last().locator('.as-card').count()) === 0);
+  await page.locator('.as-input').fill('دور لي فصل مداواة النفوس في فهرس الأخلاق والسير'); await page.locator('.as-send').click(); await page.waitForFunction(() => document.querySelectorAll('.as-bot:not(.as-typing)').length >= 5, null, { timeout: 30000 });
+  const open1 = page.locator('.as-bot:not(.as-typing)').last().locator('.as-link').first();
+  log('المساعد الذكي', 'نتيجة الفهرس فيها زر يفتح الكتاب على الموضع نفسه', (await open1.count()) === 1 && (await page.locator('.as-bot:not(.as-typing)').last().locator('.as-link').count()) >= 1);
+  await open1.click(); await page.waitForSelector('.rd-text, iframe.rd-frame', { timeout: 20000 });
+  log('المساعد الذكي', 'زر «افتح في الكتاب» يفتح القارئ داخل التطبيق', true);
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
 }
 // ---------- الأرقام بالإنجليزية ----------
 {

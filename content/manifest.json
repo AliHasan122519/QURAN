@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 417,
- "updated": "2026-11-24T22:14:46Z",
+ "version": 418,
+ "updated": "2026-11-24T23:13:54Z",
  "apk": {
   "versionCode": 29926030,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -63,6 +63,19 @@
    "smart": "full",
    "placeholder": "اكتب هنا",
    "hint": "اكتب الكلمة ويفهم التطبيق مرادفاتها وما يقابلها بالعامية، وتظهر الأبيات التي ورد فيها المعنى."
+  },
+  {
+   "id": "assistant",
+   "label": "المساعد الذكي",
+   "kind": "generic",
+   "file": "assistant.json",
+   "sha256": "f75263ff2eeee8e990fb316cabb93c56eeb4cf2beea0e2c86c4dd24a4983ec4b",
+   "count": 67,
+   "drawer": true,
+   "card": "assistant",
+   "menu": "المساعد الذكي",
+   "sub": "اسألني عن أي كتاب أو رمز، وأجاوبك من المراجع اللي في التطبيق بس.",
+   "placeholder": "اكتب سؤالك"
   },
   {
    "id": "ruaa",
