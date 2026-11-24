@@ -15,5 +15,12 @@ for (const t of m.tabs) {
   const j = JSON.parse(raw.toString('utf8')); const n = (j.a ?? j.h ?? []).length;
   if (n !== t.count) errs.push(`${t.id}: count ${n} != manifest ${t.count}`);
 }
+for (const f of m.files ?? []) {                                                   // extra files (the texts of the reader's books)
+  if (!existsSync('content/' + f.file)) { errs.push(`missing file ${f.file}`); continue; }
+  const raw = readFileSync('content/' + f.file);
+  if (createHash('sha256').update(raw).digest('hex') !== f.sha256) errs.push(`${f.file}: sha256 mismatch`);
+  if (f.size !== undefined && f.size !== raw.length) errs.push(`${f.file}: size ${raw.length} != manifest ${f.size}`);
+  try { JSON.parse(raw.toString('utf8')); } catch { errs.push(`${f.file}: not valid JSON`); }
+}
 if (errs.length) { console.error(errs.join('\n')); process.exit(1); }
-console.log(`content OK: version ${m.version}, ${m.tabs.length} tabs`);
+console.log(`content OK: version ${m.version}, ${m.tabs.length} tabs, ${(m.files ?? []).length} files`);

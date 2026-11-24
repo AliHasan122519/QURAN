@@ -1,27 +1,53 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { X, BookOpen, Download, ArrowRight } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { X, BookOpen, Download, ArrowRight, FileText } from 'lucide-react';
 import type { Doc } from '../lib/types';
+import { parseJson } from '../lib/data';
+import { downloadFile, saveTextFile, fileName, type SaveResult } from '../lib/downloader';
+import { toAr } from '../lib/format';
 import { BookCover } from './BookCover';
+import { BookReader, type BookData } from './BookReader';
+import { BookEmbed, type ScanToc } from './BookEmbed';
 import { topmost } from './DreamsPanel';
 
 interface BookCard {
   kind: string; era: string; author: string; authorFull: string; coverTitle: string; cover: { p: number; m: number };
   info: [string, string][]; infoSrc: string; about: { t: string; s: string }[]; note: string; inApp: boolean;
-  read: { label: string; url: string }; dls: { label: string; url: string; size: string }[];
+  reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string };
+  toc: [number, string, number | null, (number | null)?][]; tocSrc: string;
+  dls: { label: string; url: string; size: string }[];
 }
 interface Book { id: string; title: string; card: BookCard; }
-const parse = (docs: Doc[]): Book[] => docs.flatMap((d) => { try { const c = JSON.parse(d.extra ?? '') as BookCard; return c?.read?.url ? [{ id: d.id, title: d.ref ?? '', card: c }] : []; } catch { return []; } });
+export type LoadFile = (rel: string) => Promise<ArrayBuffer | null>;
+const parse = (docs: Doc[]): Book[] => docs.flatMap((d) => { try { const c = JSON.parse(d.extra ?? '') as BookCard; return c?.reader && c.toc ? [{ id: d.id, title: d.ref ?? '', card: c }] : []; } catch { return []; } });
+const SHOWN = 14;
 
-/** one book: its cover, what is known of it (every passage is quoted from a named source), and the two buttons: read it, download it */
-function BookDetail({ book, onClose }: { book: Book; onClose: () => void }) {
+/** the text of a book as a plain file (its title, its author, then the paragraphs; the titles of the table of contents stand out) */
+function textOf(title: string, c: BookCard, d: BookData): string {
+  const heads = new Map(d.toc.map(([l, , i]) => [i, l] as const));
+  return [title, c.authorFull, '', ...d.p.map((p, i) => (heads.has(i) ? `\n${'#'.repeat(heads.get(i)!)} ${p}\n` : p))].join('\n\n').replace(/\n{4,}/g, '\n\n\n');
+}
+
+/** one book: its cover, its table of contents (فهرس), what is known of it (every passage quoted from a named source), and the two buttons: read it (inside the app), download it (to the phone) */
+function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClose: () => void }) {
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
-  const c = book.card;
+  const c = book.card; const [read, setRead] = useState<{ at: number | null } | null>(null); const [all, setAll] = useState(false);
+  const [msg, setMsg] = useState(''); const [busy, setBusy] = useState('');
   useEffect(() => {
     close.current?.focus();
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape' && topmost(back.current)) onClose(); };
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);
   }, [onClose]);
+  const said = (r: SaveResult) => setMsg(r === 'started' ? 'بدأ التحميل في الخلفية. سيظهر إشعار عند اكتماله، وتجد الملف في مجلد «التنزيلات» بجهازك.' : r === 'saved' ? 'تم حفظ الملف في مجلد «التنزيلات» بجهازك.' : 'بدأ تنزيل الملف.');
+  const fail = (e: unknown) => setMsg('تعذّر التحميل: ' + String((e as { message?: string })?.message ?? e).slice(0, 120));
+  const dl = async (k: string, f: () => Promise<SaveResult>) => { setBusy(k); setMsg(''); try { said(await f()); } catch (e) { fail(e); } finally { setBusy(''); } };
+  const saveTxt = () => dl('txt', async () => {
+    if (c.reader.mode !== 'text') throw new Error('لا نص لهذا الكتاب');
+    const buf = await load(c.reader.file); if (!buf) throw new Error('تعذّر فتح نص الكتاب');
+    return saveTextFile(fileName(`${book.title} - ${c.author}`, 'txt'), textOf(book.title, c, parseJson<BookData>(buf)));
+  });
+  const entries = all ? c.toc : c.toc.slice(0, SHOWN);
+  const openAt = (e: BookCard['toc'][number]) => setRead({ at: e[2] });
   return (
     <div ref={back} className="panel-back nested" onClick={(e) => { e.stopPropagation(); onClose(); }}>
       <div className="panel lib-detail" role="dialog" aria-modal="true" aria-label={book.title} onClick={(e) => e.stopPropagation()}>
@@ -34,30 +60,42 @@ function BookDetail({ book, onClose }: { book: Book; onClose: () => void }) {
           <div className="lib-chips"><span className="lib-chip">{c.kind}</span><span className="lib-chip">{c.era}</span>{c.inApp && <span className="lib-chip lib-chip-app">من مراجع تبويب «الكتب»</span>}</div>
         </div>
         <div className="lib-actions">
-          <a className="go lib-read" href={c.read.url} target="_blank" rel="noopener noreferrer"><BookOpen size={18} aria-hidden="true" />قراءة<small>{c.read.label}</small></a>
+          <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />قراءة داخل التطبيق<small>{c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : 'صفحات الكتاب كما طُبعت مع فهرسه'}</small></button>
           {c.dls.map((d, i) => (
-            <a key={i} className="go lib-dl" href={d.url} target="_blank" rel="noopener noreferrer"><Download size={18} aria-hidden="true" />تحميل<small>{d.label} · {d.size}</small></a>
+            <button type="button" key={i} className="go lib-dl" disabled={!!busy} onClick={() => dl('d' + i, () => downloadFile(d.url, fileName(`${book.title} - ${c.author}${c.dls.length > 1 ? ' (' + (i + 1) + ')' : ''}`, 'pdf')))}><Download size={18} aria-hidden="true" />{busy === 'd' + i ? 'جارٍ البدء…' : 'تحميل'}<small>{d.label} · {d.size}</small></button>
           ))}
+          {c.reader.mode === 'text' && (
+            <button type="button" className="go lib-dl lib-txt" disabled={!!busy} onClick={saveTxt}><FileText size={18} aria-hidden="true" />{busy === 'txt' ? 'جارٍ الحفظ…' : 'تحميل نص الكتاب (TXT)'}<small>ملف نصي يُحفظ على جهازك، يُقرأ بلا إنترنت</small></button>
+          )}
         </div>
-        {c.dls.length === 0 && c.note && <p className="lib-nodl">{c.note}</p>}
+        <p className="lib-status" role="status" aria-live="polite">{msg}</p>
+        <section className="lib-sec"><h3 className="dream-label">فهرس الكتاب ({toAr(c.toc.length)})</h3>
+          <ol className="lib-toc">{entries.map((e, n) => (<li key={n} className={`lv${e[0]}`}><button type="button" onClick={() => openAt(e)}>{e[1]}{e[3] ? <span className="rd-tocpg"> — ص {toAr(e[3])}</span> : null}</button></li>))}</ol>
+          {c.toc.length > SHOWN && <button type="button" className="lib-more" onClick={() => setAll(!all)}>{all ? 'إخفاء بقية الفهرس' : `عرض الفهرس كاملاً (${toAr(c.toc.length)})`}</button>}
+          <p className="takhrij" dir="rtl">مصدر الفهرس: {c.tocSrc}</p>
+        </section>
         <section className="lib-sec"><h3 className="dream-label">عن الكتاب</h3>
           {c.about.map((a, i) => (<figure className="lib-quote" key={i}><blockquote dir="rtl">{a.t}</blockquote><figcaption>— {a.s}</figcaption></figure>))}
-          {c.dls.length > 0 && c.note && <p className="lib-note" dir="rtl">{c.note}</p>}
+          {c.note && <p className="lib-note" dir="rtl">{c.note}</p>}
         </section>
         <section className="lib-sec"><h3 className="dream-label">معلومات الكتاب</h3>
           <dl className="lib-info">{c.info.map(([k, v], i) => (<div key={i}><dt>{k}</dt><dd>{v}</dd></div>))}</dl>
           <p className="takhrij" dir="rtl">المصدر: {c.infoSrc}</p>
+          <p className="takhrij" dir="rtl">النص في القارئ: {c.reader.src}</p>
         </section>
-        <p className="lib-fine" dir="rtl">الروابط تفتح في المتصفح (المكتبة الشاملة أو أرشيف الإنترنت). والملفات المرفقة نسخ مصورة قد تختلف طبعتها عن طبعة القراءة.</p>
+        <p className="lib-fine" dir="rtl">ملفات «تحميل» نسخ مصورة من أرشيف الإنترنت وقد تختلف طبعتها عن طبعة النص في القارئ.</p>
+        {read && c.reader.mode === 'text' && <BookReader title={book.title} file={c.reader.file} load={load} scan={c.reader.scan || undefined} startAt={read.at ?? undefined} onClose={() => setRead(null)} />}
+        {read && c.reader.mode === 'embed' && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} onClose={() => setRead(null)} />}
       </div>
     </div>
   );
 }
 
 /** «كتب علم التعبير» and «كتب علم الفراسة»: the books as covers, two by two; touching one opens its page. */
-export function LibraryPanel({ title, sub, docs, onClose }: { title: string; sub?: string; docs: Doc[]; onClose: () => void }) {
+export function LibraryPanel({ title, sub, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
   const books = useMemo(() => parse(docs), [docs]); const [open, setOpen] = useState<Book | null>(null);
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
+  const shut = useCallback(() => setOpen(null), []);
   useEffect(() => {
     close.current?.focus();
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape' && topmost(back.current)) onClose(); };
@@ -82,7 +120,7 @@ export function LibraryPanel({ title, sub, docs, onClose }: { title: string; sub
         </div>
         {!books.length && <p className="drawer-empty">لا توجد كتب الآن.</p>}
       </div>
-      {open && <BookDetail book={open} onClose={() => setOpen(null)} />}
+      {open && <BookDetail book={open} load={load} onClose={shut} />}
     </div>
   );
 }

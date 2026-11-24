@@ -9,14 +9,22 @@ import content_lib as CL
 B = json.load(open('data/booklists/books.json', encoding='utf8'))
 KINDS = {'tabir': ('kutubtabir', 'كتب علم التعبير', 'علم التعبير', 'أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.'),
          'firasa': ('kutubfiras', 'كتب علم الفراسة', 'علم الفراسة', 'أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
-def mb(n): return ('%.1f' % (n / 1e6)).replace('.', '٫').translate(str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')) + ' ميغابايت'
+W = str.maketrans('٠١٢٣٤٥٦٧٨٩٫', '0123456789.')
+def west(t): return t.translate(W) if isinstance(t, str) else t          # numbers the app writes itself use the digits 0-9 (quoted passages stay word for word)
+def mb(n): return ('%.1f' % (n / 1e6)) + ' ميغابايت'
 def card(b):
     assert b['kind'] in KINDS and 0 <= b['cover']['p'] <= 9 and 0 <= b['cover']['m'] <= 7, b['key']
     assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
     d = [{'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size'])} for x in b['dls']]
     for x in b['dls']: assert x.get('size'), b['key'] + ': run verify_booklinks.py --write'
-    return {'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': b['authorFull'], 'coverTitle': b['coverTitle'], 'cover': b['cover'],
-            'info': b['info'], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': b.get('note', ''), 'inApp': b['inApp'],
+    rd = b['reader']; assert rd['mode'] in ('text', 'embed'), b['key']
+    if rd['mode'] == 'text':
+        bk = json.load(open('content/' + rd['file'], encoding='utf8'))              # the table of contents of the reader's text (scripts/build_bookreader.py)
+        toc = [[a, west(t), i] for a, t, i in bk['toc']]; reader = {'mode': 'text', 'file': rd['file'], 'src': rd['src'], 'ocr': bk['ocr'], 'scan': rd.get('scan', ''), 'count': len(bk['p'])}; tocSrc = 'عناوين الكتاب نفسه في نصه الرقمي' + (' (قراءة آلية، فقد تكثر فيها الأخطاء)' if bk['ocr'] else '')
+    else:
+        toc = [[a, west(t), i, p] for a, t, i, p in rd['toc']]; reader = {'mode': 'embed', 'id': rd['id'], 'src': rd['src']}; tocSrc = rd['tocSrc']
+    return {'reader': reader, 'toc': toc, 'tocSrc': tocSrc, 'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': west(b['authorFull']), 'coverTitle': b['coverTitle'], 'cover': b['cover'],
+            'info': [[west(k), west(v)] for k, v in b['info']], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': west(b.get('note', '')), 'inApp': b['inApp'],
             'read': b['read'], 'dls': d}
 tabs = {}
 for b in B:

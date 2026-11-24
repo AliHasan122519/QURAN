@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 264,
- "updated": "2026-11-24T13:07:02Z",
+ "version": 316,
+ "updated": "2026-11-24T13:39:12Z",
  "apk": {
   "versionCode": 29925435,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -155,7 +155,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "46e4690fa7f2eb2c7f8d37367e9e9160e9a9e87f8a6c593b70c213e11a56b80c",
+   "sha256": "3b79fcdff7440723884bb9da7275dcf9782e639297599eaaaefbfdc210dba3b6",
    "count": 8,
    "drawer": true,
    "card": "library",
@@ -169,8 +169,8 @@
    "label": "كتب علم الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "30317bfe55b58a6dcd0f998dd50c46666229c2fba7d39ddb093994525a5caa39",
-   "count": 6,
+   "sha256": "ca2679fe76bd3a7a6991e8b22f2c16195ce09417b6befb7a5e1967556ff3eed4",
+   "count": 5,
    "drawer": true,
    "card": "library",
    "menu": "كتب علم الفراسة",
@@ -190,6 +190,63 @@
    "menu": "حول التطبيق",
    "placeholder": "اكتب هنا",
    "hint": "ما هو الباحث القرآني وما يحويه."
+  }
+ ],
+ "files": [
+  {
+   "file": "books/manamat-ibn-abi-dunya.json",
+   "sha256": "2de4491e02eb214326022f5c9011028142840a837befebcbbcdb4a7857d11ad6",
+   "size": 216993
+  },
+  {
+   "file": "books/qadiri.json",
+   "sha256": "af46e39905a2740247be5d3e0b00f01fdd1cc56f0c57b749778c8ea3c78e75f8",
+   "size": 1949111
+  },
+  {
+   "file": "books/badr-munir.json",
+   "sha256": "8f1f4201f28d3c80e33839dd34f71f7a27be770025c03004d9dd8596568172a7",
+   "size": 466171
+  },
+  {
+   "file": "books/ibn-ghannam.json",
+   "sha256": "e62122aa30563255e51e3b7c3be02f77dd1a08d85255b560fa9808f4a4dfc2df",
+   "size": 720355
+  },
+  {
+   "file": "books/isharat.json",
+   "sha256": "6d273b26330cf12f9e79657e3cb54aa4b2a673bb99512c0cded72193193f3c1e",
+   "size": 1650950
+  },
+  {
+   "file": "books/tatir-anam.json",
+   "sha256": "2c03a63cd3aaafdd903a676720dc128088bd45a66bc3b17b37d87471ac24aae3",
+   "size": 2324454
+  },
+  {
+   "file": "books/muntakhab.json",
+   "sha256": "f16a24c42d529a881eaf107192e0a46e7bf973c085d3ca3aca466ead2712b8b3",
+   "size": 1385915
+  },
+  {
+   "file": "books/tabir-artemidorus.json",
+   "sha256": "0f4eca89c2ad6ed4f2833e9e1bfaca28ee2faa91476254f8e2f4e8bc2142ab97",
+   "size": 548929
+  },
+  {
+   "file": "books/turuq-hukmiyya.json",
+   "sha256": "80c56c7c47af3bc6a795c3d1dc143d0acaa631efd5ccfbd6896d3926110ee3c1",
+   "size": 2053164
+  },
+  {
+   "file": "books/madarij-firasa.json",
+   "sha256": "61e08f1b76f3e12e6231db01496458575ce9d9e9531e05e561ebc8596ea7f0c7",
+   "size": 3846870
+  },
+  {
+   "file": "books/ilm-firasa-hadith.json",
+   "sha256": "c9a562076b6ef7ffe8baa983d66140d5878d94391b76aef3d312322a569d3d24",
+   "size": 331535
   }
  ]
 }

@@ -17,3 +17,15 @@ def publish(tab_id, label, kind, obj, count, bump=True, extra=None):
     m['updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     json.dump(m, open(f'{C}/manifest.json', 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(f'{C}/manifest.json', 'a').write('\n')
     print(f'{tab_id}: {count} entries, {len(raw)} bytes, manifest v{m["version"]}')
+
+def publish_file(rel, obj, bump=True):
+    """An extra file of the content (not a tab): content/<rel>, listed in the manifest's `files` with its SHA-256 (the app opens it on demand and updates it with the rest)."""
+    raw = json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode('utf8'); path = f'{C}/{rel}'
+    os.makedirs(os.path.dirname(path), exist_ok=True); open(path, 'wb').write(raw)
+    m = _manifest(); files = m.setdefault('files', []); e = next((x for x in files if x['file'] == rel), None)
+    if not e: e = {'file': rel}; files.append(e)
+    sha = hashlib.sha256(raw).hexdigest()
+    changed = e.get('sha256') != sha; e.update({'sha256': sha, 'size': len(raw)})
+    if bump and changed: m['version'] += 1
+    m['updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    json.dump(m, open(f'{C}/manifest.json', 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(f'{C}/manifest.json', 'a').write('\n')

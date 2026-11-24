@@ -65,6 +65,20 @@ export async function loadTab(tab: Tab, c: Content): Promise<Doc[] | null> {
   return g.h.map(([ref, text, explanation, source, by, who, extra], i) => ({ id: `${src}:${i}`, src, text, ref, explanation, source, by, who, extra }));
 }
 
+/** A file of the content that is not a tab (the text of a book of the reader): taken from the downloaded update, else from the copy bundled in the app when it is the right one, else downloaded now and kept. */
+export async function loadContentFile(c: Content | null, rel: string): Promise<ArrayBuffer | null> {
+  const f = c?.manifest.files?.find((x) => x.file === rel); if (!f) return null;
+  try { const kept = await kvGet<ArrayBuffer>('file:' + f.sha256); if (kept) return kept; } catch { /* no store */ }
+  const bundled = await fetchBuf(`${base}content/${rel}`).catch(() => null);
+  if (bundled && (await sha256(bundled)) === f.sha256) return bundled;
+  if (REMOTE) {
+    const r = await fetchBuf(`${REMOTE}${rel}?v=${f.sha256.slice(0, 12)}`, true).catch(() => null);
+    if (r && (await sha256(r)) === f.sha256) { try { await kvSet('file:' + f.sha256, r); } catch { /* keep going without caching */ } return r; }
+  }
+  return null;
+}
+export const parseJson = <T,>(buf: ArrayBuffer): T => parse<T>(buf);
+
 export type UpdateResult = { status: 'none' | 'updated' | 'failed'; manifest?: Manifest; apkNotice?: Manifest['apk'] };
 
 /** Checks the remote manifest and, when it is newer, downloads the files that changed, verifies each one (SHA-256) and stores them.
@@ -87,7 +101,7 @@ export async function checkForUpdate(current: Manifest): Promise<UpdateResult> {
       await kvSet('file:' + t.sha256, buf);
     }
     await kvSet('manifest', remote);
-    const keep = new Set(remote.tabs.filter((t) => t.sha256).map((t) => "file:" + t.sha256));
+    const keep = new Set([...remote.tabs.filter((t) => t.sha256).map((t) => t.sha256), ...(remote.files ?? []).map((f) => f.sha256)].map((s) => "file:" + s));
     for (const k of (await kvKeys()) ?? []) if (typeof k === 'string' && k.startsWith('file:') && !keep.has(k)) await kvDel(k);
     return { status: 'updated', manifest: remote, apkNotice };
   } catch { return { status: 'failed' }; }

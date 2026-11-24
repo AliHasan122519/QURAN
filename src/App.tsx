@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Sparkles, Download } from 'lucide-react';
 import { ICONS } from './components/icons';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -10,7 +10,7 @@ import { RulesPanel } from './components/RulesPanel';
 import { AboutPanel } from './components/AboutPanel';
 import { LibraryPanel } from './components/LibraryPanel';
 import { Engine } from './lib/engine';
-import { loadContent, loadTab, prefetch, checkForUpdate, type Content } from './lib/data';
+import { loadContent, loadTab, loadContentFile, prefetch, checkForUpdate, type Content } from './lib/data';
 import type { Doc, Kind, Manifest, SourceId } from './lib/types';
 import { SearchPanel, type SourceState } from './components/SearchPanel';
 
@@ -32,6 +32,7 @@ export function App() {
   const [lists, setLists] = useState<Record<SourceId, Doc[]>>({});   // the content of the tabs that live in the side menu instead of the tab bar
   const content = useRef<Content | null>(null);
   useEffect(() => { tabNow.current = tab; }, [tab]);
+  const loadFile = useCallback((rel: string) => loadContentFile(content.current, rel), []);          // the text of a book of the reader (opened on demand)
   const lastCheck = useRef(Date.now());
 
   // 1) load the content in use (bundled, or a newer downloaded one) and index every tab
@@ -98,7 +99,7 @@ export function App() {
         : opened.card === 'rule'
           ? <RulesPanel title={opened.label} docs={lists[opened.id] ?? []} unit={opened.unit} sub={opened.sub} l1={opened.l1} l2={opened.l2} onClose={() => setPanel(null)} />
           : opened.card === 'library'
-          ? <LibraryPanel title={opened.label} sub={opened.sub} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />
+          ? <LibraryPanel title={opened.label} sub={opened.sub} docs={lists[opened.id] ?? []} load={loadFile} onClose={() => setPanel(null)} />
           : opened.card === 'about'
           ? <AboutPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />
           : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}
