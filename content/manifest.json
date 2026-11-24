@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 316,
- "updated": "2026-11-24T13:39:12Z",
+ "version": 318,
+ "updated": "2026-11-24T14:17:06Z",
  "apk": {
   "versionCode": 29925471,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -169,7 +169,7 @@
    "label": "كتب علم الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "ca2679fe76bd3a7a6991e8b22f2c16195ce09417b6befb7a5e1967556ff3eed4",
+   "sha256": "c51345964ce259ec118c4270f2145203604da17fb6643cbcc30fdf98647edee6",
    "count": 5,
    "drawer": true,
    "card": "library",
