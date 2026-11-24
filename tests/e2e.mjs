@@ -301,12 +301,20 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(900);
   const tiles = page.locator('.lib-tile'); const nTiles = await tiles.count();
   const bx = []; for (let i = 0; i < nTiles; i++) bx.push(await tiles.nth(i).boundingBox());
-  log('كتب علم التعبير', 'ثمانية كتب، كل اثنين جنب بعض في صف أفقي والصفوف تتوالى عمودياً (الأول يمين الثاني)', nTiles === 8 && bx.every((b, i) => i % 2 === 1 || (Math.abs(b.y - bx[i + 1].y) < 3 && b.x > bx[i + 1].x + 20 && Math.abs(b.width - bx[i + 1].width) < 2)) && bx[2].y > bx[0].y + bx[0].height - 4 && bx[0].x === bx[2].x, nTiles + ' | ' + bx.slice(0, 3).map((b) => `${Math.round(b.x)},${Math.round(b.y)}`).join(' '));
+  log('كتب علم التعبير', 'تحت العنوان «عدد الكتب: 12» بدل الوصف', (await page.locator('.panel-sub').first().innerText()).trim() === 'عدد الكتب: 12', await page.locator('.panel-sub').first().innerText());
+  await page.locator('.lib-find').fill('قتيبة'); await page.waitForTimeout(200);
+  log('كتب علم التعبير', 'حقل البحث بالاسم: «قتيبة» يُبقي كتابَي ابن قتيبة ويعرض «2 من 12»', (await page.locator('.lib-tile').count()) === 2 && /2 من 12/.test(await page.locator('.panel-sub').first().innerText()));
+  await page.locator('.lib-find').fill('الاحلام'); await page.waitForTimeout(200);
+  log('كتب علم التعبير', 'البحث لا يتأثر بالهمزة والتشكيل: «الاحلام» يجد «تفسير الأحلام» و«المرقبة العليا… تفسير الأحلام»', (await page.locator('.lib-tile').count()) >= 2);
+  await page.locator('.lib-find').fill('كتاب لا وجود له'); await page.waitForTimeout(200);
+  log('كتب علم التعبير', 'اسم غير موجود: رسالة «لا يوجد كتاب بهذا الاسم»', (await page.locator('.lib-tile').count()) === 0 && (await page.locator('.drawer-empty').innerText()).includes('لا يوجد كتاب'));
+  await page.locator('.lib-find').fill(''); await page.waitForTimeout(200);
+  log('كتب علم التعبير', 'اثنا عشر كتاباً، كل اثنين جنب بعض في صف أفقي والصفوف تتوالى عمودياً (الأول يمين الثاني)', nTiles === 12 && bx.every((b, i) => i % 2 === 1 || (Math.abs(b.y - bx[i + 1].y) < 8 && b.x > bx[i + 1].x + 20 && Math.abs(b.width - bx[i + 1].width) < 2)) && bx[2].y > bx[0].y + bx[0].height - 4 && bx[0].x === bx[2].x, nTiles + ' | ' + bx.slice(0, 3).map((b) => `${Math.round(b.x)},${Math.round(b.y)}`).join(' '));
   const titles = await page.locator('.lib-title').allInnerTexts();
   log('كتب علم التعبير', 'الكتب: المنامات، أرطاميدورس، القادري، البدر المنير، ابن غنام، الإشارات، تعطير الأنام، منتخب الكلام', ['المنامات', 'تعبير الرؤيا (أرطاميدورس)', 'القادري في التعبير', 'البدر المنير في علم التعبير', 'تعبير الرؤيا (ابن غنام)', 'الإشارات في علم العبارات', 'تعطير الأنام في تعبير المنام', 'منتخب الكلام في تفسير الأحلام'].every((k) => titles.includes(k)), titles.join(' | '));
-  await page.waitForFunction(() => document.querySelectorAll('.lib-tile svg image').length >= 7, null, { timeout: 8000 }).catch(() => {});
-  log('كتب علم التعبير', 'غلاف المطبوع الحقيقي (صورة) يظهر بدل المرسوم لكل كتاب له غلاف (7 من 8: ابن غنام بلا مسح)', (await page.locator('.lib-tile svg image').count()) === 7 && (await page.locator('.lib-tile svg image').first().getAttribute('href') || '').startsWith('blob:'));
-  log('كتب علم التعبير', 'لكل كتاب غلاف مرسوم (صورة بوصف) واسم مؤلف تحته', (await page.locator('.lib-tile svg[role="img"]').count()) === 8 && (await page.locator('.lib-author').allInnerTexts()).every((x) => x.length > 3));
+  await page.waitForFunction(() => document.querySelectorAll('.lib-tile svg image').length >= 11, null, { timeout: 8000 }).catch(() => {});
+  log('كتب علم التعبير', 'غلاف المطبوع الحقيقي (صورة) يظهر بدل المرسوم لكل كتاب له غلاف (11 من 12: ابن غنام بلا مسح)', (await page.locator('.lib-tile svg image').count()) === 11 && (await page.locator('.lib-tile svg image').first().getAttribute('href') || '').startsWith('blob:'));
+  log('كتب علم التعبير', 'لكل كتاب غلاف مرسوم (صورة بوصف) واسم مؤلف تحته', (await page.locator('.lib-tile svg[role="img"]').count()) === 12 && (await page.locator('.lib-author').allInnerTexts()).every((x) => x.length > 3));
   await page.evaluate(axeSrc); const axeLib = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id + '×' + v.nodes.length));
   log('كتب علم التعبير', 'القائمة بلا مخالفات وصول/تباين (axe)', axeLib.length === 0, axeLib.join(' '));
   await page.locator('.lib-tile', { hasText: 'المنامات' }).first().click(); await page.waitForSelector('.lib-detail');
@@ -373,8 +381,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // كتب الفراسة
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'كتب الفراسة والشخصيات' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(800);
   const ftitles = await page.locator('.lib-title').allInnerTexts(); const fsub = await page.locator('.panel-sub').innerText();
-  log('كتب الفراسة والشخصيات', 'اثنا عشر كتاباً في الفراسة وأنماط الشخصيات والطباع (لا «الطرق الحكمية» ولا «مدارج السالكين»)', ftitles.length === 12 && !ftitles.some((x) => x.includes('الطرق الحكمية') || x.includes('مدارج')) && ['علم الفراسة الحديث', 'السياسة في علم الفراسة', 'أنماط الشخصية: أسرار وخفايا', 'لغة الجسد النفسية', 'نظريات الشخصية'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')), ftitles.join(' | '));
-  log('كتب الفراسة والشخصيات', 'العنوان الفرعي يبين أنها للقراءة وليست من مراجع تبويب «الكتب»', /ليست من مراجع البحث في تبويب «الكتب»/.test(fsub), fsub);
+  log('كتب الفراسة والشخصيات', '27 كتاباً في الفراسة وأنماط الشخصيات والطباع (لا «الطرق الحكمية» ولا «مدارج السالكين»)', ftitles.length === 27 && !ftitles.some((x) => x.includes('الطرق الحكمية') || x.includes('مدارج')) && ['علم الفراسة الحديث', 'السياسة في علم الفراسة', 'أنماط الشخصية: أسرار وخفايا', 'لغة الجسد النفسية', 'نظريات الشخصية'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')), ftitles.join(' | '));
+  log('كتب الفراسة والشخصيات', 'تحت العنوان «عدد الكتب: 27» (بدل الوصف الطويل) وحقل بحث بالاسم', fsub.trim() === 'عدد الكتب: 27' && (await page.locator('.lib-find').count()) === 1, fsub);
   await page.locator('.lib-tile', { hasText: 'السياسة في علم الفراسة' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('iframe.rd-frame');
   log('كتب الفراسة والشخصيات', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بلا فهرس)، والمطبوع المحقَّق للتحميل بلا زر قراءة مصوَّرة له (لا عارض له)', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 0 && (await page.locator('.rd-ocr').innerText()).includes('المخطوطة'));
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);

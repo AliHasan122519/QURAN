@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 390,
- "updated": "2026-11-24T17:20:47Z",
+ "version": 411,
+ "updated": "2026-11-24T18:19:05Z",
  "apk": {
   "versionCode": 29925690,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -155,8 +155,8 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "ecc75d61bbc91620c94b529ce2b0df48c742527577daaecf8bd7379784c8c9a3",
-   "count": 8,
+   "sha256": "3d85f9dbcf96fb3a7943537bf06b7c5465b4407c563443278cef52d6e4a2ee32",
+   "count": 12,
    "drawer": true,
    "card": "library",
    "menu": "كتب علم التعبير",
@@ -169,8 +169,8 @@
    "label": "كتب الفراسة والشخصيات",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "6104d03da5d667a125f8f031f5533573b8ae92c49302aa405a6f32634449d17e",
-   "count": 12,
+   "sha256": "0561ae82c30454a81e415e98da29bf4f155f1f58d9129adeaa67d67746127ca4",
+   "count": 27,
    "drawer": true,
    "card": "library",
    "menu": "كتب الفراسة والشخصيات",
@@ -332,6 +332,101 @@
    "file": "covers/pers-nazariyat.jpg",
    "sha256": "1ed439d4de5fca85a8b7e3282924686f083a5ba20ce81b4ae505ab9dba63c24a",
    "size": 40023
+  },
+  {
+   "file": "covers/tabir-muraqiba.jpg",
+   "sha256": "d875f6c5311029e9a07b51d3dbcdd2123beb802c47399c1401a2eae7aa1ac75e",
+   "size": 14245
+  },
+  {
+   "file": "covers/tabir-qutayba-gheras.jpg",
+   "sha256": "e08e5ca661918e7fd3f6fa341e0fc1d46c8c052d24e602b277c32f24eb00b155",
+   "size": 57736
+  },
+  {
+   "file": "covers/tabir-qutayba-bashair.jpg",
+   "sha256": "cef80d2ccd063c275333f008924d0e6d501a606269bdc7880253031005a85837",
+   "size": 19377
+  },
+  {
+   "file": "covers/tabir-madkhal.jpg",
+   "sha256": "8c9453cedd5f69b38f9ff9cbf09c938cbb6e266c83296c3cfa5620042d359391",
+   "size": 62266
+  },
+  {
+   "file": "covers/pers-tahlil-badran.jpg",
+   "sha256": "853f19c62cb485722133c368fa926554f4fefa67adde178be640d4da7853aa9a",
+   "size": 53240
+  },
+  {
+   "file": "covers/pers-shakhsiya-badran.jpg",
+   "sha256": "216b575b1308b01ec6de6c7358899de980ef5fcd080773ad71034c758adece5b",
+   "size": 54897
+  },
+  {
+   "file": "covers/pers-tahlil-barakat.jpg",
+   "sha256": "d5caa2d57da222f7db3b7b280078c3ddafaead1e92f0e2ff9e5f1a9a54fcc09a",
+   "size": 31117
+  },
+  {
+   "file": "covers/pers-enneagram.jpg",
+   "sha256": "f1fb3970cbc1b1de2cf957342cefb86afaab53e8e1e2f7baa16f00c9e0cb67f4",
+   "size": 31461
+  },
+  {
+   "file": "covers/pers-koushi.jpg",
+   "sha256": "5ce76fd2fca5dd4ba2f946f815e935829c77e7dce6486e70492ffef3587f5515",
+   "size": 60736
+  },
+  {
+   "file": "covers/pers-akhlaq-sira.jpg",
+   "sha256": "6779ba93d4ba42aafacd09d77f817392e0b5d581dbc6f6cdfbfc89d1a4f80674",
+   "size": 24401
+  },
+  {
+   "file": "covers/pers-pease-mufassal.jpg",
+   "sha256": "8744b4f3a8001b2a54ca423800feedb938a0b66ff64f9566ad9c0cdb96ea27b5",
+   "size": 35378
+  },
+  {
+   "file": "covers/pers-pease-marji.jpg",
+   "sha256": "770af0030c4aedea8357d757d7dac8fcc0891edc6d1f3d6ffac1ae1b5209f440",
+   "size": 25316
+  },
+  {
+   "file": "covers/pers-hagen.jpg",
+   "sha256": "576597dfad822839b1f91c2f922cbbc990e57caab07a3377fa348a1d32d60e09",
+   "size": 30645
+  },
+  {
+   "file": "covers/pers-musayhij.jpg",
+   "sha256": "9f24832d4681d70d42d021008b42857316d22167ee1409c2a881721c202c7670",
+   "size": 35979
+  },
+  {
+   "file": "covers/pers-ghanem.jpg",
+   "sha256": "558513aa63098233bd8d05f172a34c2d5767143519ad79e3a6169a4cf7460ca0",
+   "size": 24864
+  },
+  {
+   "file": "covers/pers-aqeel.jpg",
+   "sha256": "53c83bf25fe3f743daa95dc4c440de0f3e49c4806a4ecb92ca2a5e4fee0398d6",
+   "size": 40583
+  },
+  {
+   "file": "covers/pers-arabgroup.jpg",
+   "sha256": "5cf4ae6c20e9bda5e1ec385fc2a5c92a3e74cfb58abce14230303048c4cd943c",
+   "size": 36918
+  },
+  {
+   "file": "covers/pers-pervin.jpg",
+   "sha256": "4e39b99ec8447ccb397a9aa1cc69513b716fbe4b3da5577252dbeb0987b9f954",
+   "size": 51397
+  },
+  {
+   "file": "covers/pers-hariri.jpg",
+   "sha256": "036015daf9a254a5040ef0acaf7cd9b3a8e53eae59c8bcd880754415fdf1140b",
+   "size": 45770
   }
  ]
 }

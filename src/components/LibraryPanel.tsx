@@ -110,8 +110,13 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
 }
 
 /** «كتب علم التعبير» and «كتب الفراسة والشخصيات»: the books as covers, two by two; touching one opens its page. */
-export function LibraryPanel({ title, sub, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
-  const books = useMemo(() => parse(docs), [docs]); const [open, setOpen] = useState<Book | null>(null);
+const MARKS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
+/** letters of a title without vocalisation, with hamza / ya / ta marbuta folded, so that «الاحلام» finds «الأحلام» */
+const plain = (t: string) => t.replace(MARKS, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/\s+/g, ' ').trim();
+
+export function LibraryPanel({ title, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
+  const all = useMemo(() => parse(docs), [docs]); const [open, setOpen] = useState<Book | null>(null); const [q, setQ] = useState('');
+  const books = useMemo(() => { const w = plain(q).split(' ').filter(Boolean); return w.length ? all.filter((b) => { const hay = plain(`${b.title} ${b.card.author} ${b.card.authorFull} ${b.card.coverTitle}`); return w.every((x) => hay.includes(x)); }) : all; }, [all, q]);
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);
   const shut = useCallback(() => setOpen(null), []);
   useEffect(() => {
@@ -124,9 +129,10 @@ export function LibraryPanel({ title, sub, docs, load, onClose }: { title: strin
     <div ref={back} className="panel-back" onClick={onClose}>
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head">
-          <div><h2>{title}</h2>{sub && <p className="panel-sub">{sub}</p>}</div>
+          <div><h2>{title}</h2><p className="panel-sub" aria-live="polite">{q.trim() ? `${books.length} من ${all.length} كتاباً` : `عدد الكتب: ${all.length}`}</p></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>
         </div>
+        <input type="search" className="lib-find" aria-label="ابحث عن كتاب باسمه أو باسم مؤلفه" placeholder="ابحث عن كتاب باسمه أو مؤلفه" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="lib-grid">
           {books.map((b) => (
             <button type="button" key={b.id} className="lib-tile" data-src="book" onClick={() => setOpen(b)}>
@@ -136,7 +142,7 @@ export function LibraryPanel({ title, sub, docs, load, onClose }: { title: strin
             </button>
           ))}
         </div>
-        {!books.length && <p className="drawer-empty">لا توجد كتب الآن.</p>}
+        {!books.length && <p className="drawer-empty">{q.trim() ? 'لا يوجد كتاب بهذا الاسم.' : 'لا توجد كتب الآن.'}</p>}
       </div>
       {open && <BookDetail book={open} load={load} onClose={shut} />}
     </div>

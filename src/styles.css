@@ -478,3 +478,5 @@ html[data-theme="dark"] .lib-more { color: #fff; border-color: var(--ring); }
 .lib-actions .lib-dl, .lib-actions .lib-dl:hover:not([disabled]) { background: transparent; background-color: transparent; background-image: none; color: var(--primary); }
 html[data-theme="dark"] .lib-actions .lib-dl, html[data-theme="dark"] .lib-actions .lib-dl:hover:not([disabled]) { color: #fff; }
 .rd-scroll:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px; }
+.lib-find { margin: .2rem 0 .4rem; height: 2.8rem; border-radius: .8rem; border: 1.5px solid var(--border); background: var(--card); color: var(--ink); padding: 0 1rem; font: inherit; width: 100%; }
+.lib-find:focus-visible { outline: 3px solid var(--ring); outline-offset: 1px; }
