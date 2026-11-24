@@ -10,6 +10,8 @@ import type { Doc } from './lib/types';
 /** The standalone site of the library: the design of the app, with only the two lists of books of its side menu («المزيد»): «كتب علم التعبير» and «كتب الفراسة والشخصيات».
  *  Each list opens as its own panel (cover, search by name, the page of every book: contents, reading inside the page, the scanned pages, download). It reads its own content/ folder (build_library_site.mjs keeps only these two lists). */
 const ICON: Record<string, LucideIcon> = { kutubtabir: LibraryBig, kutubfiras: Eye };
+/** the names of the two sections on this site (the app calls the second one «كتب الفراسة والشخصيات») */
+const NAME: Record<string, string> = { kutubtabir: 'كتب علم التعبير', kutubfiras: 'كتب علم الفراسة' };
 const ABOUT: Record<string, string> = {
   kutubtabir: 'أمهات كتب تأويل الرؤى، قديمها وحديثها',
   kutubfiras: 'معرفة الطباع وأنماط الشخصيات من الظاهر والسلوك',
@@ -26,7 +28,7 @@ export function LibrarySite() {
       try {
         const c = await loadContent(); content.current = c;
         const ts = c.manifest.tabs.filter((t) => t.card === 'library'); if (dead) return;
-        setTabs(ts.map((t) => ({ id: t.id, label: t.label })));
+        setTabs(ts.map((t) => ({ id: t.id, label: NAME[t.id] ?? t.label })));
         for (const t of ts) { const docs = await loadTab(t, c); if (dead) return; if (docs) setLists((p) => ({ ...p, [t.id]: docs })); }
       } catch { if (!dead) setFailed(true); }
     })();
@@ -43,16 +45,16 @@ export function LibrarySite() {
       {opened && <LibraryPanel title={opened.label} docs={lists[opened.id] ?? []} load={load} onClose={close} />}
       <header className="hero">
         <div className="hero-in">
-          <div className="badge-top"><Sparkles size={14} />مكتبة رقمية</div>
-          <h1>مكتبة التعبير والفراسة</h1>
-          <p>مختاراتٌ من كتب تعبير الرؤيا، وعلم الفراسة وأنماط الشخصيات والطباع، تُقرأ في الموقع أو تُحمَّل.</p>
+          <div className="badge-top"><Sparkles size={14} />اختر القسم</div>
+          <h1>المكتبة الشاملة</h1>
+          <p>مكتبةٌ مختارة في علم التعبير وعلم الفراسة، تقرأ كتبها في الموقع أو تحمّلها.</p>
           <div className="ornament-divider" />
         </div>
       </header>
       <section className="sheet">
         {failed && <p className="drawer-empty">تعذّر تحميل قائمة الكتب. أعد تحميل الصفحة.</p>}
         {!failed && !tabs.length && <p className="drawer-empty" role="status">جارٍ تحميل الكتب…</p>}
-        <nav className="site-lists" aria-label="قوائم الكتب">
+        <nav className="site-lists" aria-label="أقسام المكتبة">
           {tabs.map((t) => { const Icon = ICON[t.id] ?? LibraryBig; const n = lists[t.id]?.length; return (
             <button type="button" key={t.id} className="site-list" onClick={() => setPanel(t.id)}>
               <span className="site-list-ic" aria-hidden="true"><Icon size={26} strokeWidth={1.8} /></span>

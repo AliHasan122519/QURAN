@@ -13,11 +13,11 @@ let fails = 0; const log = (ok, what, d = '') => { if (!ok) fails++; console.log
 const browser = await chromium.launch(); const ctx = await browser.newContext({ viewport: { width: 400, height: 860 }, locale: 'ar' }); const page = await ctx.newPage();
 const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/archive\.org|ERR_|Failed to load resource/.test(m.text())) errors.push(m.text().slice(0, 140)); });
 await page.goto(URL_); await page.waitForSelector('.site-list', { timeout: 20000 }); await page.waitForTimeout(1500);
-log((await page.title()) === 'مكتبة التعبير والفراسة', 'the page has its own title', await page.title());
-log((await page.locator('h1').innerText()).includes('مكتبة التعبير والفراسة'), 'the heading names the library');
+log((await page.title()) === 'المكتبة الشاملة', 'the page has its own title', await page.title());
+log((await page.locator('h1').innerText()).includes('المكتبة الشاملة'), 'the heading names the library');
 const intro = (await page.locator('.hero p').innerText()).trim(); log(intro.length > 20 && intro.length < 110, 'the introduction is one short sentence', `${intro.length} letters: ${intro}`);
 log((await page.locator('[role="tab"], input[type="search"]').count()) === 0, 'the home has no search and no tabs (the lists open from the entries and from the side menu)');
-const entries = await page.locator('.site-list').allInnerTexts(); log(entries.length === 2 && /كتب علم التعبير/.test(entries[0]) && /12/.test(entries[0]) && /كتب الفراسة والشخصيات/.test(entries[1]) && /27/.test(entries[1]), 'the two lists are the two entries, with the number of books', entries.map((x) => x.replace(/\n/g, ' ')).join(' | '));
+const entries = await page.locator('.site-list').allInnerTexts(); log(entries.length === 2 && /كتب علم التعبير/.test(entries[0]) && /12/.test(entries[0]) && /كتب علم الفراسة/.test(entries[1]) && !/الشخصيات/.test(entries[1].split('\n')[0]) && /27/.test(entries[1]), 'the two lists are the two entries, with the number of books', entries.map((x) => x.replace(/\n/g, ' ')).join(' | '));
 const html = readdirSync('dist-library/content'); log(html.sort().join(',') === 'books,covers,kutubfiras.json,kutubtabir.json,manifest.json', 'the site carries only the two lists, their books and their covers', html.join(','));
 // the side menu: the same two lists, like «المزيد» of the app
 await page.locator('button.menu-toggle').click(); await page.waitForSelector('.drawer');
@@ -41,7 +41,7 @@ log((await page.locator('.rd-text').first().innerText()).length > 300, 'the text
 await page.keyboard.press('Escape'); await page.waitForTimeout(300); await page.keyboard.press('Escape'); await page.waitForTimeout(300); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
 log((await page.locator('.panel-back').count()) === 0, 'Escape closes the book, then the list, back to the home');
 // the second list, opened from its entry on the home
-await page.locator('.site-list', { hasText: 'الفراسة والشخصيات' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(500);
+await page.locator('.site-list', { hasText: 'كتب علم الفراسة' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(500);
 log(/عدد الكتب: 27/.test(await page.locator('.lib-count').innerText()), 'the second list opens from its entry: «عدد الكتب: 27»');
 await page.locator('.lib-find').fill('الجسد'); await page.waitForTimeout(200);
 log((await page.locator('.lib-tile').count()) >= 6, 'search «الجسد» finds the body-language books', String(await page.locator('.lib-tile').count()));
