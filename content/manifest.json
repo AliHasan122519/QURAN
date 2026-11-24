@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 380,
- "updated": "2026-11-24T17:04:00Z",
+ "version": 390,
+ "updated": "2026-11-24T17:20:47Z",
  "apk": {
   "versionCode": 29925673,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -166,17 +166,17 @@
   },
   {
    "id": "kutubfiras",
-   "label": "كتب علم الفراسة",
+   "label": "كتب الفراسة والشخصيات",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "d9ef01d1167fb4bb760bf38e228d2a6b5f24de80d676a4400acbde388d62d5fa",
-   "count": 4,
+   "sha256": "6104d03da5d667a125f8f031f5533573b8ae92c49302aa405a6f32634449d17e",
+   "count": 12,
    "drawer": true,
    "card": "library",
-   "menu": "كتب علم الفراسة",
-   "sub": "أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».",
+   "menu": "كتب الفراسة والشخصيات",
+   "sub": "كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».",
    "placeholder": "اكتب هنا",
-   "hint": "أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب»."
+   "hint": "كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب»."
   },
   {
    "id": "about",
@@ -292,6 +292,46 @@
    "file": "covers/firasa-ansari.jpg",
    "sha256": "9ae2ba0f896c8c3e8ee03241d04b90010ff815d9703537203d5b591bda47ff32",
    "size": 20946
+  },
+  {
+   "file": "covers/pers-anmat.jpg",
+   "sha256": "ad3def7068932a39b1033f77a8a8bab7fc7230a5d5f649d534f6e3d40f62711e",
+   "size": 35482
+  },
+  {
+   "file": "covers/pers-farasa-jasad.jpg",
+   "sha256": "9f38821412c192ac72c866a31a530ab1e7acab3dc92bb451c6a96dce022bed37",
+   "size": 62422
+  },
+  {
+   "file": "covers/pers-jasad-nafsiya.jpg",
+   "sha256": "2bac6fc5c3621ea2095b7739f4dcd0a2de00e6e16ce73586da68893ae1cada9f",
+   "size": 35902
+  },
+  {
+   "file": "covers/pers-wujuh-tickle.jpg",
+   "sha256": "79eab4d17a41710a9d3d00a3ac19fc841c251d6fd7ec57aa974c6a278a06a100",
+   "size": 33491
+  },
+  {
+   "file": "covers/pers-600-simat.jpg",
+   "sha256": "2bb37e800700ace8c41248e21cf9da79becf0ec889475a09de609231cfe586f2",
+   "size": 32860
+  },
+  {
+   "file": "covers/pers-lughat-wujuh.jpg",
+   "sha256": "ca9333b108d54cf4bd9a6950495d64169a40328653eff817ddc1b307662b9da2",
+   "size": 28988
+  },
+  {
+   "file": "covers/pers-dalil-sifat.jpg",
+   "sha256": "fcd7d408908e6e29be083bb5288ed88db60c6d6be8a7acf9a68810b40493cdcd",
+   "size": 27482
+  },
+  {
+   "file": "covers/pers-nazariyat.jpg",
+   "sha256": "1ed439d4de5fca85a8b7e3282924686f083a5ba20ce81b4ae505ab9dba63c24a",
+   "size": 40023
   }
  ]
 }

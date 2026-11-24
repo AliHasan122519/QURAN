@@ -12,7 +12,7 @@ import { topmost } from './DreamsPanel';
 interface BookCard {
   kind: string; era: string; author: string; authorFull: string; coverTitle: string; cover: { p: number; m: number; img?: string };
   info: [string, string][]; infoSrc: string; about: { t: string; s: string }[]; note: string; inApp: boolean;
-  reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string };
+  reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string; manuscript?: boolean };
   toc: [number, string, number | null, (number | null)?][]; tocSrc: string;
   dls: { label: string; url: string; size: string; id: string; sub?: string; view?: boolean }[];
 }
@@ -75,7 +75,7 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
           <div className="lib-chips"><span className="lib-chip">{c.kind}</span><span className="lib-chip">{c.era}</span>{c.inApp && <span className="lib-chip lib-chip-app">من مراجع تبويب «الكتب»</span>}</div>
         </div>
         <div className="lib-actions">
-          <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />قراءة داخل التطبيق<small>{c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : c.toc.length ? 'صفحات الكتاب كما طُبعت مع فهرسه' : 'صور صفحات المخطوطة (تحتاج إنترنت)'}</small></button>
+          <button type="button" className="go lib-read" onClick={() => setRead({ at: null })}><BookOpen size={18} aria-hidden="true" />قراءة داخل التطبيق<small>{c.reader.mode === 'text' ? `${c.reader.ocr ? 'نص مقروء آلياً' : 'نص الكتاب'} مع فهرسه وبحث داخله` : c.toc.length ? 'صفحات الكتاب كما طُبعت مع فهرسه' : c.reader.manuscript ? 'صور صفحات المخطوطة (تحتاج إنترنت)' : 'صور صفحات الكتاب (تحتاج إنترنت)'}</small></button>
           {c.dls.map((d, i) => (d.view === false || (c.reader.mode === 'embed' && c.reader.id === d.id) ? null : (
             <button type="button" key={'s' + i} className="go lib-scan" onClick={() => setScan(i)}><Images size={18} aria-hidden="true" />قراءة الكتاب المصوَّر<small>{d.label.replace(/\s*\(PDF\)/, '')} · صور الصفحات كما طُبعت (تحتاج إنترنت)</small></button>)))}
           {c.dls.map((d, i) => (
@@ -103,13 +103,13 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
         <p className="lib-fine" dir="rtl">ملفات «تحميل» نسخ مصورة من أرشيف الإنترنت وقد تختلف طبعتها عن طبعة النص في القارئ.</p>
         {read && c.reader.mode === 'text' && <BookReader title={book.title} file={c.reader.file} load={load} scan={c.reader.scan || undefined} startAt={read.at ?? undefined} onClose={() => setRead(null)} />}
         {scan !== null && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={[]} tocSrc="" onClose={() => setScan(null)} />}
-        {read && c.reader.mode === 'embed' && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} manuscript={!c.toc.length} onClose={() => setRead(null)} />}
+        {read && c.reader.mode === 'embed' && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} manuscript={!!c.reader.manuscript} onClose={() => setRead(null)} />}
       </div>
     </div>
   );
 }
 
-/** «كتب علم التعبير» and «كتب علم الفراسة»: the books as covers, two by two; touching one opens its page. */
+/** «كتب علم التعبير» and «كتب الفراسة والشخصيات»: the books as covers, two by two; touching one opens its page. */
 export function LibraryPanel({ title, sub, docs, load, onClose }: { title: string; sub?: string; docs: Doc[]; load: LoadFile; onClose: () => void }) {
   const books = useMemo(() => parse(docs), [docs]); const [open, setOpen] = useState<Book | null>(null);
   const back = useRef<HTMLDivElement>(null); const close = useRef<HTMLButtonElement>(null);

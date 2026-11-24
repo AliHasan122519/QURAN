@@ -1,4 +1,4 @@
-// LIVE test of the two book lists («كتب علم التعبير» and «كتب علم الفراسة») in a real browser, WITH the internet (it opens the real archive.org viewer).
+// LIVE test of the two book lists («كتب علم التعبير» and «كتب الفراسة والشخصيات») in a real browser, WITH the internet (it opens the real archive.org viewer).
 // For every book: the cover, the table of contents, «قراءة داخل التطبيق», the table-of-contents jump, the search in the book, every «قراءة الكتاب المصوَّر» (the page images must really load), every «تحميل».
 // usage: NODE_PATH=$(npm root -g) node tests/live_books.mjs   (after npm run build)
 import { spawn, execFileSync } from 'node:child_process';
@@ -22,14 +22,14 @@ const frameInfo = async (timeout = 25000) => {                                  
 const openList = async (name) => { await page.goto(URL_); await page.waitForSelector('button.menu-toggle', { timeout: 30000 }); await page.waitForTimeout(1500); await page.locator('button.menu-toggle').click(); await page.locator('.drawer-item', { hasText: name }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(1200); };
 const head = (u) => { try { const h = execFileSync('curl', ['-sI', '--max-time', '40', u], { encoding: 'utf8' }); const st = +(h.match(/^HTTP\/[\d.]+\s+(\d+)/m) || [])[1]; const loc = (h.match(/^location:\s*(\S+)/im) || [])[1] || ''; return { status: () => st, headers: () => ({ location: loc }) }; } catch { return null; } };
 const books = [];
-for (const list of ['كتب علم التعبير', 'كتب علم الفراسة']) {
+for (const list of ['كتب علم التعبير', 'كتب الفراسة والشخصيات']) {
   await openList(list); const n = await page.locator('.lib-tile').count();
   for (let i = 0; i < n; i++) {
     await page.locator('.lib-tile').nth(i).click(); await page.waitForSelector('.lib-detail'); await page.waitForTimeout(600);
     const title = (await page.locator('.lib-detail h2').first().innerText()).trim(); books.push(title);
     const tag = `[${list.replace('كتب علم ', '')}] ${title.slice(0, 32)}`;
     log(await page.locator('.lib-detail .lib-cover-big image, .lib-detail .lib-cover-big text').first().count() > 0, `${tag}: cover shown`);
-    log((await page.locator('.lib-toc li').count()) >= 1 || title.startsWith('السياسة في علم الفراسة'), `${tag}: table of contents listed (the manuscript has none)`, `${await page.locator('.lib-toc li').count()} shown`);
+    log((await page.locator('.lib-toc li').count()) >= 1 || (await page.locator('.lib-toc').count()) === 0, `${tag}: table of contents listed (a scan-only book without a printed contents has no section)`, `${await page.locator('.lib-toc li').count()} shown`);
     // «قراءة داخل التطبيق»
     await page.locator('.lib-read').click(); await page.waitForTimeout(1200);
     if (await page.locator('.rd-text').count()) {
