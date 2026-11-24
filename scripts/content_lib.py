@@ -20,7 +20,10 @@ def publish(tab_id, label, kind, obj, count, bump=True, extra=None):
 
 def publish_file(rel, obj, bump=True):
     """An extra file of the content (not a tab): content/<rel>, listed in the manifest's `files` with its SHA-256 (the app opens it on demand and updates it with the rest)."""
-    raw = json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode('utf8'); path = f'{C}/{rel}'
+    return publish_bytes(rel, json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode('utf8'), bump)
+def publish_bytes(rel, raw, bump=True):
+    """the same for a file that is not JSON (a cover picture): its bytes are written as they are"""
+    path = f'{C}/{rel}'
     os.makedirs(os.path.dirname(path), exist_ok=True); open(path, 'wb').write(raw)
     m = _manifest(); files = m.setdefault('files', []); e = next((x for x in files if x['file'] == rel), None)
     if not e: e = {'file': rel}; files.append(e)

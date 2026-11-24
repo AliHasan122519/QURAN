@@ -1,6 +1,7 @@
 import { useId } from 'react';
 
-/** The covers of the book lists are drawn here (no image file, so they work offline, in both themes and in every size): a palette, a pattern of the background and the emblem of the science
+/** The cover of a book: the printed edition's own cover (a picture, `photo`) when the content has one, else the drawn one below.
+ *  The covers of the book lists are drawn here (no image file, so they work offline, in both themes and in every size): a palette, a pattern of the background and the emblem of the science
  *  («علم التعبير» a crescent and a star, «علم الفراسة» an eye); the title is wrapped in the lines the cover can hold. Both choices come from the content (`cover: {p, m}`). */
 const PALETTES = [
   { a: '#0F4D41', b: '#0A3229', g: '#D8B866', t: '#FFF6DC' },   // 0 emerald
@@ -42,7 +43,7 @@ function layout(title: string) {
   return { size: 17, lines: wrap(title, 22) };
 }
 
-export function BookCover({ title, author, kind, p, m, className }: { title: string; author: string; kind: string; p: number; m: number; className?: string }) {
+export function BookCover({ title, author, kind, p, m, photo, className }: { title: string; author: string; kind: string; p: number; m: number; photo?: string; className?: string }) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, ''); const pal = PALETTES[p % PALETTES.length]; const motif = MOTIFS[m % MOTIFS.length];
   const { size, lines } = layout(title); const lh = size * 1.5; const y0 = 232 - ((lines.length - 1) * lh) / 2;
   const eye = kind.includes('فراسة');
@@ -59,6 +60,9 @@ export function BookCover({ title, author, kind, p, m, className }: { title: str
         <rect x="0" y="0" width="22" height="420" fill="#000" opacity=".22" />
         <rect x="22" y="0" width="2" height="420" fill={pal.g} opacity=".5" />
       </g>
+      {photo ? (
+        <g clipPath={`url(#c${id})`}><image href={photo} x="0" y="0" width="300" height="420" preserveAspectRatio="xMidYMid meet" /></g>
+      ) : (<>
       <rect x="40" y="18" width="246" height="384" rx="6" fill="none" stroke={pal.g} strokeWidth="1.6" />
       <rect x="46" y="24" width="234" height="372" rx="3" fill="none" stroke={pal.g} strokeWidth=".6" opacity=".7" />
       <text x="163" y="58" textAnchor="middle" fontSize="15" fontWeight="700" fill={pal.g}>{kind}</text>
@@ -70,6 +74,7 @@ export function BookCover({ title, author, kind, p, m, className }: { title: str
       </text>
       <path d="M96 332h54M176 332h54" stroke={pal.g} strokeWidth="1.2" /><path d="M163 326l6 6-6 6-6-6z" fill={pal.g} />
       <text x="163" y="370" textAnchor="middle" fontWeight="700" fontSize={author.length > 20 ? 14 : 17} fill={pal.g}>{author}</text>
+      </>)}
     </svg>
   );
 }

@@ -13,6 +13,9 @@ W = str.maketrans('٠١٢٣٤٥٦٧٨٩٫', '0123456789.')
 def west(t): return t.translate(W) if isinstance(t, str) else t          # numbers the app writes itself use the digits 0-9 (quoted passages stay word for word)
 def mb(n): return ('%.1f' % (n / 1e6)) + ' ميغابايت'
 def card(b):
+    cv = dict(b['cover']); img = f"data/booklists/covers/{b['key']}.jpg"
+    if os.path.exists(img):                                                        # the cover of the printed edition (the first page of the scan the book's page offers): the app shows it instead of the drawn one
+        cv['img'] = f"covers/{b['key']}.jpg"; CL.publish_bytes(cv['img'], open(img, 'rb').read())
     assert b['kind'] in KINDS and 0 <= b['cover']['p'] <= 9 and 0 <= b['cover']['m'] <= 7, b['key']
     assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
     d = [{'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size'])} for x in b['dls']]
@@ -23,7 +26,7 @@ def card(b):
         toc = [[a, west(t), i] for a, t, i in bk['toc']]; reader = {'mode': 'text', 'file': rd['file'], 'src': rd['src'], 'ocr': bk['ocr'], 'scan': rd.get('scan', ''), 'count': len(bk['p'])}; tocSrc = 'عناوين الكتاب نفسه في نصه الرقمي' + (' (قراءة آلية، فقد تكثر فيها الأخطاء)' if bk['ocr'] else '')
     else:
         toc = [[a, west(t), i, p] for a, t, i, p in rd['toc']]; reader = {'mode': 'embed', 'id': rd['id'], 'src': rd['src']}; tocSrc = rd['tocSrc']
-    return {'reader': reader, 'toc': toc, 'tocSrc': tocSrc, 'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': west(b['authorFull']), 'coverTitle': b['coverTitle'], 'cover': b['cover'],
+    return {'reader': reader, 'toc': toc, 'tocSrc': tocSrc, 'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': west(b['authorFull']), 'coverTitle': b['coverTitle'], 'cover': cv,
             'info': [[west(k), west(v)] for k, v in b['info']], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': west(b.get('note', '')), 'inApp': b['inApp'],
             'read': b['read'], 'dls': d}
 tabs = {}

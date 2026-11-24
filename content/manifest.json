@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 345,
- "updated": "2026-11-24T15:08:10Z",
+ "version": 359,
+ "updated": "2026-11-24T15:12:10Z",
  "apk": {
   "versionCode": 29925552,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -155,7 +155,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "dca41c13a4f46d60a35953412fffdd59ff530d2e253412f0ca1c014c88e7dfc9",
+   "sha256": "c8647b3be86bfbe189c4e0f501c077a987b3376649daa20172186f888e884eb9",
    "count": 8,
    "drawer": true,
    "card": "library",
@@ -169,7 +169,7 @@
    "label": "كتب علم الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "c51345964ce259ec118c4270f2145203604da17fb6643cbcc30fdf98647edee6",
+   "sha256": "ed34a50ce5d03dc5e03457791c4cc1e8c73197456065764618910af92e3dc571",
    "count": 5,
    "drawer": true,
    "card": "library",
@@ -247,6 +247,66 @@
    "file": "books/ilm-firasa-hadith.json",
    "sha256": "c9a562076b6ef7ffe8baa983d66140d5878d94391b76aef3d312322a569d3d24",
    "size": 331535
+  },
+  {
+   "file": "covers/manamat-ibn-abi-dunya.jpg",
+   "sha256": "67fcb1cfc71aa382fbe264a5cd0c7ac4a894edac18d17ee1fc18f32a9cec39b5",
+   "size": 18016
+  },
+  {
+   "file": "covers/tabir-artemidorus.jpg",
+   "sha256": "d0282a478570e8f5c3146c926f2de2576d2596493d2c322fb1d4f38f0692438b",
+   "size": 22614
+  },
+  {
+   "file": "covers/qadiri.jpg",
+   "sha256": "348b667090475877a3ddb51791b4b95d27d94e68715ebb056f8afaa915ab1083",
+   "size": 87868
+  },
+  {
+   "file": "covers/badr-munir.jpg",
+   "sha256": "b91ae621d7028a7a4175aa8219203400e76e5b75a4dcfd215c59c97effd772fe",
+   "size": 30954
+  },
+  {
+   "file": "covers/isharat.jpg",
+   "sha256": "de96b176db6d8f190d6e01d3453647e278ecff9a2b41b5694b89e97b8af416d0",
+   "size": 23516
+  },
+  {
+   "file": "covers/tatir-anam.jpg",
+   "sha256": "b41d92796bb1f4028538b5911d261050e83f69fb2cd133aae7cc139c4e5ba8c4",
+   "size": 69297
+  },
+  {
+   "file": "covers/muntakhab.jpg",
+   "sha256": "b41d92796bb1f4028538b5911d261050e83f69fb2cd133aae7cc139c4e5ba8c4",
+   "size": 69297
+  },
+  {
+   "file": "covers/firasa-razi.jpg",
+   "sha256": "b00301e2ad313a07ba0d8c0b7c6c587a6755adeaca28343c102a5718a1bddb38",
+   "size": 33012
+  },
+  {
+   "file": "covers/firasa-murad.jpg",
+   "sha256": "384a82e3e3e1c4505c7f9652e2ca016455356fcdf256cc7302506280c4cef754",
+   "size": 31603
+  },
+  {
+   "file": "covers/turuq-hukmiyya.jpg",
+   "sha256": "52bf0a92feed721991eb4bf322508fce6417560bad0a68dcdcf0c2b982a3bd7f",
+   "size": 44594
+  },
+  {
+   "file": "covers/madarij-firasa.jpg",
+   "sha256": "6d99c7975a51fd069dcc9604a51a94537737dfcacd04e6f69f3fc507c355e9a5",
+   "size": 79997
+  },
+  {
+   "file": "covers/ilm-firasa-hadith.jpg",
+   "sha256": "8ba133353b420a10967c3a736c64bc478061d212f7862b1b5333e53602be282a",
+   "size": 62358
   }
  ]
 }

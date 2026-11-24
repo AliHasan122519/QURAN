@@ -1,7 +1,7 @@
 """«كتب علم التعبير» و«كتب علم الفراسة»: فحص بلا شبكة لما نُشر في content/ مقابل data/booklists/books.json، وأن كتب الفراسة (وكل كتب القائمتين) ليست من مراجع تبويب «الكتب».
 الفحص بالشبكة (الاقتباسات والروابط والملفات): python3 -I scripts/verify_booklinks.py
 usage: python3 -I tests/booklists_check.py"""
-import json, re, sys, urllib.parse
+import json, hashlib, os, re, sys, urllib.parse
 ok = True
 def check(name, cond, detail=''):
     global ok; ok &= bool(cond); print('PASS' if cond else 'FAIL', '|', name, detail)
@@ -12,6 +12,9 @@ for kind, tid in (('tabir', 'kutubtabir'), ('firasa', 'kutubfiras')):
     for r, b in zip(rows, mine):
         c = json.loads(r[6])
         check(f'{b["key"]}: title/author/cover', r[0] == b['title'] and c['author'] == b['author'] and 0 <= c['cover']['p'] <= 9 and 0 <= c['cover']['m'] <= 7)
+        have = os.path.exists(f'data/booklists/covers/{b["key"]}.jpg'); ff = {f['file']: f for f in json.load(open('content/manifest.json', encoding='utf8')).get('files', [])}
+        check(f'{b["key"]}: the printed cover (when we have one) is a JPEG content file in the manifest with the right SHA-256, else the drawn cover stays', (c['cover'].get('img') is None) if not have else
+              (c['cover'].get('img') == f'covers/{b["key"]}.jpg' and c['cover']['img'] in ff and ff[c['cover']['img']]['sha256'] == hashlib.sha256(open('content/' + c['cover']['img'], 'rb').read()).hexdigest() and open('content/' + c['cover']['img'], 'rb').read(2) == b'\xff\xd8'))
         check(f'{b["key"]}: no field an old app would show badly (explanation, by, who are empty; the text is «label ⏎ value» lines)', r[2] == '' and r[4] == '' and r[5] == '' and all(len(l.split('\t')) == 2 for l in r[1].split('\n')))
         check(f'{b["key"]}: the source link (kept for verification only; the app shows no external link) is on shamela.ws/archive.org (https)', re.match(r'^https://(shamela\.ws/book/\d+(/\d+)?|archive\.org/details/[\w.\-]+)$', c['read']['url']) is not None, c['read']['url'])
         rd = c['reader']

@@ -10,7 +10,7 @@ import { BookEmbed, type ScanToc } from './BookEmbed';
 import { topmost } from './DreamsPanel';
 
 interface BookCard {
-  kind: string; era: string; author: string; authorFull: string; coverTitle: string; cover: { p: number; m: number };
+  kind: string; era: string; author: string; authorFull: string; coverTitle: string; cover: { p: number; m: number; img?: string };
   info: [string, string][]; infoSrc: string; about: { t: string; s: string }[]; note: string; inApp: boolean;
   reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string };
   toc: [number, string, number | null, (number | null)?][]; tocSrc: string;
@@ -20,6 +20,21 @@ interface Book { id: string; title: string; card: BookCard; }
 export type LoadFile = (rel: string) => Promise<ArrayBuffer | null>;
 const parse = (docs: Doc[]): Book[] => docs.flatMap((d) => { try { const c = JSON.parse(d.extra ?? '') as BookCard; return c?.reader && c.toc ? [{ id: d.id, title: d.ref ?? '', card: c }] : []; } catch { return []; } });
 const SHOWN = 14;
+
+/** the picture of the printed cover (a content file, opened on demand and kept by the app) as an address the page can show; nothing until it is read, so the drawn cover is shown meanwhile */
+function useCover(load: LoadFile, img?: string): string | undefined {
+  const [url, setUrl] = useState<string>();
+  useEffect(() => {
+    if (!img) return; let dead = false, made = '';
+    load(img).then((b) => { if (b && !dead) { made = URL.createObjectURL(new Blob([b], { type: 'image/jpeg' })); setUrl(made); } }).catch(() => undefined);
+    return () => { dead = true; if (made) URL.revokeObjectURL(made); };
+  }, [img, load]);
+  return url;
+}
+function Cover({ book, load, className }: { book: Book; load: LoadFile; className: string }) {
+  const c = book.card; const photo = useCover(load, c.cover.img);
+  return <BookCover className={className} title={c.coverTitle} author={c.author} kind={c.kind} p={c.cover.p} m={c.cover.m} photo={photo} />;
+}
 
 /** the text of a book as a plain file (its title, its author, then the paragraphs; the titles of the table of contents stand out) */
 function textOf(title: string, c: BookCard, d: BookData): string {
@@ -56,7 +71,7 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
           <button type="button" ref={close} className="drawer-x" aria-label="رجوع" onClick={onClose}><ArrowRight size={20} aria-hidden="true" /></button>
         </div>
         <div className="lib-hero">
-          <BookCover className="lib-cover-big" title={c.coverTitle} author={c.author} kind={c.kind} p={c.cover.p} m={c.cover.m} />
+          <Cover book={book} load={load} className="lib-cover-big" />
           <div className="lib-chips"><span className="lib-chip">{c.kind}</span><span className="lib-chip">{c.era}</span>{c.inApp && <span className="lib-chip lib-chip-app">من مراجع تبويب «الكتب»</span>}</div>
         </div>
         <div className="lib-actions">
@@ -112,7 +127,7 @@ export function LibraryPanel({ title, sub, docs, load, onClose }: { title: strin
         <div className="lib-grid">
           {books.map((b) => (
             <button type="button" key={b.id} className="lib-tile" data-src="book" onClick={() => setOpen(b)}>
-              <BookCover className="lib-cover" title={b.card.coverTitle} author={b.card.author} kind={b.card.kind} p={b.card.cover.p} m={b.card.cover.m} />
+              <Cover book={b} load={load} className="lib-cover" />
               <span className="lib-title">{b.title}</span>
               <span className="lib-author">{b.card.author}</span>
             </button>

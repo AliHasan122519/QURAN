@@ -20,7 +20,8 @@ for (const f of m.files ?? []) {                                                
   const raw = readFileSync('content/' + f.file);
   if (createHash('sha256').update(raw).digest('hex') !== f.sha256) errs.push(`${f.file}: sha256 mismatch`);
   if (f.size !== undefined && f.size !== raw.length) errs.push(`${f.file}: size ${raw.length} != manifest ${f.size}`);
-  try { JSON.parse(raw.toString('utf8')); } catch { errs.push(`${f.file}: not valid JSON`); }
+  if (f.file.endsWith('.json')) { try { JSON.parse(raw.toString('utf8')); } catch { errs.push(`${f.file}: not valid JSON`); } }
+  else if (f.file.endsWith('.jpg') && !(raw[0] === 0xff && raw[1] === 0xd8)) errs.push(`${f.file}: not a JPEG`);
 }
 if (errs.length) { console.error(errs.join('\n')); process.exit(1); }
 console.log(`content OK: version ${m.version}, ${m.tabs.length} tabs, ${(m.files ?? []).length} files`);
