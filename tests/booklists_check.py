@@ -17,6 +17,12 @@ for kind, tid in (('tabir', 'kutubtabir'), ('firasa', 'kutubfiras')):
               (c['cover'].get('img') == f'covers/{b["key"]}.jpg' and c['cover']['img'] in ff and ff[c['cover']['img']]['sha256'] == hashlib.sha256(open('content/' + c['cover']['img'], 'rb').read()).hexdigest() and open('content/' + c['cover']['img'], 'rb').read(2) == b'\xff\xd8'))
         check(f'{b["key"]}: no field an old app would show badly (explanation, by, who are empty; the text is «label ⏎ value» lines)', r[2] == '' and r[4] == '' and r[5] == '' and all(len(l.split('\t')) == 2 for l in r[1].split('\n')))
         check(f'{b["key"]}: the source link (kept for verification only; the app shows no external link) is on shamela.ws/archive.org (https)', re.match(r'^https://(shamela\.ws/book/\d+(/\d+)?|archive\.org/details/[\w.\-]+)$', c['read']['url']) is not None, c['read']['url'])
+        # the rules every book of the two lists must meet (a new book is held to them too; see «إضافة كتاب جديد» in BOOKLISTS_NOTES.md)
+        pcs = json.load(open('data/booklists/pagecounts.json', encoding='utf8')).get(b['key'], []) if os.path.exists('data/booklists/pagecounts.json') else []
+        prow = [v for k, v in c['info'] if k.startswith('عدد الصفحات (الملف') or k.startswith('عدد صفحات')]
+        need = bool(b['dls']) and not b.get('pagesSkip')
+        check(f'{b["key"]}: «عدد الصفحات» is in the book information (the scan\'s pages from archive.org, scripts/page_counts.py) unless the book has no scan / is printed in another\'s margin (pagesSkip)', (not need) or (len(pcs) >= 1 and len(prow) >= 1 and all(str(n) in ' '.join(prow) for _, n in pcs if len(b['dls']) == 1 or len(prow) == 1 or True)), f'{prow}')
+        check(f'{b["key"]}: it has a table of contents of at least 3 entries (a scan: scripts/apply_tocs.py from data/booklists/toc/{b["key"]}.json; a text: build_bookreader.py) and every page-count row uses the digits 0-9', len(c['toc']) >= 3 and not re.search(r'[٠-٩]', ' '.join(prow)))
         rd = c['reader']
         if rd['mode'] == 'text':
             bk = json.load(open('content/' + rd['file'], encoding='utf8')); n = len(bk['p'])

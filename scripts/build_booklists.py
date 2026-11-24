@@ -3,12 +3,28 @@ Source: data/booklists/books.json — every passage quoted there is checked agai
 scripts/verify_booklinks.py (needs the network). These books are NOT references of the «الكتب» tab and are never indexed for the search (drawer tabs are not).
 A row: [title, «label ⏎ value» lines (all that an app which does not know this list shows), '', sources, '', '', the details as JSON (the book card of the new app)].
 usage: python3 -I scripts/build_booklists.py"""
-import json, os, sys, urllib.parse
+import json, os, re, sys, urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
 B = json.load(open('data/booklists/books.json', encoding='utf8'))
 KINDS = {'tabir': ('kutubtabir', 'كتب علم التعبير', 'علم التعبير', 'أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.'),
          'firasa': ('kutubfiras', 'كتب الفراسة', 'الفراسة', 'كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
+PC = json.load(open('data/booklists/pagecounts.json', encoding='utf8')) if os.path.exists('data/booklists/pagecounts.json') else {}   # scripts/page_counts.py
+def with_pages(b):
+    """The «عدد الصفحات» row of every book: the pages of the scanned file(s) the book offers (archive.org page list = what the viewer shows).
+    A count the book's own card gives (the printed edition) stays as it is, and the scan's count is added beside it.  A book that has no scan (no downloads) or
+    that is printed in the margin of another (`pagesSkip`) has none."""
+    info = [list(r) for r in b['info']]; rows = PC.get(b['key']) or []
+    if b.get('pagesSkip') or not rows: return info
+    label = {x['name']: x['label'] for x in b['dls']}
+    printed = any(k.startswith('عدد الصفحات') for k, _ in info)
+    if len(b['dls']) == 1: new = [['عدد صفحات الملف المصوَّر' if printed else 'عدد الصفحات (الملف المصوَّر)', str(rows[0][1])]]
+    elif all(re.match(r'^(المجلد|الجزء)', label[n]) for n, _ in rows) and len(rows) == len(b['dls']):
+        new = [['عدد صفحات الملف المصوَّر' if printed else 'عدد الصفحات (الملف المصوَّر)', '%d (%s)' % (sum(n for _, n in rows), ' + '.join(str(n) for _, n in rows))]]
+    else: new = [['عدد صفحات ' + re.sub(r' \(PDF\)$', '', label[nm]), str(n)] for nm, n in rows]
+    at = max([i for i, (k, _) in enumerate(info) if k.startswith('عدد الصفحات')] + [len(info) - 1]) + 1 if printed else len(info)
+    return info[:at] + new + info[at:]
+for _b in B: _b['info'] = with_pages(_b)
 W = str.maketrans('٠١٢٣٤٥٦٧٨٩٫', '0123456789.')
 def west(t): return t.translate(W) if isinstance(t, str) else t          # numbers the app writes itself use the digits 0-9 (quoted passages stay word for word)
 def mb(n): return ('%.1f' % (n / 1e6)) + ' ميغابايت'
@@ -34,7 +50,7 @@ def card(b):
 tabs = {}
 for b in B:
     tid = KINDS[b['kind']][0]; c = card(b)
-    text = '\n'.join(f'{k}\t{v}' for k, v in [('المؤلف', b['authorFull']), ('العصر', b['era'])] + b['info'])
+    text = '\n'.join(f'{k}\t{v}' for k, v in [('المؤلف', west(b['authorFull'])), ('العصر', b['era'])] + [[west(k), west(v)] for k, v in b['info']])
     src = ' · '.join(dict.fromkeys(a['s'].split(' (')[0].split(' — ')[0] for a in b['about']))
     tabs.setdefault(tid, []).append([b['title'], text, '', src, '', '', json.dumps(c, ensure_ascii=False, separators=(',', ':'))])   # the details are the 7th field: an app that does not know them shows the readable lines only
 for kind, (tid, label, _, sub) in KINDS.items():
