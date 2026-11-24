@@ -18,11 +18,10 @@ SPECS = [
  dict(key='tatir-anam', file=B + 'tatir_anam.txt', toc='pipe'),
  dict(key='muntakhab', file=B + 'muntakhab.txt', toc='pipe'),
  dict(key='tabir-artemidorus', file=SRC + 'hunayn.txt', toc='ocr-hunayn', ocr=True),
- dict(key='madarij-firasa', file=SRC + 'madarij.txt', toc='pipe'),
  dict(key='ilm-firasa-hadith', file=SRC + 'zaydan.txt', toc='pipe'),
 ]
 KEY_OF_SRC = {'المنامات (ابن أبي الدنيا)': 'manamat-ibn-abi-dunya', 'القادري في التعبير': 'qadiri', 'البدر المنير في علم التعبير': 'badr-munir', 'تعبير الرؤيا (ابن غنام المقدسي)': 'ibn-ghannam',
-              'الإشارات في علم العبارات': 'isharat', 'تعطير الأنام في تعبير المنام': 'tatir-anam', 'منتخب الكلام في تفسير الأحلام': 'muntakhab', 'مدارج السالكين — منزلة الفراسة': 'madarij-firasa'}
+              'الإشارات في علم العبارات': 'isharat', 'تعطير الأنام في تعبير المنام': 'tatir-anam', 'منتخب الكلام في تفسير الأحلام': 'muntakhab'}
 def corrections(key):
     """the plain misprints of the digital copy that were checked against the printed page (data/books/corrections.json, each with its reason): the same list «الكتب» uses"""
     return [c for c in json.load(open(B + 'corrections.json', encoding='utf8')) if KEY_OF_SRC.get(c['src']) == key]

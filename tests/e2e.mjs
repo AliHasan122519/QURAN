@@ -373,14 +373,10 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // كتب الفراسة
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'كتب علم الفراسة' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(800);
   const ftitles = await page.locator('.lib-title').allInnerTexts(); const fsub = await page.locator('.panel-sub').innerText();
-  log('كتب علم الفراسة', 'أربعة كتب: الرازي، يوسف مراد، مدارج السالكين، زيدان (لا «الطرق الحكمية»: لا علاقة له بالفراسة)', ftitles.length === 4 && !ftitles.some((x) => x.includes('الطرق الحكمية')) && ['علم الفراسة الحديث'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')) && ftitles.some((x) => x.includes('مدارج')), ftitles.join(' | '));
+  log('كتب علم الفراسة', 'أربعة كتب في علم الفراسة (باطن الإنسان من ظاهره): الرازي، يوسف مراد، الأنصاري «السياسة في علم الفراسة»، زيدان؛ لا «الطرق الحكمية» ولا «مدارج السالكين»', ftitles.length === 4 && !ftitles.some((x) => x.includes('الطرق الحكمية') || x.includes('مدارج')) && ['علم الفراسة الحديث', 'السياسة في علم الفراسة'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')), ftitles.join(' | '));
   log('كتب علم الفراسة', 'العنوان الفرعي يبين أنها للقراءة وليست من مراجع تبويب «الكتب»', /ليست من مراجع البحث في تبويب «الكتب»/.test(fsub), fsub);
-  await page.locator('.lib-tile', { hasText: 'مدارج السالكين' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(500);
-  await page.locator('.rd-tool', { hasText: 'الفهرس' }).click(); await page.locator('.rd-input').fill('منزلة الفراسة'); await page.waitForTimeout(250);
-  const mt = await page.locator('.rd-toc li button').allInnerTexts();
-  log('كتب علم الفراسة', 'مدارج السالكين (٢٠٠٠٠٠٠ حرف تقريباً): في فهرسه «فصل منزلة الفراسة» وينقل إليها بنصها', mt.length >= 1 && mt[0].includes('منزلة الفراسة'), mt[0]);
-  await page.locator('.rd-toc li button').first().click(); await page.waitForTimeout(500);
-  log('كتب علم الفراسة', 'يظهر نص «منزلة الفراسة» للإمام ابن القيم في القارئ', /الفراسة/.test(await page.locator('.rd-text').innerText()) && /منزلة الفراسة/.test(await page.locator('.rd-h h3').first().innerText()));
+  await page.locator('.lib-tile', { hasText: 'السياسة في علم الفراسة' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('iframe.rd-frame');
+  log('كتب علم الفراسة', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بلا فهرس)، والمطبوع المحقَّق للتحميل بلا زر قراءة مصوَّرة له (لا عارض له)', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 0 && (await page.locator('.rd-ocr').innerText()).includes('المخطوطة'));
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // الرازي: كتاب مصوّر بفهرس يفتح صفحاته
   await page.locator('.lib-tile', { hasText: 'الفراسة (دليلك' }).click(); await page.waitForSelector('.lib-detail');

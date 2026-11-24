@@ -20,7 +20,7 @@ def card(b):
     assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
     same = lambda i: sum(1 for y in b['dls'] if y['id'] == i) > 1                       # an item that holds several files (volumes) is opened by the name of the file in the viewer
     d = [dict({'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size']), 'id': x['id']},
-              **({'sub': urllib.parse.quote(os.path.splitext(x['name'])[0])} if same(x['id']) else {})) for x in b['dls']]
+              **({'sub': urllib.parse.quote(os.path.splitext(x['name'])[0])} if same(x['id']) else {}), **({'view': False} if x.get('view') is False else {})) for x in b['dls']]
     for x in b['dls']: assert x.get('size'), b['key'] + ': run verify_booklinks.py --write'
     rd = b['reader']; assert rd['mode'] in ('text', 'embed'), b['key']
     if rd['mode'] == 'text':

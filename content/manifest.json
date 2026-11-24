@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 371,
- "updated": "2026-11-24T16:21:52Z",
+ "version": 380,
+ "updated": "2026-11-24T17:04:00Z",
  "apk": {
   "versionCode": 29925626,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -169,7 +169,7 @@
    "label": "كتب علم الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "8ac514fe809abee8b41684aa4867d56fb804a90eeddbe5cabc6754bee5457678",
+   "sha256": "d9ef01d1167fb4bb760bf38e228d2a6b5f24de80d676a4400acbde388d62d5fa",
    "count": 4,
    "drawer": true,
    "card": "library",
@@ -234,11 +234,6 @@
    "size": 548929
   },
   {
-   "file": "books/madarij-firasa.json",
-   "sha256": "db3cb2c4c6597a42a63fd86d1d450b58badfd02bb68ca6531ae0d13a9acff5d2",
-   "size": 3846872
-  },
-  {
    "file": "books/ilm-firasa-hadith.json",
    "sha256": "c9a562076b6ef7ffe8baa983d66140d5878d94391b76aef3d312322a569d3d24",
    "size": 331535
@@ -289,14 +284,14 @@
    "size": 31603
   },
   {
-   "file": "covers/madarij-firasa.jpg",
-   "sha256": "6d99c7975a51fd069dcc9604a51a94537737dfcacd04e6f69f3fc507c355e9a5",
-   "size": 79997
-  },
-  {
    "file": "covers/ilm-firasa-hadith.jpg",
    "sha256": "8ba133353b420a10967c3a736c64bc478061d212f7862b1b5333e53602be282a",
    "size": 62358
+  },
+  {
+   "file": "covers/firasa-ansari.jpg",
+   "sha256": "9ae2ba0f896c8c3e8ee03241d04b90010ff815d9703537203d5b591bda47ff32",
+   "size": 20946
   }
  ]
 }

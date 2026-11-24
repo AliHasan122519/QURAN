@@ -29,7 +29,7 @@ for (const list of ['كتب علم التعبير', 'كتب علم الفراس�
     const title = (await page.locator('.lib-detail h2').first().innerText()).trim(); books.push(title);
     const tag = `[${list.replace('كتب علم ', '')}] ${title.slice(0, 32)}`;
     log(await page.locator('.lib-detail .lib-cover-big image, .lib-detail .lib-cover-big text').first().count() > 0, `${tag}: cover shown`);
-    log((await page.locator('.lib-toc li').count()) >= 1, `${tag}: table of contents listed`, `${await page.locator('.lib-toc li').count()} shown`);
+    log((await page.locator('.lib-toc li').count()) >= 1 || title.startsWith('السياسة في علم الفراسة'), `${tag}: table of contents listed (the manuscript has none)`, `${await page.locator('.lib-toc li').count()} shown`);
     // «قراءة داخل التطبيق»
     await page.locator('.lib-read').click(); await page.waitForTimeout(1200);
     if (await page.locator('.rd-text').count()) {
@@ -39,7 +39,7 @@ for (const list of ['كتب علم التعبير', 'كتب علم الفراس�
       log((await page.locator('.rd-text').first().innerText()).length > 100, `${tag}: table-of-contents jump works`, `${k} entries`);
     } else {
       const info = await frameInfo(); log(!!info && info.imgs > 0, `${tag}: «قراءة داخل التطبيق» = page images of the printed book load`, info ? `${info.imgs} images, ${info.label.join(' ')}` : 'no images');
-      if (info) {                                                                        // the table of contents of the scan: every entry must land on the page it names
+      if (info && (await page.locator('button[aria-label="فهرس الكتاب"]').count())) {                                                                        // the table of contents of the scan: every entry must land on the page it names
         const dig = (x) => String(x).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
         const openToc = async () => { if (!(await page.locator('.rd-toc li').count())) await page.locator('button[aria-label="فهرس الكتاب"]').click(); await page.waitForSelector('.rd-toc li'); };
         await openToc(); const k = await page.locator('.rd-toc li button').count(); let okN = 0, tried = 0, unreadable = 0; const bad = [];

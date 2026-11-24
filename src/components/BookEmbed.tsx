@@ -7,7 +7,7 @@ import { topmost } from './DreamsPanel';
 export type ScanToc = [number, string, number | null, (number | null)?][];
 
 /** A book that has no digital text, read inside the app from the images of its pages (the viewer of archive.org shown in a frame; it needs the internet), with the table of contents of the book itself. */
-export function BookEmbed({ title, id, toc, tocSrc, startLeaf, onClose, backLabel = 'رجوع' }: { title: string; id: string; toc: ScanToc; tocSrc: string; startLeaf?: number | null; onClose: () => void; backLabel?: string }) {
+export function BookEmbed({ title, id, toc, tocSrc, startLeaf, manuscript, onClose, backLabel = 'رجوع' }: { title: string; id: string; toc: ScanToc; tocSrc: string; startLeaf?: number | null; manuscript?: boolean; onClose: () => void; backLabel?: string }) {
   const [leaf, setLeaf] = useState<number | null>(startLeaf ?? null); const [open, setOpen] = useState(false); const [rev, setRev] = useState(0);
   const back = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -24,7 +24,7 @@ export function BookEmbed({ title, id, toc, tocSrc, startLeaf, onClose, backLabe
           <h2 className="rd-title">{title}</h2>
           {toc.length > 0 && <div className="rd-tools"><button type="button" className="rd-tool" aria-label="فهرس الكتاب" aria-pressed={open} onClick={() => setOpen(!open)}><ListTree size={19} aria-hidden="true" /><span>الفهرس</span></button></div>}
         </div>
-        <p className="rd-ocr" role="note">صفحات الكتاب كما طُبعت (صور). تحتاج إلى اتصال بالإنترنت، ويمكنك التنقل بين الصفحات بأزرار العارض.</p>
+        <p className="rd-ocr" role="note">{manuscript ? 'صور صفحات المخطوطة بخط كاتبها.' : 'صفحات الكتاب كما طُبعت (صور).'} تحتاج إلى اتصال بالإنترنت، ويمكنك التنقل بين الصفحات بأزرار العارض.</p>
         <iframe key={rev} className="rd-frame" title={`صفحات كتاب ${title}`} src={src} allowFullScreen loading="eager" referrerPolicy="no-referrer" />
         {open && (
           <div className="rd-sheet" role="dialog" aria-label="فهرس الكتاب">
