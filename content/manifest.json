@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 363,
- "updated": "2026-11-24T15:54:03Z",
+ "version": 367,
+ "updated": "2026-11-24T16:17:47Z",
  "apk": {
   "versionCode": 29925601,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -255,8 +255,8 @@
   },
   {
    "file": "covers/tabir-artemidorus.jpg",
-   "sha256": "d0282a478570e8f5c3146c926f2de2576d2596493d2c322fb1d4f38f0692438b",
-   "size": 22614
+   "sha256": "a9f9a404831b7c047219d79415c07460c767ecb5628a615481a96db66f8b1144",
+   "size": 33779
   },
   {
    "file": "covers/qadiri.jpg",
@@ -265,8 +265,8 @@
   },
   {
    "file": "covers/badr-munir.jpg",
-   "sha256": "b91ae621d7028a7a4175aa8219203400e76e5b75a4dcfd215c59c97effd772fe",
-   "size": 30954
+   "sha256": "9a0bd40cf21ebaef32a90c40768193ff8822b7e8e376328a6daa9d8549333b29",
+   "size": 26525
   },
   {
    "file": "covers/isharat.jpg",
