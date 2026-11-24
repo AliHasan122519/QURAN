@@ -5,7 +5,8 @@ import { toAr } from '../lib/format';
 import { topmost } from './DreamsPanel';
 import { BookEmbed } from './BookEmbed';
 
-export interface BookData { v: number; key: string; ocr: boolean; toc: [number, string, number][]; p: string[]; pg: [number, string][]; }
+/** `toc` entry: [level, title, paragraph, 1?] — a 4th item (1) means the title is not a paragraph of the text (the reader jumps to the page only).  `lf`: [first paragraph, scan page] of each page of a text made from a scan (the page image can be shown); `weak`: paragraphs that start a page that was read poorly. */
+export interface BookData { v: number; key: string; ocr: boolean; scanText?: boolean; toc: [number, string, number, number?][]; p: string[]; pg: [number, string][]; lf?: [number, number][]; weak?: number[]; }
 const CHUNK = 3200;                                     // letters in one page of the reader
 const SIZES = [0.9, 1, 1.15, 1.3, 1.5];
 const MARK = /[\u064B-\u065F\u0670\u0640]/;
@@ -36,7 +37,7 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
   const [data, setData] = useState<BookData | null>(null); const [err, setErr] = useState('');
   const [page, setPage] = useState(0); const [size, setSize] = useState(Number(mem('qs.read.size')) || 1);
   const [panel, setPanel] = useState<'toc' | 'search' | null>(null); const [tq, setTq] = useState(''); const [sq, setSq] = useState(''); const [hl, setHl] = useState('');
-  const [target, setTarget] = useState<number | null>(null); const [scanOn, setScanOn] = useState(false);
+  const [target, setTarget] = useState<number | null>(null); const [scanOn, setScanOn] = useState<number | null | false>(false);
   const back = useRef<HTMLDivElement>(null); const scroller = useRef<HTMLDivElement>(null); const closeBtn = useRef<HTMLButtonElement>(null);
   const key = 'qs.read.' + file;
 
@@ -68,7 +69,7 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
     return () => { document.removeEventListener('keydown', k); document.body.style.overflow = prev; };
   }, [panel, onClose]);
 
-  const heads = useMemo(() => { const m = new Map<number, number>(); data?.toc.forEach(([l, , i]) => m.set(i, l)); return m; }, [data]);
+  const heads = useMemo(() => { const m = new Map<number, number>(); data?.toc.forEach(([l, , i, j]) => { if (!j) m.set(i, l); }); return m; }, [data]);
   const pgs = useMemo(() => new Map<number, string>(data?.pg ?? []), [data]);
   const norm = useMemo(() => (panel === 'search' && data ? data.p.map(fold) : null), [panel, data]);
   const hits = useMemo(() => {
@@ -84,8 +85,10 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
   const last = starts.length - 1;
   const flip = (to: number) => { setHl(''); setTarget(starts[Math.min(last, Math.max(0, to))]); };
 
-  if (scanOn && scan) return <BookEmbed title={title} id={scan} toc={[]} tocSrc="" onClose={() => setScanOn(false)} backLabel="الرجوع إلى النص" />;
   const i0 = starts[page] ?? 0, i1 = starts[page + 1] ?? data?.p.length ?? 0;
+  const leafOf = (idx: number): number | null => { const lf = data?.lf; if (!lf?.length) return null; let r: number | null = null; for (const [i, l] of lf) { if (i <= idx) r = l; else break; } return r ?? lf[0][1]; };
+  const weakAt = useMemo(() => new Set(data?.weak ?? []), [data]);
+  if (scanOn !== false && scan) return <BookEmbed title={title} id={scan} toc={[]} tocSrc="" startLeaf={scanOn} onClose={() => setScanOn(false)} backLabel="الرجوع إلى النص" />;
   return (
     <div ref={back} className="panel-back nested rd-back" onClick={(e) => { e.stopPropagation(); onClose(); }}>
       <div className="panel rd" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
@@ -102,7 +105,7 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
         {err && <p className="rd-msg" role="alert">{err}</p>}
         {!data && !err && <p className="rd-msg" role="status">جارٍ فتح الكتاب…</p>}
         {data?.ocr && (
-          <p className="rd-ocr" role="note">هذا النص مقروء آلياً من صور مسح ضوئي، فقد تكثر فيه الأخطاء.{scan && <> <button type="button" className="rd-link" onClick={() => setScanOn(true)}><Images size={15} aria-hidden="true" /> اعرض صور الصفحات الأصلية</button></>}</p>
+          <p className="rd-ocr" role="note">{data.scanText ? 'هذا النص مقروء آلياً من صور صفحات الكتاب نفسه ودُقِّق بمقارنة ثلاث قراءات، لكنه قد تبقى فيه أخطاء، والمرجع هو صورة الصفحة. أرقام الصفحات هنا هي أرقام صفحات الملف المصوَّر.' : 'هذا النص مقروء آلياً من صور مسح ضوئي، فقد تكثر فيه الأخطاء.'}{scan && <> <button type="button" className="rd-link" onClick={() => setScanOn(data.scanText ? leafOf(i0) : null)}><Images size={15} aria-hidden="true" /> {data.scanText ? 'اعرض صورة هذه الصفحة' : 'اعرض صور الصفحات الأصلية'}</button></>}</p>
         )}
         {data && (
           <>
@@ -112,7 +115,8 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
                   const idx = i0 + k; const lv = heads.get(idx); const pn = pgs.get(idx);
                   return (
                     <div key={idx} id={'rd-p' + idx} className={lv ? `rd-h rd-h${lv}` : 'rd-p'}>
-                      {pn && <span className="rd-pg" aria-label={'صفحة المطبوع ' + pn}>{pn}</span>}
+                      {pn && <span className="rd-pg" aria-label={(data.scanText ? 'صفحة الملف المصوَّر ' : 'صفحة المطبوع ') + pn}>{pn}</span>}
+                      {weakAt.has(idx) && <span className="rd-weak" role="note">قراءة هذه الصفحة ضعيفة؛ راجع صورتها.</span>}
                       {lv ? <h3><Marked text={t} q={hl} /></h3> : <p><Marked text={t} q={hl} /></p>}
                     </div>
                   );

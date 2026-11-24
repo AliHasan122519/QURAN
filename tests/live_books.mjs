@@ -33,16 +33,10 @@ for (const list of ['كتب علم التعبير', 'كتب الفراسة']) {
     const tag = `[${list.replace('كتب علم ', '')}] ${title.slice(0, 32)}`;
     log(await page.locator('.lib-detail .lib-cover-big image, .lib-detail .lib-cover-big text').first().count() > 0, `${tag}: cover shown`);
     log((await page.locator('.lib-toc li').count()) >= 1 || (await page.locator('.lib-toc').count()) === 0, `${tag}: table of contents listed (a scan-only book without a printed contents has no section)`, `${await page.locator('.lib-toc li').count()} shown`);
-    // «قراءة داخل التطبيق»
-    await page.locator('.lib-read').click(); await page.waitForTimeout(1200);
-    if (await page.locator('.rd-text').count()) {
-      const txt = (await page.locator('.rd-text').first().innerText()).length; log(txt > 300, `${tag}: text reader shows the book`, `${txt} chars`);
-      await page.locator('button[aria-label="فهرس الكتاب"]').click(); await page.waitForSelector('.rd-toc li'); const k = await page.locator('.rd-toc li').count();
-      await page.locator('.rd-toc li button').nth(Math.min(k - 1, 5)).click(); await page.waitForTimeout(500);
-      log((await page.locator('.rd-text').first().innerText()).length > 100, `${tag}: table-of-contents jump works`, `${k} entries`);
-    } else {
-      const info = await frameInfo(); log(!!info && info.imgs > 0, `${tag}: «قراءة داخل التطبيق» = page images of the printed book load`, info ? `${info.imgs} images, ${info.label.join(' ')}` : 'no images');
-      if (info && (await page.locator('button[aria-label="فهرس الكتاب"]').count())) {                                                                        // the table of contents of the scan: every entry must land on the page it names
+    // «قراءة داخل التطبيق» / «قراءة النص المفرَّغ»
+    const scanCheck = async () => {                                                         // the viewer of the scan: page images, and every table-of-contents entry must land on the printed page it names
+      const info = await frameInfo(); log(!!info && info.imgs > 0, `${tag}: the scanned pages of the printed book load`, info ? `${info.imgs} images, ${info.label.join(' ')}` : 'no images');
+      if (info && (await page.locator('button[aria-label="فهرس الكتاب"]').count())) {
         const dig = (x) => String(x).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
         const openToc = async () => { if (!(await page.locator('.rd-toc li').count())) await page.locator('button[aria-label="فهرس الكتاب"]').click(); await page.waitForSelector('.rd-toc li'); };
         await openToc(); const k = await page.locator('.rd-toc li button').count(); let okN = 0, tried = 0, unreadable = 0; const bad = [];
@@ -50,17 +44,29 @@ for (const list of ['كتب علم التعبير', 'كتب الفراسة']) {
           await openToc(); const el = page.locator('.rd-toc li button').nth(idx); const txt = await el.innerText(); const pr = (dig(txt).match(/ص\s*([0-9]+)/) || [])[1]; if (!pr) continue;
           await el.click(); await page.waitForTimeout(800); const i2 = await frameInfo(20000);
           const lab = i2 ? dig(i2.label[0] || '') : '';
-          if (!i2 || !/^\d+$/.test(lab)) { unreadable++; continue; }                         // the viewer has no printed number for that leaf: nothing to compare
+          if (!i2 || !/^\d+$/.test(lab)) { unreadable++; continue; }
           tried++; if (lab === pr) okN++; else bad.push(`${txt.slice(0, 28)} → viewer says «${lab}»`);
         }
-        if (await page.locator('.rd-toc li').count()) await page.keyboard.press('Escape');                                  // close the table of contents so the next steps can click
+        if (await page.locator('.rd-toc li').count()) await page.keyboard.press('Escape');
         log(okN === tried || VIEWER_NUMBERS_UNRELIABLE.test(title), `${tag}: toc jumps land on the printed page they name`, `${okN}/${tried} compared (+${unreadable} leaves the viewer does not number)${bad.length ? ' | ' + bad.join(' ; ') : ''}`);
       }
-    }
+    };
+    await page.locator('.lib-read').click(); await page.waitForTimeout(1200);
+    if (await page.locator('.rd-text').count()) {
+      const txt = (await page.locator('.rd-text').first().innerText()).length; log(txt > 300, `${tag}: text reader shows the book`, `${txt} chars`);
+      await page.locator('button[aria-label="فهرس الكتاب"]').click(); await page.waitForSelector('.rd-toc li'); const k = await page.locator('.rd-toc li').count();
+      await page.locator('.rd-toc li button').nth(Math.min(k - 1, 5)).click(); await page.waitForTimeout(500);
+      log((await page.locator('.rd-text').first().innerText()).length > 100, `${tag}: table-of-contents jump works`, `${k} entries`);
+      if (await page.locator('.rd-link').count()) {                                          // the page image of the page being read opens in the viewer inside the app
+        await page.locator('.rd-link').click(); const i3 = await frameInfo(); log(!!i3 && i3.imgs > 0, `${tag}: «اعرض صورة هذه الصفحة» opens the scan`, i3 ? `${i3.label.join(' ')}` : 'no images');
+        await page.keyboard.press('Escape'); await page.waitForTimeout(400);
+      }
+    } else await scanCheck();
     await page.keyboard.press('Escape'); await page.waitForTimeout(400);
     await page.waitForSelector('.lib-detail');
+    if (await page.locator('.lib-scanmain').count()) { await page.locator('.lib-scanmain').click(); await scanCheck(); await page.keyboard.press('Escape'); await page.waitForTimeout(400); await page.waitForSelector('.lib-detail'); }
     // every «قراءة الكتاب المصوَّر»
-    const scans = page.locator('.lib-scan'); const ns = await scans.count();
+    const scans = page.locator('.lib-scan:not(.lib-scanmain)'); const ns = await scans.count();
     for (let s = 0; s < ns; s++) {
       const lbl = (await scans.nth(s).innerText()).replace(/\n/g, ' ').slice(0, 60); await scans.nth(s).click(); const info = await frameInfo();
       log(!!info && info.imgs > 0, `${tag}: «قراءة الكتاب المصوَّر» ${s + 1}/${ns} loads page images`, info ? `${info.imgs} images; viewer: ${info.label.join(' ')}; ${decodeURIComponent(info.url).slice(-40)}` : lbl + ' — no images');

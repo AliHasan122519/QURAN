@@ -44,6 +44,12 @@ def card(b):
         toc = [[a, west(t), i] for a, t, i in bk['toc']]; reader = {'mode': 'text', 'file': rd['file'], 'src': rd['src'], 'ocr': bk['ocr'], 'scan': rd.get('scan', ''), 'count': len(bk['p'])}; tocSrc = 'عناوين الكتاب نفسه في نصه الرقمي' + (' (قراءة آلية، فقد تكثر فيها الأخطاء)' if bk['ocr'] else '')
     else:
         toc = [[a, west(t), i, p] for a, t, i, p in rd['toc']]; reader = {'mode': 'embed', 'id': rd['id'], 'src': rd['src'], **({'manuscript': True} if rd.get('manuscript') else {})}; tocSrc = rd['tocSrc']
+        tf = f"books/{b['key']}.json"
+        if os.path.exists('content/' + tf):                                          # the text version of a scanned book (scripts/ocr_scans.py + build_scan_texts.py): read from the pictures of its pages, flagged as a machine reading
+            bk = json.load(open('content/' + tf, encoding='utf8')); assert bk.get('ocr') is True, b['key']
+            reader['text'] = {'file': tf, 'count': len(bk['p']), 'src': bk['src'], **({'scanId': ''} if bk.get('noScan') else {})}
+            if len(bk['toc']) == len(toc) and all(x[1] == y[1] for x, y in zip(bk['toc'], rd['toc'])):
+                toc = [t + [bk['toc'][n][2]] for n, t in enumerate(toc)]            # each entry also says where it is in the text
     return {'reader': reader, 'toc': toc, 'tocSrc': tocSrc, 'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': west(b['authorFull']), 'coverTitle': b['coverTitle'], 'cover': cv,
             'info': [[west(k), west(v)] for k, v in b['info']], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': west(b.get('note', '')), 'inApp': b['inApp'],
             'read': b['read'], 'dls': d}
