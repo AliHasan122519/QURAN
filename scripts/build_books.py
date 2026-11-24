@@ -121,6 +121,7 @@ for e in E:
 # typing mistakes of the digital copies that are plain misprints (a missing letter, a doubled one): each is listed with the reason in data/books/corrections.json and must match exactly as many times as stated
 CORR = json.load(open('data/books/corrections.json', encoding='utf8'))
 for c in CORR:
+    if c['src'] not in SOURCES.values(): continue          # a book that is read in the app but is not in «الكتب» (its corrections are applied by build_bookreader.py)
     n = 0
     for r in rows:
         if r[3] == c['src'] and c['find'] in r[1]: n += r[1].count(c['find']); r[1] = r[1].replace(c['find'], c['replace'])

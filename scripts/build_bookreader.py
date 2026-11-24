@@ -22,11 +22,25 @@ SPECS = [
  dict(key='madarij-firasa', file=SRC + 'madarij.txt', toc='pipe'),
  dict(key='ilm-firasa-hadith', file=SRC + 'zaydan.txt', toc='pipe'),
 ]
+KEY_OF_SRC = {'المنامات (ابن أبي الدنيا)': 'manamat-ibn-abi-dunya', 'القادري في التعبير': 'qadiri', 'البدر المنير في علم التعبير': 'badr-munir', 'تعبير الرؤيا (ابن غنام المقدسي)': 'ibn-ghannam',
+              'الإشارات في علم العبارات': 'isharat', 'تعطير الأنام في تعبير المنام': 'tatir-anam', 'منتخب الكلام في تفسير الأحلام': 'muntakhab', 'مدارج السالكين — منزلة الفراسة': 'madarij-firasa'}
+def corrections(key):
+    """the plain misprints of the digital copy that were checked against the printed page (data/books/corrections.json, each with its reason): the same list «الكتب» uses"""
+    return [c for c in json.load(open(B + 'corrections.json', encoding='utf8')) if KEY_OF_SRC.get(c['src']) == key]
+def apply_corrections(key, paras, toc):
+    for c in corrections(key):
+        n = 0
+        for i, p in enumerate(paras):
+            if c['find'] in p: n += p.count(c['find']); paras[i] = p.replace(c['find'], c['replace'])
+        for e in toc:
+            if c['find'] in e[1]: e[1] = e[1].replace(c['find'], c['replace'])
+        assert n == c.get('rcount', c['count']), f"reader {key}: correction «{c['find']}» matched {n} times, expected {c.get('rcount', c['count'])}"
 def ar(n): return str(n)                                   # numbers are shown with the digits 0-9 (the owner's rule for everything the app writes itself)
 PAGE = re.compile(r'PageV(\d+)P(\d+)')
+BLANK = re.compile(r'\bصفحة فارغة\b')              # the digital copy's note for a printed page that holds only the editor's footnotes (it is not the book's words)
 TOK = re.compile(r'-{3,}\s*NO PAGE NO\s*-{3,}|\bPARATEXT\b|\bphysiognomy\b|\bAUTO\b|\bms\d+\b|@[A-Za-z0-9]{1,5}@|%~%|\^|\\|¬|‏|‎|﻿|\bCHECK\b|\bEDITOR\b|\bPRE\b|\bPOST\b|\$|#')
 def clean(t):
-    t = PAGE.sub(' ', t); t = re.sub(r'\s%\s', ' … ', t); t = TOK.sub(' ', t); t = re.sub(r'\s*\|\s*', ' ', t)
+    t = BLANK.sub(' ', PAGE.sub(' ', t)); t = re.sub(r'\s%\s', ' … ', t); t = TOK.sub(' ', t); t = re.sub(r'\s*\|\s*', ' ', t)
     t = re.sub(r'\(\s*\)|\[\s*\]|«\s*»', ' ', t); t = re.sub(r'\s+([،؛:.؟!)\]»])', r'\1', t); t = re.sub(r'([(\[«])\s+', r'\1', t)
     return re.sub(r'\s+', ' ', t).strip()
 def parse(path):
@@ -144,6 +158,7 @@ def main():
         elif sp['toc'] == 'manamat': toc = toc_manamat(paras, heads)
         elif sp['toc'] == 'ocr-qadiri': toc = toc_ocr(paras, heads, r'^(الفصل|المقالة|الباب|فصل)\s+\S+')
         else: toc = toc_ocr(paras, heads, r'^(\[\d+\]\s*)?(في\s+\S+|المقالة\s+\S+|الباب\s+\S+)', lambda t: re.sub(r'\s*\(\d*\)?\s*$', '', re.sub(r'^\[\d+\]\s*', '', t)).strip())
+        apply_corrections(sp['key'], paras, toc)
         head_idx = {h[0] for h in toc}
         book = {'v': 1, 'key': sp['key'], 'ocr': bool(sp.get('ocr')), 'toc': toc, 'p': paras, 'pg': pages}
         CL.publish_file(f"books/{sp['key']}.json", book)
