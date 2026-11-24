@@ -298,7 +298,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const libItems = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
   log('المزيد', 'تسعة أزرار: قائمتا الكتب (التعبير ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب علم الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 9, libItems.join('|'));
-  await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile');
+  await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(900);          // the panel slides in: measure when it has stopped
   const tiles = page.locator('.lib-tile'); const nTiles = await tiles.count();
   const bx = []; for (let i = 0; i < nTiles; i++) bx.push(await tiles.nth(i).boundingBox());
   log('كتب علم التعبير', 'ثمانية كتب، كل اثنين جنب بعض في صف أفقي والصفوف تتوالى عمودياً (الأول يمين الثاني)', nTiles === 8 && bx.every((b, i) => i % 2 === 1 || (Math.abs(b.y - bx[i + 1].y) < 3 && b.x > bx[i + 1].x + 20 && Math.abs(b.width - bx[i + 1].width) < 2)) && bx[2].y > bx[0].y + bx[0].height - 4 && bx[0].x === bx[2].x, nTiles + ' | ' + bx.slice(0, 3).map((b) => `${Math.round(b.x)},${Math.round(b.y)}`).join(' '));
