@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 333,
- "updated": "2026-11-24T14:51:28Z",
+ "version": 345,
+ "updated": "2026-11-24T15:08:10Z",
  "apk": {
   "versionCode": 29925533,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -45,7 +45,7 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "82f5d9295b804af64d7ba6776fd129f7814d2bfc49865bc83b112a51661702c8",
+   "sha256": "d4565851393c07f5202046755903172ecc2fc6e33ddbe6a048a9c8b76e6eea6d",
    "count": 28236,
    "card": "meaning",
    "placeholder": "اكتب هنا",
@@ -155,7 +155,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "1004e202a9da19f4a54f456f772a8a387b20286cbeeec7d4e97c996f0e27ae10",
+   "sha256": "dca41c13a4f46d60a35953412fffdd59ff530d2e253412f0ca1c014c88e7dfc9",
    "count": 8,
    "drawer": true,
    "card": "library",
@@ -195,7 +195,7 @@
  "files": [
   {
    "file": "books/manamat-ibn-abi-dunya.json",
-   "sha256": "e792b2d74c7a728ffd0ad077c5fe62b7d73d7b5fc9adfdfb2d703f2741c2fa7b",
+   "sha256": "505eafcc4386bfba3427b985861c471e47ee5867bfa510140848b644aa2c4d8d",
    "size": 216993
   },
   {
@@ -205,7 +205,7 @@
   },
   {
    "file": "books/badr-munir.json",
-   "sha256": "b5b6bfbb34b183a1fd5f870f674d4dd3888b353f9d68e4b7e06656e06fa783f6",
+   "sha256": "8f150a1b7f0585064cbee521085ddab241b065399e494306c7b7226b0b7b3070",
    "size": 465024
   },
   {
@@ -215,8 +215,8 @@
   },
   {
    "file": "books/isharat.json",
-   "sha256": "227d4e3449b01bed70e4f7fcee9bbe2bc731859a254f03e9444b340106053c8e",
-   "size": 1650943
+   "sha256": "2990b4f4fce8e18b9bb5c0e5fa830247608015a176e9f7173ff49204d49c67f3",
+   "size": 1650941
   },
   {
    "file": "books/tatir-anam.json",
