@@ -69,7 +69,7 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|about|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
@@ -222,7 +222,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'سبعة أزرار أولها «رؤى عبّرت»، بأسهم لا بعدّادات', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 7, items.join('|'));
+  log('المزيد', 'تسعة أزرار أولها «رؤى عبّرت»، بأسهم لا بعدّادات', items.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب علم الفراسة|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 9, items.join('|'));
   await page.locator('.drawer-item', { hasText: 'رؤى الأنبياء والصالحين' }).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
@@ -293,6 +293,53 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('القوائم', 'زر الإغلاق/الرجوع يبقى ظاهراً حتى بعد النزول إلى أسفل القائمة', !!xbox && xbox.y >= 0 && xbox.y < 120, JSON.stringify(xbox));
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // ---------- «كتب علم التعبير» و«كتب علم الفراسة» (قائمتا القراءة والتحميل) ----------
+  await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
+  await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
+  const libItems = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
+  log('المزيد', 'تسعة أزرار: قائمتا الكتب (التعبير ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب علم الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 9, libItems.join('|'));
+  await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile');
+  const tiles = page.locator('.lib-tile'); const nTiles = await tiles.count();
+  const bx = []; for (let i = 0; i < nTiles; i++) bx.push(await tiles.nth(i).boundingBox());
+  log('كتب علم التعبير', 'ثمانية كتب، كل اثنين جنب بعض في صف أفقي والصفوف تتوالى عمودياً (الأول يمين الثاني)', nTiles === 8 && bx.every((b, i) => i % 2 === 1 || (Math.abs(b.y - bx[i + 1].y) < 3 && b.x > bx[i + 1].x + 20 && Math.abs(b.width - bx[i + 1].width) < 2)) && bx[2].y > bx[0].y + bx[0].height - 4 && bx[0].x === bx[2].x, nTiles + ' | ' + bx.slice(0, 3).map((b) => `${Math.round(b.x)},${Math.round(b.y)}`).join(' '));
+  const titles = await page.locator('.lib-title').allInnerTexts();
+  log('كتب علم التعبير', 'الكتب: المنامات، القادري، البدر المنير، الإشارات، تعطير الأنام…', ['المنامات', 'القادري في التعبير', 'البدر المنير في علم التعبير', 'الإشارات في علم العبارات', 'تعطير الأنام في تعبير المنام', 'منتخب الكلام في تفسير الأحلام'].every((k) => titles.includes(k)), titles.join(' | '));
+  log('كتب علم التعبير', 'لكل كتاب غلاف مرسوم (صورة بوصف) واسم مؤلف تحته', (await page.locator('.lib-tile svg[role="img"]').count()) === 8 && (await page.locator('.lib-author').allInnerTexts()).every((x) => x.length > 3));
+  await page.evaluate(axeSrc); const axeLib = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id + '×' + v.nodes.length));
+  log('كتب علم التعبير', 'القائمة بلا مخالفات وصول/تباين (axe)', axeLib.length === 0, axeLib.join(' '));
+  await page.locator('.lib-tile', { hasText: 'المنامات' }).first().click(); await page.waitForSelector('.lib-detail');
+  const det = await page.locator('.lib-detail').innerText();
+  const readA = page.locator('.lib-detail a.lib-read'); const dlA = page.locator('.lib-detail a.lib-dl');
+  log('كتب علم التعبير', 'صفحة الكتاب: الوصف من بطاقة الشاملة والمعلومات والمحقق والناشر', det.includes('رؤية الأموات في المنام') && det.includes('عبد القادر أحمد عطا') && det.includes('مؤسسة الكتب الثقافية') && det.includes('ابن أبي الدنيا'), det.slice(0, 80).replace(/\s+/g, ' '));
+  log('كتب علم التعبير', 'زر «قراءة» رابط https إلى المكتبة الشاملة يفتح في نافذة خارجية بلا opener', (await readA.getAttribute('href')) === 'https://shamela.ws/book/13070' && (await readA.getAttribute('target')) === '_blank' && /noopener/.test(await readA.getAttribute('rel')) && /قراءة/.test(await readA.innerText()));
+  const dh = await dlA.first().getAttribute('href');
+  log('كتب علم التعبير', 'زر «تحميل» رابط ملف PDF في أرشيف الإنترنت مع حجمه', /^https:\/\/archive\.org\/download\/Heliopolis1957_gmail_20180617_2341\/.+\.pdf$/i.test(decodeURIComponent(dh)) && /تحميل/.test(await dlA.first().innerText()) && /[٠-٩]+٫[٠-٩] ميغابايت/.test(await dlA.first().innerText()), decodeURIComponent(dh).slice(0, 80));
+  await page.evaluate(axeSrc); const axeDet = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations.map((v) => v.id + '×' + v.nodes.length));
+  log('كتب علم التعبير', 'صفحة الكتاب بلا مخالفات وصول/تباين (axe)', axeDet.length === 0, axeDet.join(' '));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('كتب علم التعبير', 'Escape يغلق صفحة الكتاب وتبقى القائمة', (await page.locator('.lib-detail').count()) === 0 && (await page.locator('.lib-tile').count()) === 8);
+  await page.locator('.lib-tile', { hasText: 'تعبير الرؤيا (ابن غنام)' }).click(); await page.waitForSelector('.lib-detail');
+  log('كتب علم التعبير', 'كتاب بلا ملف تحميل موثوق (ابن غنام): زر القراءة وحده مع بيان السبب، لا زر تحميل وهمي', (await page.locator('.lib-detail a.lib-dl').count()) === 0 && (await page.locator('.lib-detail a.lib-read').count()) === 1 && (await page.locator('.lib-nodl').innerText()).includes('لا يتوفر له ملف تحميل'));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(100); await page.locator('.lib-tile', { hasText: 'منتخب الكلام' }).click(); await page.waitForSelector('.lib-detail');
+  log('كتب علم التعبير', '«منتخب الكلام»: يُبيَّن أن نسبته لابن سيرين لا تصح (نص الشاملة)', (await page.locator('.lib-detail').innerText()).includes('كتاب لا تصح نسبته إلى ابن سيرين'));
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  log('كتب علم التعبير', 'Escape الثانية تغلق القائمة كلها', (await page.locator('.panel-back').count()) === 0);
+  await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'كتب علم الفراسة' }).click(); await page.waitForSelector('.lib-tile');
+  const ftitles = await page.locator('.lib-title').allInnerTexts(); const fsub = await page.locator('.panel-sub').innerText();
+  log('كتب علم الفراسة', 'ستة كتب: الرازي، يوسف مراد، الطرق الحكمية، مدارج السالكين، زيدان، السياسة في علم الفراسة', ftitles.length === 6 && ['الطرق الحكمية في السياسة الشرعية', 'علم الفراسة الحديث', 'السياسة في علم الفراسة'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')) && ftitles.some((x) => x.includes('مدارج')), ftitles.join(' | '));
+  log('كتب علم الفراسة', 'العنوان الفرعي يبين أنها للقراءة وليست من مراجع تبويب «الكتب»', /ليست من مراجع البحث في تبويب «الكتب»/.test(fsub), fsub);
+  await page.locator('.lib-tile', { hasText: 'السياسة في علم الفراسة' }).click(); await page.waitForSelector('.lib-detail');
+  const sd = await page.locator('.lib-detail').innerText();
+  log('كتب علم الفراسة', 'صفحة «السياسة في علم الفراسة»: نص موسوعة المفاهيم الإسلامية، واختلاف سنة الوفاة (٧٢٧ أو ٧٣٧) مُبيَّن', sd.includes('ومن أشهر ما وصل إلينا من كتب العرب') && /٧٢٧هـ، وتذكر بعض المصادر ٧٣٧هـ/.test(sd));
+  await page.locator('.lib-detail a.lib-dl').first().waitFor();
+  const allLinks = await page.evaluate(() => [...document.querySelectorAll('.lib-detail a')].map((a) => a.href));
+  log('كتب علم الفراسة', 'كل روابط الصفحة https إلى shamela.ws أو archive.org فقط', allLinks.length >= 2 && allLinks.every((u) => /^https:\/\/(shamela\.ws|archive\.org)\//.test(u)), allLinks.join(' '));
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+  // كتب الفراسة ليست من مراجع «الكتب»: لا تظهر في البحث ولا بين التبويبات
+  await page.goto(URL_); await page.waitForTimeout(1500);
+  const tabNames = await page.locator('[role="tab"]').allInnerTexts();
+  await search('books', 'استئناس حكم غيب');
+  log('كتب علم الفراسة', 'ليست من مراجع «الكتب»: لا تبويب بها، وعبارة من نصها لا تُرجع شيئاً في بحث «الكتب»', tabNames.length === 6 && !tabNames.some((x) => /كتب علم/.test(x)) && (await cards('books').count()) === 0, tabNames.join('|') + ' / ' + (await cards('books').count()));
   // «الأمثال»: مجمع الأمثال
   await page.goto(URL_); await page.waitForTimeout(1200); await search('amthal', 'إن من البيان لسحرا');
   log('الأمثال', 'مجمع الأمثال: «إن من البيان لسحرا» مع شرحه', /إن من البيان لسحرا/.test(await panel('amthal').innerText()) && (await cards('amthal').count()) > 0);

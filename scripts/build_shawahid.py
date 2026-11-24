@@ -70,6 +70,7 @@ for n, i in enumerate(keep):
     if i in variant:
         for vi in variant[i]:
             o = V[vi]
+            if '?' in o['a'] + o['b']: continue                                    # a «?» in a word is an unreadable letter of the digital copy, not a transmission
             if full(o) != full(e): alt = f"{o['a']} … {o['b']}"; break           # a variant that differs only in the way a hamza / alif maqsura is written is the same line
     stat['poet'] += bool(poet); stat['occasion'] += bool(occ)
     rows.append([ref, f"{e['a']} … {e['b']}", '\n'.join([occ, poet, alt]) if (occ or poet or alt) else '', ' · '.join(e['srcs'])])

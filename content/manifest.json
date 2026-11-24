@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 241,
- "updated": "2026-11-23T23:33:40Z",
+ "version": 264,
+ "updated": "2026-11-24T13:07:02Z",
  "apk": {
   "versionCode": 29924618,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -21,7 +21,7 @@
    "label": "السنة النبوية",
    "kind": "hadith",
    "file": "jami.json",
-   "sha256": "34095a04142730d584e78ad5ed5c499b80c4bd9bda0cd2cd6d5a70100b3efd34",
+   "sha256": "2107cd3848b64ba6cbe5ac9ad2a8f7a01ed77b156cd273f6ec093be50e25e89e",
    "count": 10031
   },
   {
@@ -45,7 +45,7 @@
    "label": "الكتب",
    "kind": "generic",
    "file": "books.json",
-   "sha256": "3b4c0d1764ea152aee1820b666115a4084b6f4559414624d8021ef808fe7eaad",
+   "sha256": "e3e624a70136346a5e89a275c1ba6e88ca687eadcfc2a04a12b18baf9f679b7d",
    "count": 28236,
    "card": "meaning",
    "placeholder": "اكتب هنا",
@@ -57,7 +57,7 @@
    "label": "أبيات الإستشهاد",
    "kind": "generic",
    "file": "shawahid.json",
-   "sha256": "ed110af67e35ac307ef00ac7649cb8514a272b04acbefc3e7bffeb19a153842e",
+   "sha256": "753d77700e20d8df120dcec7acadeb7173b1a686624cd27a395919f5bd314559",
    "count": 14808,
    "card": "verse",
    "smart": "full",
@@ -138,7 +138,7 @@
    "label": "مقارنة المعبِّرين",
    "kind": "generic",
    "file": "muqaranat.json",
-   "sha256": "bb29e1d3ac0d5a4e65ec729e4f7cf098bfdcb9b0493915364c843b3e45ca2885",
+   "sha256": "59a9500d114430bd0f5cc8b80a39263207a66b0c30b8c632e5a3d380e8bdccf2",
    "count": 147,
    "drawer": true,
    "card": "rule",
@@ -149,6 +149,34 @@
    "l1": "ما قالته الكتب فيه",
    "l2": "",
    "sub": "ما قاله كل كتاب في الرمز نفسه"
+  },
+  {
+   "id": "kutubtabir",
+   "label": "كتب علم التعبير",
+   "kind": "generic",
+   "file": "kutubtabir.json",
+   "sha256": "46e4690fa7f2eb2c7f8d37367e9e9160e9a9e87f8a6c593b70c213e11a56b80c",
+   "count": 8,
+   "drawer": true,
+   "card": "library",
+   "menu": "كتب علم التعبير",
+   "sub": "أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.",
+   "placeholder": "اكتب هنا",
+   "hint": "أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله."
+  },
+  {
+   "id": "kutubfiras",
+   "label": "كتب علم الفراسة",
+   "kind": "generic",
+   "file": "kutubfiras.json",
+   "sha256": "30317bfe55b58a6dcd0f998dd50c46666229c2fba7d39ddb093994525a5caa39",
+   "count": 6,
+   "drawer": true,
+   "card": "library",
+   "menu": "كتب علم الفراسة",
+   "sub": "أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».",
+   "placeholder": "اكتب هنا",
+   "hint": "أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب»."
   },
   {
    "id": "about",

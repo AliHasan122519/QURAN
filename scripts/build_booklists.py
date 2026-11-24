@@ -1,0 +1,34 @@
+"""Builds the two lists of the «المزيد» menu that hold books to read: «كتب علم التعبير» (content/kutubtabir.json) and «كتب علم الفراسة» (content/kutubfiras.json).
+Source: data/booklists/books.json — every passage quoted there is checked against the page or the text it names, and every link against the site, by
+scripts/verify_booklinks.py (needs the network). These books are NOT references of the «الكتب» tab and are never indexed for the search (drawer tabs are not).
+A row: [title, «label ⏎ value» lines (all that an app which does not know this list shows), '', sources, '', '', the details as JSON (the book card of the new app)].
+usage: python3 -I scripts/build_booklists.py"""
+import json, os, sys, urllib.parse
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import content_lib as CL
+B = json.load(open('data/booklists/books.json', encoding='utf8'))
+KINDS = {'tabir': ('kutubtabir', 'كتب علم التعبير', 'علم التعبير', 'أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.'),
+         'firasa': ('kutubfiras', 'كتب علم الفراسة', 'علم الفراسة', 'أقوى كتب الفراسة قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
+def mb(n): return ('%.1f' % (n / 1e6)).replace('.', '٫').translate(str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')) + ' ميغابايت'
+def card(b):
+    assert b['kind'] in KINDS and 0 <= b['cover']['p'] <= 9 and 0 <= b['cover']['m'] <= 7, b['key']
+    assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
+    d = [{'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size'])} for x in b['dls']]
+    for x in b['dls']: assert x.get('size'), b['key'] + ': run verify_booklinks.py --write'
+    return {'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': b['authorFull'], 'coverTitle': b['coverTitle'], 'cover': b['cover'],
+            'info': b['info'], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': b.get('note', ''), 'inApp': b['inApp'],
+            'read': b['read'], 'dls': d}
+tabs = {}
+for b in B:
+    tid = KINDS[b['kind']][0]; c = card(b)
+    text = '\n'.join(f'{k}\t{v}' for k, v in [('المؤلف', b['authorFull']), ('العصر', b['era'])] + b['info'])
+    src = ' · '.join(dict.fromkeys(a['s'].split(' (')[0].split(' — ')[0] for a in b['about']))
+    tabs.setdefault(tid, []).append([b['title'], text, '', src, '', '', json.dumps(c, ensure_ascii=False, separators=(',', ':'))])   # the details are the 7th field: an app that does not know them shows the readable lines only
+for kind, (tid, label, _, sub) in KINDS.items():
+    rows = tabs[tid]
+    CL.publish(tid, label, 'generic', {'h': rows}, len(rows), extra={'drawer': True, 'card': 'library', 'menu': label, 'sub': sub, 'placeholder': 'اكتب هنا', 'hint': sub})
+# the order of the side menu: the lists of books before «حول التطبيق»
+p = 'content/manifest.json'; m = json.load(open(p, encoding='utf8'))
+last = [t for t in m['tabs'] if t['id'] == 'about']; m['tabs'] = [t for t in m['tabs'] if t['id'] != 'about'] + last
+json.dump(m, open(p, 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(p, 'a').write('\n')
+print({k: len(v) for k, v in tabs.items()})

@@ -87,6 +87,7 @@ def balance(t):
     return t
 def finalize(t):
     t = re.sub(r'[\u200B-\u200F\u202A-\u202E\uFEFF]', '', t)
+    t = re.sub(r'([﴿{])\s*\?\s*(?=[\u0621-\u064A])', r'\1', t)            # a stray «?» (an unreadable sign of the digital copy) right after the opening bracket of a quoted ayah: «﴿ ? ن والقلم ﴾»
     t = re.sub(r'PageV\d+P\d+|@QB@|@QE@|@\w{1,4}@', ' ', t)
     t = NOTE.sub(' ', t)
     t = re.sub(r'@\s*\d+\s*[أب]?\s*@', ' ', t); t = t.replace('^', ' ').replace('\\', ' ').replace('_', ' ').replace('|', ' '); t = re.sub(r'\s%\s', ' ... ', t); t = re.sub(r'\s\*\s', ' ', t)
