@@ -18,7 +18,6 @@ SPECS = [
  dict(key='tatir-anam', file=B + 'tatir_anam.txt', toc='pipe'),
  dict(key='muntakhab', file=B + 'muntakhab.txt', toc='pipe'),
  dict(key='tabir-artemidorus', file=SRC + 'hunayn.txt', toc='ocr-hunayn', ocr=True),
- dict(key='turuq-hukmiyya', file=SRC + 'turuq.txt', toc='pipe'),
  dict(key='madarij-firasa', file=SRC + 'madarij.txt', toc='pipe'),
  dict(key='ilm-firasa-hadith', file=SRC + 'zaydan.txt', toc='pipe'),
 ]
@@ -163,4 +162,6 @@ def main():
         book = {'v': 1, 'key': sp['key'], 'ocr': bool(sp.get('ocr')), 'toc': toc, 'p': paras, 'pg': pages}
         CL.publish_file(f"books/{sp['key']}.json", book)
         print(sp['key'], 'paragraphs', len(paras), 'chars', sum(map(len, paras)), 'toc', len(toc), 'pages', len(pages))
-if __name__ == '__main__': main()
+def prune():
+    CL.prune_files('books/', {f"books/{sp['key']}.json" for sp in SPECS})
+if __name__ == '__main__': main(); prune()

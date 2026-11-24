@@ -40,6 +40,7 @@ for b in B:
 for kind, (tid, label, _, sub) in KINDS.items():
     rows = tabs[tid]
     CL.publish(tid, label, 'generic', {'h': rows}, len(rows), extra={'drawer': True, 'card': 'library', 'menu': label, 'sub': sub, 'placeholder': 'اكتب هنا', 'hint': sub})
+CL.prune_files('covers/', {f"covers/{b['key']}.jpg" for b in B})
 # the order of the side menu: the lists of books before «حول التطبيق»
 p = 'content/manifest.json'; m = json.load(open(p, encoding='utf8'))
 last = [t for t in m['tabs'] if t['id'] == 'about']; m['tabs'] = [t for t in m['tabs'] if t['id'] != 'about'] + last

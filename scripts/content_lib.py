@@ -32,3 +32,14 @@ def publish_bytes(rel, raw, bump=True):
     if bump and changed: m['version'] += 1
     m['updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     json.dump(m, open(f'{C}/manifest.json', 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(f'{C}/manifest.json', 'a').write('\n')
+
+def prune_files(prefix, keep):
+    """removes from the content (the file and its entry in the manifest's `files`) every extra file under `prefix` that is not in `keep` (a book or a cover that was taken out)"""
+    m = _manifest(); files = m.get('files', []); gone = [f for f in files if f['file'].startswith(prefix) and f['file'] not in keep]
+    if not gone: return
+    for f in gone:
+        try: os.remove(f"{C}/{f['file']}")
+        except FileNotFoundError: pass
+    m['files'] = [f for f in files if f not in gone]; m['version'] += 1
+    m['updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    json.dump(m, open(f'{C}/manifest.json', 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(f'{C}/manifest.json', 'a').write('\n')

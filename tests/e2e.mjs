@@ -373,7 +373,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // كتب الفراسة
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'كتب علم الفراسة' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(800);
   const ftitles = await page.locator('.lib-title').allInnerTexts(); const fsub = await page.locator('.panel-sub').innerText();
-  log('كتب علم الفراسة', 'خمسة كتب: الرازي، يوسف مراد، الطرق الحكمية، مدارج السالكين، زيدان', ftitles.length === 5 && ['الطرق الحكمية في السياسة الشرعية', 'علم الفراسة الحديث'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')) && ftitles.some((x) => x.includes('مدارج')), ftitles.join(' | '));
+  log('كتب علم الفراسة', 'أربعة كتب: الرازي، يوسف مراد، مدارج السالكين، زيدان (لا «الطرق الحكمية»: لا علاقة له بالفراسة)', ftitles.length === 4 && !ftitles.some((x) => x.includes('الطرق الحكمية')) && ['علم الفراسة الحديث'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')) && ftitles.some((x) => x.includes('مدارج')), ftitles.join(' | '));
   log('كتب علم الفراسة', 'العنوان الفرعي يبين أنها للقراءة وليست من مراجع تبويب «الكتب»', /ليست من مراجع البحث في تبويب «الكتب»/.test(fsub), fsub);
   await page.locator('.lib-tile', { hasText: 'مدارج السالكين' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(500);
   await page.locator('.rd-tool', { hasText: 'الفهرس' }).click(); await page.locator('.rd-input').fill('منزلة الفراسة'); await page.waitForTimeout(250);

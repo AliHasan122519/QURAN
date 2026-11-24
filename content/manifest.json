@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 367,
- "updated": "2026-11-24T16:17:47Z",
+ "version": 371,
+ "updated": "2026-11-24T16:21:52Z",
  "apk": {
   "versionCode": 29925619,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -169,8 +169,8 @@
    "label": "كتب علم الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "1469a114d9253dbb58aa02bda168a57a92f0f7a1c3bc0d4aaa6ca5c604627d48",
-   "count": 5,
+   "sha256": "8ac514fe809abee8b41684aa4867d56fb804a90eeddbe5cabc6754bee5457678",
+   "count": 4,
    "drawer": true,
    "card": "library",
    "menu": "كتب علم الفراسة",
@@ -234,11 +234,6 @@
    "size": 548929
   },
   {
-   "file": "books/turuq-hukmiyya.json",
-   "sha256": "80c56c7c47af3bc6a795c3d1dc143d0acaa631efd5ccfbd6896d3926110ee3c1",
-   "size": 2053164
-  },
-  {
    "file": "books/madarij-firasa.json",
    "sha256": "db3cb2c4c6597a42a63fd86d1d450b58badfd02bb68ca6531ae0d13a9acff5d2",
    "size": 3846872
@@ -292,11 +287,6 @@
    "file": "covers/firasa-murad.jpg",
    "sha256": "384a82e3e3e1c4505c7f9652e2ca016455356fcdf256cc7302506280c4cef754",
    "size": 31603
-  },
-  {
-   "file": "covers/turuq-hukmiyya.jpg",
-   "sha256": "52bf0a92feed721991eb4bf322508fce6417560bad0a68dcdcf0c2b982a3bd7f",
-   "size": 44594
   },
   {
    "file": "covers/madarij-firasa.jpg",
