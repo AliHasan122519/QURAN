@@ -14,7 +14,7 @@ const browser = await chromium.launch(); const ctx = await browser.newContext({ 
 const errors = [], requests = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errors.push('console: ' + m.text().slice(0, 160)); }); page.on('request', (r) => requests.push(r.url()));
 const toNum = (s) => +String(s).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
-const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'الألفية الوردية', books: 'الكتب', shawahid: 'أبيات الإستشهاد' };
+const TAB = { quran: 'القرآن الكريم', jami: 'السنة النبوية', amthal: 'الأمثال', alfiya: 'النظم', books: 'الكتب', shawahid: 'أبيات الإستشهاد' };
 const panel = (t) => page.locator(`#panel-${t}`);
 const go = async () => { await page.goto(URL_); await page.waitForFunction(() => document.querySelector('#panel-quran button.go') && !document.querySelector('#panel-quran .pulse'), null, { timeout: 30000 }); await page.waitForFunction(() => document.querySelectorAll('.tab').length === 6); await page.waitForTimeout(1800); };
 const search = async (t, q) => { await page.getByRole('tab', { name: TAB[t] }).click(); await panel(t).locator('input').fill(q); await panel(t).locator('button.go').click(); await panel(t).locator('article, .soft').first().waitFor({ timeout: 20000 }); await page.waitForTimeout(350); };
@@ -27,7 +27,7 @@ await page.screenshot({ path: 'tests/screenshots/home.png' });
 // ---------- structure = the original ----------
 const h1 = await page.locator('h1').innerText(); log('مطابقة الأصل', 'العنوان «الباحث القرآني»', h1.trim() === 'الباحث القرآني');
 log('مطابقة الأصل', 'الشارة العلوية ونص التعريف كما في الأصل', (await page.locator('.badge-top').innerText()).includes('بحث نصّي دقيق مع توسعة دلالية اشتقاقية') && (await page.locator('.hero p').innerText()).includes('منصّة بحث شرعي في القرآن الكريم والسنة النبوية الصحيحة'));
-log('مطابقة الأصل', 'ستة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، الألفية الوردية، الكتب، أبيات الإستشهاد', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'الألفية الوردية', 'الكتب', 'أبيات الإستشهاد']));
+log('مطابقة الأصل', 'ستة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، النظم (الألفية الوردية والعبير)، الكتب، أبيات الإستشهاد', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'النظم', 'الكتب', 'أبيات الإستشهاد']));
 log('مطابقة الأصل', 'حقل البحث في القرآن يحمل «اكتب هنا» بلا أمثلة', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب هنا' && (await panel('quran').locator('.hint').innerText()).includes('البحث يبدأ مطابقاً لرسم المصحف'));
 for (const id of ['quran', 'jami', 'amthal', 'alfiya', 'books', 'shawahid']) log('حقول البحث', `حقل «${id}» نصه «اكتب هنا» فقط`, (await panel(id).locator('input').getAttribute('placeholder')) === 'اكتب هنا');
 log('مطابقة الأصل', 'الحالة الأولى: «ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.»', (await panel('quran').locator('.soft').innerText()).includes('ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.'));
@@ -69,11 +69,16 @@ await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «�
 const allTxt = await page.evaluate(() => document.body.innerText);
 log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
-log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|assistant|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
+log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|assistant|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|nazm|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
 
 // ---------- الألفية الوردية ----------
 await search('alfiya', 'الأسد'); const at = await panel('alfiya').innerText();
 log('الألفية الوردية', '«الأسد» ← أبيات من الألفية بنصّ الشطرين ورقم البيت والصفحة والباب', (await cards('alfiya').count()) > 0 && /البيت [0-9٠-٩]+/.test(at) && /صفحة [0-9٠-٩]+/.test(at) && /باب/.test(at), (await stats('alfiya')).slice(0, 80));
+log('النظم', 'الصفحة الرئيسية: خانة «النظم» تضم الألفية الوردية والعبير في التعبير: «الأسد» ← بطاقات الألفية باسمها', /الألفية الوردية/.test(at));
+await search('alfiya', 'استنهض'); const ab0 = await panel('alfiya').innerText(); log('النظم', 'لفظ من «العبير» ← بيته باسم المنظومة ورقمه الأصلي بلا «صفحة»', /العبير في التعبير/.test(ab0) && /البيت 10|البيت ١٠/.test(ab0) && !/صفحة/.test(ab0) && (await cards('alfiya').count()) >= 1, ab0.slice(0, 120));
+await search('alfiya', 'إدريس'); const ab1 = await panel('alfiya').innerText(); log('النظم', 'بحث عن «إدريس» يجد بيت العبير (٤٥) ويقول اسم المنظومة، والتشكيل لا يمنع المطابقة', /ومن رأى إدريس نال الوَرَعَا/.test(ab1) && /العبير في التعبير/.test(ab1));
+await search('alfiya', 'الفصل الأول'); const ab2 = await panel('alfiya').innerText(); log('النظم', 'اسم الفصل «الفصل الأول» ← أبيات الفصل الأول من العبير فقط (٢٣)', /الفصل الأول — في كيفية الرؤيا وآداب التعبير/.test(ab2) && (await cards('alfiya').count()) === 23 && !/الألفية الوردية/.test(ab2), (await cards('alfiya').count()) + '');
+await search('alfiya', 'الفصل الثالث'); log('النظم', '«الفصل الثالث» ← ١٤ بيتاً (٩٠–١٠٣) متاحة نصاً', (await cards('alfiya').count()) === 14);
 log('الألفية الوردية', 'البيت ٥٢١ «والليث سلطان فمن سطا به» يُعثر عليه بالبحث عن «الليث»', (await (async () => { await search('alfiya', 'الليث'); return /والليث سلطان فمن سطا به/.test(await panel('alfiya').innerText()); })()));
 log('الألفية الوردية', 'المصطلح يُفرَّغ من حقل البحث بعد البحث', (await panel('alfiya').locator('input').inputValue()) === '');
 log('الألفية الوردية', 'كل بيت شطران (عمودان) في البطاقة', (await cards('alfiya').first().locator('.poem-shatr').count()) === 2);
@@ -222,7 +227,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const items = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'عشرة أزرار أولها «المساعد الذكي»، بأسهم لا بعدّادات', items.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 10, items.join('|'));
+  log('المزيد', 'أحد عشر زراً أولها «المساعد الذكي»، بأسهم لا بعدّادات', items.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|نظم علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer-count').count()) === 0 && (await page.locator('.drawer .drawer-go').count()) === 11, items.join('|'));
   await page.locator('.drawer-item', { hasText: 'رؤى الأنبياء والصالحين' }).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
@@ -297,7 +302,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1200);
   await page.click('button.menu-toggle'); await page.waitForSelector('.drawer');
   const libItems = await page.locator('.drawer .drawer-item .drawer-label').allInnerTexts();
-  log('المزيد', 'عشرة أزرار: «المساعد الذكي» أولها، وقائمتا الكتب (التعبير ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 10, libItems.join('|'));
+  log('المزيد', 'أحد عشر زراً: «المساعد الذكي» أولها، وقوائم الكتب (التعبير ثم النظم ثم الفراسة) قبل «حول التطبيق»', libItems.join('|') === 'المساعد الذكي|رؤى عبّرت|رؤى الأنبياء والصالحين|المعبِّرون|قواعد علم التعبير|أحاديث الرؤيا|مقارنة المعبِّرين|كتب علم التعبير|نظم علم التعبير|كتب الفراسة|حول التطبيق' && (await page.locator('.drawer .drawer-go').count()) === 11, libItems.join('|'));
   await page.locator('.drawer-item', { hasText: 'كتب علم التعبير' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(900);
   const tiles = page.locator('.lib-tile'); const nTiles = await tiles.count();
   const bx = []; for (let i = 0; i < nTiles; i++) bx.push(await tiles.nth(i).boundingBox());
@@ -405,6 +410,26 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.goto(URL_); await page.waitForTimeout(1200);
   await search('quran', 'يجتبيك ربك'); await page.waitForTimeout(500);
   log('الخط', 'علامة U+065E (ينقصها خط Amiri Quran) تُرسم بخط احتياطي لا مربعاً فارغاً', await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].some((f) => f.family.includes('Quran Marks') && f.status === 'loaded'); }));
+}
+{
+  // ---------- «نظم علم التعبير»: قائمة في «المزيد» بالألفية الوردية والعبير ----------
+  await page.goto(URL_); await page.waitForFunction(() => document.querySelector('button.menu-toggle'), null, { timeout: 30000 }); await page.waitForTimeout(1500);
+  await page.locator('button.menu-toggle').click(); await page.waitForTimeout(300);
+  await page.locator('.drawer-item', { hasText: 'نظم علم التعبير' }).click(); await page.waitForSelector('.lib-tile'); await page.waitForTimeout(700);
+  const nz = await page.locator('.lib-title').allInnerTexts();
+  log('نظم علم التعبير', 'قائمة بمنظومتين: الألفية الوردية والعبير في التعبير (وأرجوزة ابن غنام لم يتوفر نصها فلا تُدرَج)', nz.length === 2 && nz.some((x) => /الألفية الوردية/.test(x)) && nz.some((x) => /العبير في التعبير/.test(x)), nz.join(' | '));
+  await page.locator('.lib-tile', { hasText: 'العبير في التعبير' }).click(); await page.waitForSelector('.lib-detail');
+  const nd = await page.locator('.lib-detail').innerText();
+  log('نظم علم التعبير', 'صفحة العبير: بلا زر PDF وهمي، وبقراءة وتحميل للنص، ومعها تصريح أن المتاح ١–١٠٣ من ٣١٦ بيتاً', (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && (await page.locator('.lib-txt').count()) === 1 && /103/.test(nd) && /316/.test(nd) && (await page.locator('.lib-detail a[href]').count()) === 0);
+  log('نظم علم التعبير', 'فهرس العبير: المقدمة والفصول الثلاثة المتاحة', /فهرس الكتاب/.test(nd) && (await page.locator('.lib-toc li').count()) === 4 && /الفصل الثاني/.test(nd));
+  await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(300);
+  const nt = await page.locator('.rd-text').innerText();
+  log('نظم علم التعبير', 'قراءة العبير داخل التطبيق: الأبيات بشطريها', /الحمدُ للهِ المُرِيحِ للجَسَد/.test(nt) && /\.\.\./.test(nt), nt.slice(0, 60));
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  await page.locator('.lib-tile', { hasText: 'الألفية الوردية' }).click(); await page.waitForSelector('.lib-detail');
+  const ad = await page.locator('.lib-detail').innerText();
+  log('نظم علم التعبير', 'صفحة الألفية: فهرس بالأبواب (٧٦) ومصدر النقل المسمّى، بلا PDF وهمي', /فهرس الكتاب \(76\)/.test(ad) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && /درة الأحلام/.test(ad));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(100);
 }
 {
   // ---------- «المساعد الذكي»: أول خيار في «المزيد»، يجاوب من المراجع بلهجة سعودية ----------

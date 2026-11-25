@@ -7,7 +7,7 @@ const { Assistant, parseBooks, Engine } = await import(out);
 const J = (f) => JSON.parse(readFileSync('content/' + f, 'utf8'));
 const docs = (tab, f) => J(f).h.map(([ref, text, explanation, source, by, who, extra], i) => ({ id: `${tab}:${i}`, src: tab, text, ref, explanation, source, by, who, extra }));
 const eng = new Engine(); await eng.addSource('books', docs('books', 'books.json'), 'generic', { refFirst: true, smart: 'full' }); await eng.finalize();
-const books = [...parseBooks(docs('kutubtabir', 'kutubtabir.json'), 'kutubtabir'), ...parseBooks(docs('kutubfiras', 'kutubfiras.json'), 'kutubfiras')];
+const books = [...parseBooks(docs('kutubtabir', 'kutubtabir.json'), 'kutubtabir'), ...parseBooks(docs('nazm', 'nazm.json'), 'nazm'), ...parseBooks(docs('kutubfiras', 'kutubfiras.json'), 'kutubfiras')];
 const phrases = {}; for (const d of docs('assistant', 'assistant.json')) (phrases[d.ref] ??= []).push(d.text);
 const people = docs('muabbirun', 'muabbirun.json');
 let seed = 7; const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);

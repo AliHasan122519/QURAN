@@ -192,8 +192,8 @@ export class Assistant {
   private suggestions(): string[] { return ['وش فسّروا رؤية الثعبان؟', 'مين ابن سيرين؟', 'كم صفحة كتاب المرقبة العليا؟', 'دوّر لي فصل الصداقة في كتاب الأخلاق والسير']; }
 
   private library(): Reply {
-    const t = this.ctx.books.filter((b) => b.list === 'kutubtabir').length, f = this.ctx.books.length - t;
-    return this.reply(this.say('list_intro', { n: this.ctx.books.length, a: t, b: f }), [], this.ctx.books.slice(0, 5).map((b) => `نبذة عن ${b.title}`));
+    const t = this.ctx.books.filter((b) => b.list === 'kutubtabir').length, z = this.ctx.books.filter((b) => b.list === 'nazm').length, f = this.ctx.books.length - t - z;
+    return this.reply(this.say('list_intro', { n: this.ctx.books.length, a: t, b: f, c: z }), [], this.ctx.books.slice(0, 5).map((b) => `نبذة عن ${b.title}`));
   }
 
   private async aboutBook(q: Q, named: BookMeta[], hasStruct: boolean): Promise<Reply | null> {

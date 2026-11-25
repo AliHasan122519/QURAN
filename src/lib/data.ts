@@ -58,8 +58,8 @@ export async function loadTab(tab: Tab, c: Content): Promise<Doc[] | null> {
     return j.h.map(([page, , t, k, , g, tier, , n, printed], i) => ({ id: `${src}:${i}`, src, text: t, page, number: n || undefined, takhrij: k, grade: g, tier, ungraded: !g && /\)\s*$/.test(printed ?? '') ? 'unclear' : !g ? 'none' : undefined }));
   }
   if (tab.kind === 'poem') {
-    const w = parse<{ h: [number, number, string, string, string][] }>(buf);
-    return w.h.map(([n, page, chapter, a, b]) => ({ id: `${src}:${n}`, src, text: `${a} ${b}`, verse: n, page, chapter, shatr1: a, shatr2: b }));
+    const w = parse<{ h: [number, number, string, string, string, string?, number?][] }>(buf);   // [id number, page (0 = none), chapter, hemistich 1, hemistich 2, poem name?, verse number shown?]
+    return w.h.map(([n, page, chapter, a, b, poem, shown]) => ({ id: `${src}:${n}`, src, text: `${a} ${b}`, verse: shown ?? n, page, chapter, shatr1: a, shatr2: b, poem }));
   }
   const g = parse<{ h: [string, string, string, string?, string?, string?, string?][] }>(buf);
   return g.h.map(([ref, text, explanation, source, by, who, extra], i) => ({ id: `${src}:${i}`, src, text, ref, explanation, source, by, who, extra }));

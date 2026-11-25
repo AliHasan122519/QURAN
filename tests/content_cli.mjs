@@ -11,7 +11,7 @@ sh(work, 'add', '-A'); sh(work, 'commit', '-q', '-m', 'seed'); sh(work, 'remote'
 const cli = (...a) => ex('node', [join(src, 'scripts', 'content.mjs'), ...a], { cwd: work, encoding: 'utf8', env: { ...process.env, COMMIT_TRAILER: 'Co-Authored-By: test' } });
 let pass = 0, fail = 0; const check = (n, c, d = '') => { c ? pass++ : fail++; console.log(`${c ? 'PASS' : 'FAIL'} | ${n}${d ? ' — ' + d : ''}`); };
 check('list shows the tools', cli('list').includes('update_entry'));
-check('content_status works', JSON.parse(cli('content_status', '{}').split('\ncontent OK')[0]).tabs.length === 16);
+check('content_status works', JSON.parse(cli('content_status', '{}').split('\ncontent OK')[0]).tabs.length === 17);
 const before = JSON.parse(readFileSync(join(work, 'content', 'manifest.json'), 'utf8')); const am0 = before.tabs.find((t) => t.id === 'amthal').count, v0 = before.version;
 const out = cli('add_entries', JSON.stringify({ tab: 'amthal', entries: [{ ref: 'مثل', text: 'الصبر مفتاح الفرج' }] }));
 check('add_entries commits and validation passes', out.includes(`content OK: version ${v0 + 1}`));

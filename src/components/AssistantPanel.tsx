@@ -13,7 +13,7 @@ const FIRST = ['وش فسّروا رؤية الماء؟', 'مين ابن سير�
 
 /** The assistant of the app: a chat that answers only from the references the app holds (see lib/assistant.ts). Every answer shows where it comes from and opens the book at that place. */
 export function AssistantPanel({ title, sub, phrases, lists, engine, load, onClose }: { title: string; sub?: string; phrases: Doc[]; lists: Record<string, Doc[]>; engine: Engine; load: (rel: string) => Promise<ArrayBuffer | null>; onClose: () => void }) {
-  const books = useMemo(() => [...parseBooks(lists.kutubtabir ?? [], 'kutubtabir'), ...parseBooks(lists.kutubfiras ?? [], 'kutubfiras')], [lists]);
+  const books = useMemo(() => [...parseBooks(lists.kutubtabir ?? [], 'kutubtabir'), ...parseBooks(lists.nazm ?? [], 'nazm'), ...parseBooks(lists.kutubfiras ?? [], 'kutubfiras')], [lists]);
   const bank = useMemo(() => { const m: Record<string, string[]> = {}; for (const d of phrases) if (d.ref) (m[d.ref] ??= []).push(d.text); return m; }, [phrases]);
   const [status, setStatus] = useState('');
   const bot = useMemo(() => new Assistant({

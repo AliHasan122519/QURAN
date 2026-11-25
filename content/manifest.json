@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 418,
- "updated": "2026-11-24T23:13:54Z",
+ "version": 425,
+ "updated": "2026-11-25T03:37:56Z",
  "apk": {
   "versionCode": 29926047,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -34,11 +34,11 @@
   },
   {
    "id": "alfiya",
-   "label": "الألفية الوردية",
+   "label": "النظم",
    "kind": "poem",
    "file": "alfiya.json",
-   "sha256": "ef23eb141c1189e3f3ebb687d81cf70477b308d2f5db55a57312f0d8133f37ca",
-   "count": 1051
+   "sha256": "a7b62e3cb0a920118b8db75d93cffe154b15a13f5838af3a45168661340bdd25",
+   "count": 1154
   },
   {
    "id": "books",
@@ -69,7 +69,7 @@
    "label": "المساعد الذكي",
    "kind": "generic",
    "file": "assistant.json",
-   "sha256": "f75263ff2eeee8e990fb316cabb93c56eeb4cf2beea0e2c86c4dd24a4983ec4b",
+   "sha256": "ce04671f754a9bc35330e86dfb9467628f6475a87fa1be81f06cc92f67bc05af",
    "count": 67,
    "drawer": true,
    "card": "assistant",
@@ -168,7 +168,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "9c0aa61867d8672401b4335152c605180183c7c63e3472b84802d14a4fd40967",
+   "sha256": "f31663997585fcacc838e3630d4b41f8f9abb868775a5920863be31599371e48",
    "count": 12,
    "drawer": true,
    "card": "library",
@@ -178,11 +178,25 @@
    "hint": "أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله."
   },
   {
+   "id": "nazm",
+   "label": "نظم علم التعبير",
+   "kind": "generic",
+   "file": "nazm.json",
+   "sha256": "cf015a047866564e9fcd98a3173c4cc023116def912f6b08be7062c270ed4e39",
+   "count": 2,
+   "drawer": true,
+   "card": "library",
+   "menu": "نظم علم التعبير",
+   "sub": "المنظومات والأراجيز في تعبير الرؤيا: اختر منظومة لتعرف عنها وتقرأها. أبياتها تُبحث أيضاً في خانة «النظم» بالصفحة الرئيسية.",
+   "placeholder": "اكتب هنا",
+   "hint": "المنظومات والأراجيز في تعبير الرؤيا: اختر منظومة لتعرف عنها وتقرأها. أبياتها تُبحث أيضاً في خانة «النظم» بالصفحة الرئيسية."
+  },
+  {
    "id": "kutubfiras",
    "label": "كتب الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "474988bf14707f27a85a2466197a0466bbd84c34606a14d7d03add0443276195",
+   "sha256": "7e7e484a794b32df3ea2be1fd3480ad7953f6a4259e663cccb27cd8f9512348f",
    "count": 27,
    "drawer": true,
    "card": "library",
@@ -440,6 +454,16 @@
    "file": "covers/pers-hariri.jpg",
    "sha256": "036015daf9a254a5040ef0acaf7cd9b3a8e53eae59c8bcd880754415fdf1140b",
    "size": 45770
+  },
+  {
+   "file": "books/alfiya-wardiyya.json",
+   "sha256": "5a2d4ea64a3bbe68102395c30c56571eb7a7ed83826afe14d3dbedf03d884397",
+   "size": 107048
+  },
+  {
+   "file": "books/abir.json",
+   "sha256": "05eeeb745f31782e176da1c09ca56870404b998deeb610254f8d20334bc2dfdf",
+   "size": 12309
   }
  ]
 }

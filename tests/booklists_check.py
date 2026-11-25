@@ -6,7 +6,7 @@ ok = True
 def check(name, cond, detail=''):
     global ok; ok &= bool(cond); print('PASS' if cond else 'FAIL', '|', name, detail)
 B = json.load(open('data/booklists/books.json', encoding='utf8')); M = {t['id']: t for t in json.load(open('content/manifest.json', encoding='utf8'))['tabs']}
-for kind, tid in (('tabir', 'kutubtabir'), ('firasa', 'kutubfiras')):
+for kind, tid in (('tabir', 'kutubtabir'), ('nazm', 'nazm'), ('firasa', 'kutubfiras')):
     t = M[tid]; rows = json.load(open(f'content/{t["file"]}', encoding='utf8'))['h']; mine = [b for b in B if b['kind'] == kind]
     check(f'{tid}: drawer list with the library card, not a search tab', t.get('drawer') is True and t.get('card') == 'library' and t['count'] == len(rows) == len(mine), f'{len(rows)} books')
     for r, b in zip(rows, mine):
@@ -16,7 +16,7 @@ for kind, tid in (('tabir', 'kutubtabir'), ('firasa', 'kutubfiras')):
         check(f'{b["key"]}: the printed cover (when we have one) is a JPEG content file in the manifest with the right SHA-256, else the drawn cover stays', (c['cover'].get('img') is None) if not have else
               (c['cover'].get('img') == f'covers/{b["key"]}.jpg' and c['cover']['img'] in ff and ff[c['cover']['img']]['sha256'] == hashlib.sha256(open('content/' + c['cover']['img'], 'rb').read()).hexdigest() and open('content/' + c['cover']['img'], 'rb').read(2) == b'\xff\xd8'))
         check(f'{b["key"]}: no field an old app would show badly (explanation, by, who are empty; the text is «label ⏎ value» lines)', r[2] == '' and r[4] == '' and r[5] == '' and all(len(l.split('\t')) == 2 for l in r[1].split('\n')))
-        check(f'{b["key"]}: the source link (kept for verification only; the app shows no external link) is on shamela.ws/archive.org (https)', re.match(r'^https://(shamela\.ws/book/\d+(/\d+)?|archive\.org/details/[\w.\-]+)$', c['read']['url']) is not None, c['read']['url'])
+        check(f'{b["key"]}: the source link (kept for verification only; the app shows no external link) is on shamela.ws/archive.org (https)', (re.match(r'^https://(shamela\.ws/book/\d+(/\d+)?|archive\.org/details/[\w.\-]+)$', c['read']['url']) is not None) or (kind == 'nazm' and c['read']['url'] == ''), c['read']['url'])
         # the rules every book of the two lists must meet (a new book is held to them too; see «إضافة كتاب جديد» in BOOKLISTS_NOTES.md)
         pcs = json.load(open('data/booklists/pagecounts.json', encoding='utf8')).get(b['key'], []) if os.path.exists('data/booklists/pagecounts.json') else []
         prow = [v for k, v in c['info'] if k.startswith('عدد الصفحات (الملف') or k.startswith('عدد صفحات')]

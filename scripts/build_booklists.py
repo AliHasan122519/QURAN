@@ -1,4 +1,4 @@
-"""Builds the two lists of the «المزيد» menu that hold books to read: «كتب علم التعبير» (content/kutubtabir.json) and «كتب الفراسة» (content/kutubfiras.json).
+"""Builds the three lists of the «المزيد» menu that hold books to read: «كتب علم التعبير» (content/kutubtabir.json), «نظم علم التعبير» (content/nazm.json: the poems, whose verses are also searched in the tab «النظم») and «كتب الفراسة» (content/kutubfiras.json).
 Source: data/booklists/books.json — every passage quoted there is checked against the page or the text it names, and every link against the site, by
 scripts/verify_booklinks.py (needs the network). These books are NOT references of the «الكتب» tab and are never indexed for the search (drawer tabs are not).
 A row: [title, «label ⏎ value» lines (all that an app which does not know this list shows), '', sources, '', '', the details as JSON (the book card of the new app)].
@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
 B = json.load(open('data/booklists/books.json', encoding='utf8'))
 KINDS = {'tabir': ('kutubtabir', 'كتب علم التعبير', 'علم التعبير', 'أهمّ كتب تأويل الرؤى قديماً: اختر كتاباً لتعرف عنه وتقرأه أو تحمّله.'),
+         'nazm': ('nazm', 'نظم علم التعبير', 'نظم', 'المنظومات والأراجيز في تعبير الرؤيا: اختر منظومة لتعرف عنها وتقرأها. أبياتها تُبحث أيضاً في خانة «النظم» بالصفحة الرئيسية.'),
          'firasa': ('kutubfiras', 'كتب الفراسة', 'الفراسة', 'كتب في معرفة طباع الناس وأنماط شخصياتهم وصفاتهم وأساليبهم من ظاهرهم وسلوكهم، قديماً وحديثاً. للقراءة فقط وليست من مراجع البحث في تبويب «الكتب».')}
 PC = json.load(open('data/booklists/pagecounts.json', encoding='utf8')) if os.path.exists('data/booklists/pagecounts.json') else {}   # scripts/page_counts.py
 def with_pages(b):
@@ -33,7 +34,7 @@ def card(b):
     if os.path.exists(img):                                                        # the cover of the printed edition (the first page of the scan the book's page offers): the app shows it instead of the drawn one
         cv['img'] = f"covers/{b['key']}.jpg"; CL.publish_bytes(cv['img'], open(img, 'rb').read())
     assert b['kind'] in KINDS and 0 <= b['cover']['p'] <= 9 and 0 <= b['cover']['m'] <= 7, b['key']
-    assert b['read']['url'].startswith('https://') and b['about'] and b['title'] and b['author'], b['key']
+    assert (b['read']['url'].startswith('https://') or (b['kind'] == 'nazm' and b['read']['url'] == '')) and b['about'] and b['title'] and b['author'], b['key']
     same = lambda i: sum(1 for y in b['dls'] if y['id'] == i) > 1                       # an item that holds several files (volumes) is opened by the name of the file in the viewer
     d = [dict({'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size']), 'id': x['id']},
               **({'sub': urllib.parse.quote(os.path.splitext(x['name'])[0])} if same(x['id']) else {}), **({'view': False} if x.get('view') is False else {})) for x in b['dls']]
@@ -66,5 +67,7 @@ CL.prune_files('covers/', {f"covers/{b['key']}.jpg" for b in B})
 # the order of the side menu: the lists of books before «حول التطبيق»
 p = 'content/manifest.json'; m = json.load(open(p, encoding='utf8'))
 last = [t for t in m['tabs'] if t['id'] == 'about']; m['tabs'] = [t for t in m['tabs'] if t['id'] != 'about'] + last
+nz = [t for t in m['tabs'] if t['id'] == 'nazm']; m['tabs'] = [t for t in m['tabs'] if t['id'] != 'nazm']       # «نظم علم التعبير» right after «كتب علم التعبير»
+m['tabs'][[t['id'] for t in m['tabs']].index('kutubtabir') + 1:1 + [t['id'] for t in m['tabs']].index('kutubtabir')] = nz
 json.dump(m, open(p, 'w', encoding='utf8'), ensure_ascii=False, indent=1); open(p, 'a').write('\n')
 print({k: len(v) for k, v in tabs.items()})

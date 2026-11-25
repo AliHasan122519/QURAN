@@ -8,7 +8,7 @@ export interface Doc {
   id: string; src: SourceId; text: string;
   surah?: number; surahName?: string; ayah?: number;                              // Qur'an
   page?: number; number?: number; takhrij?: string; grade?: string; ungraded?: 'unclear' | 'none'; tier?: 'v' | 'h' | 'm' | 'l';        // hadith
-  chapter?: string; verse?: number; shatr1?: string; shatr2?: string;             // poem (verse number, chapter title, the two hemistichs)
+  chapter?: string; verse?: number; shatr1?: string; shatr2?: string; poem?: string;   // poem (verse number as printed, chapter title, the two hemistichs, name of the poem when the tab holds several)
   ref?: string; explanation?: string; source?: string; by?: string; who?: string; extra?: string;                                              // generic entries
 }
 export interface Hit { id: string; src: SourceId; ord: number; score: number; type: MatchType; via?: string; }

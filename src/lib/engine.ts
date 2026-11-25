@@ -223,7 +223,7 @@ export class Engine {
     }
     if (!best.length) return null;
     const set = new Set(best); const picked = docs.filter((d) => d.chapter && set.has(d.chapter));
-    const label = (t: string) => { const l = t.split(' — ').pop()!; return /^(باب|خاتمة)/.test(l) ? l : `باب ${l}`; };
+    const label = (t: string) => { const ps = t.split(' — '); const l = ps[ps.length - 1]; return /^الفصل/.test(ps[0]) && ps.length > 1 ? t : /^(باب|خاتمة|تقديم)/.test(l) ? l : `باب ${l}`; };
     return { query: raw, directCount: picked.length, semanticCount: 0, expansion: null, section: best.map(label).join(' · '), highlight: new Set(),
       results: picked.map((doc, i) => ({ hit: { id: doc.id, src, ord: i, score: 0, type: 'literal' as MatchType }, doc, matchType: 'نصي' as const, matchedTerm: '' })), capped: false };
   }

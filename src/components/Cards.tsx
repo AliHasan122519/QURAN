@@ -68,7 +68,7 @@ export const PoemCard = memo(function PoemCard({ doc, matchType, matchedTerm, wo
       <div className="card-top">
         <div className="card-ref">
           <div className="t">{`البيت ${toAr(doc.verse!)}`}</div>
-          <div className="s">{doc.chapter ? `${doc.chapter} • ` : ''}{`صفحة ${toAr(doc.page!)}`}</div>
+          <div className="s">{doc.poem ? `${doc.poem} • ` : ''}{doc.chapter ? `${doc.chapter}${doc.page ? ' • ' : ''}` : ''}{doc.page ? `صفحة ${toAr(doc.page)}` : ''}</div>
         </div>
         {!plain && <MatchPill matchType={matchType} term={spelled(doc.text, matchedTerm)} />}
       </div>
