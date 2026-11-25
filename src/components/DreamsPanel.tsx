@@ -69,7 +69,7 @@ export function DreamsPanel({ title, docs, onClose, nested = false }: { title: s
     <div ref={back} className={nested ? 'panel-back nested' : 'panel-back'} onClick={(e) => { e.stopPropagation(); onClose(); }}>
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head" ref={top}>
-          <div><h2>{title}</h2><p className="panel-sub">{toAr(docs.length)} {docs.some((d) => !d.explanation && d.ref) ? 'رؤيا ورواية' : 'رؤيا مع تعبيرها'} من {toAr(books.length)} {refsWord(books.length)}</p></div>
+          <div><h2>{title}</h2></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>
         </div>
         <form className="sform" onSubmit={submit}>

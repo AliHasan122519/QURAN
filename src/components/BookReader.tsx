@@ -105,7 +105,7 @@ export function BookReader({ title, file, load, scan, startAt, onClose }: { titl
         {err && <p className="rd-msg" role="alert">{err}</p>}
         {!data && !err && <p className="rd-msg" role="status">جارٍ فتح الكتاب…</p>}
         {data?.ocr && (
-          <p className="rd-ocr" role="note">{data.scanText ? 'هذا النص مقروء آلياً من صور صفحات الكتاب نفسه ودُقِّق بمقارنة ثلاث قراءات، لكنه قد تبقى فيه أخطاء، والمرجع هو صورة الصفحة. أرقام الصفحات هنا هي أرقام صفحات الملف المصوَّر.' : 'هذا النص مقروء آلياً من صور مسح ضوئي، فقد تكثر فيه الأخطاء.'}{scan && <> <button type="button" className="rd-link" onClick={() => setScanOn(data.scanText ? leafOf(i0) : null)}><Images size={15} aria-hidden="true" /> {data.scanText ? 'اعرض صورة هذه الصفحة' : 'اعرض صور الصفحات الأصلية'}</button></>}</p>
+          <p className="rd-ocr" role="note">{data.scanText ? 'نص مقروء آلياً (OCR) وقد تبقى فيه أخطاء، والمرجع صورة الصفحة.' : 'نص مقروء آلياً (OCR) وقد تكثر فيه الأخطاء.'}{scan && <> <button type="button" className="rd-link" onClick={() => setScanOn(data.scanText ? leafOf(i0) : null)}><Images size={15} aria-hidden="true" /> {data.scanText ? 'اعرض صورة هذه الصفحة' : 'اعرض صور الصفحات الأصلية'}</button></>}</p>
         )}
         {data && (
           <>

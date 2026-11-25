@@ -38,7 +38,6 @@ export function ScanPages({ title, dir, n, toc, tocSrc, load, onClose, backLabel
           <h2 className="rd-title">{title}</h2>
           {toc.length > 0 && <div className="rd-tools"><button type="button" className="rd-tool" aria-label="فهرس الكتاب" aria-pressed={open} onClick={() => setOpen(!open)}><ListTree size={19} aria-hidden="true" /><span>الفهرس</span></button></div>}
         </div>
-        <p className="rd-ocr" role="note">صور صفحات الكتاب ({toAr(n)} صفحة)، تُفتح كل صفحة عند وصولك إليها ثم تُحفظ في التطبيق.</p>
         <div className="own-pages" tabIndex={0} aria-label="صفحات الكتاب">{Array.from({ length: n }, (_, i) => <Page key={i} n={i} rel={`${dir}/${String(i).padStart(3, '0')}.jpg`} load={load} refs={refs} />)}</div>
         {open && (
           <div className="rd-sheet" role="dialog" aria-label="فهرس الكتاب">

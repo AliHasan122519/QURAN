@@ -71,7 +71,7 @@ export function RulesPanel({ title, docs, onClose, unit, sub, l1, l2 }: { title:
     <div ref={back} className="panel-back" onClick={onClose}>
       <div className="panel" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head" ref={top}>
-          <div><h2>{title}</h2><p className="panel-sub">{toAr(docs.length)} {unit ?? 'قاعدة وضابطاً'} {sub ?? `من ${toAr(books)} من كتب التعبير، بنصوصها وأمثلتها`}</p></div>
+          <div><h2>{title}</h2></div>
           <button type="button" ref={close} className="drawer-x" aria-label="إغلاق" onClick={onClose}><X size={20} aria-hidden="true" /></button>
         </div>
         <form className="sform" onSubmit={submit}>

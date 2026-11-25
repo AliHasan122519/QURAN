@@ -8,6 +8,7 @@
 import { normalize, tokens, queryStem } from './arabic';
 import { dialectVariants } from './dialect';
 import type { Doc, Lookup } from './types';
+import { classify, tierOf, gather, matchTopic, parseTopics, TIER_LABEL, TIER_ORDER, searchDocs, type Evidence, type Intent, type Tier, type Topic } from './discuss';
 
 // ---------- the books ----------
 export interface BookCardLite {
@@ -31,15 +32,15 @@ export interface BookText { toc: [number, string, number, number?][]; p: string[
 
 // ---------- what an answer is ----------
 export type Open = { kind: 'text'; book: string; para: number } | { kind: 'scan'; book: string; leaf: number | null };
-export interface Card { title: string; where: string; quote: string; open: Open[]; }
-export interface Reply { text: string; cards: Card[]; chips: string[]; }
+export interface Card { title: string; where: string; quote: string; open: Open[]; tier?: Tier; }
+export interface Reply { text: string; cards: Card[]; chips: string[]; after?: string; }
 export interface Ctx {
   engine: { lookup(src: string, q: string): Lookup; has(src: string): boolean } | null;
-  books: BookMeta[]; people: Doc[]; phrases: Record<string, string[]>;
+  books: BookMeta[]; people: Doc[]; phrases: Record<string, string[]>; lists?: Record<string, Doc[]>;
   loadBook(b: BookMeta): Promise<BookText | null>;
   rng?: () => number; onStatus?: (s: string) => void;
 }
-export interface Memory { query: string; cards: Card[]; shown: number; }
+export interface Memory { query: string; cards: Card[]; shown: number; topic?: Topic; narrate?: string[]; }
 
 // ---------- words ----------
 const STOP = new Set(('وش ايش شنو شو ليش لماذا كيف متى وين اين هل ما ماذا من مين منو في على الى عن مع هذا هذه هذي ذلك هذاك تلك التي الذي اللي ان انه انها كان كانت يكون تكون هو هي هم انا انت انتي نحن ' +
@@ -56,6 +57,9 @@ const WHO = /من انت|مين انت|منو انت|وش انت|ايش انت|�
 const HELP = /وش تسوي|ايش تسوي|وش تقدر|ايش تقدر|كيف استخدمك|كيف اسالك|مساعده|وش فايدتك|وش شغلتك|وش تعرف|ايش تعرف|وش ممكن اسالك|ايش اسالك|عرفني بنفسك|وش وظيفتك/;
 const OFFTOPIC = /سعر|اسعار|طقس|حاله الجو|درجه الحراره|مباراه|الدوري|نتيجه المباراه|اخبار|رياضه|وصفه طبخ|طبخ|اسهم|الاسهم|عمله|دولار|بيتكوين|وظيفه|ترجم|برمجه|كود|لعبه|فلم|مسلسل|اغنيه|برج|حظك|الابراج/;
 const MORE = /^(?:زدني|زيدني|زد|كمل|كمّل|كمله|اكثر|ابغى اكثر|غيره|غيرها|وغيره|وغيرها|بعد|ثاني|ثانيه|الباقي|باقي|وش بعد|والباقي)(?:\s|$)/;
+const NARR_STOP = new Set(('اقول اسوي افعل اذا لو ماذا رايت شفت حلمت رايتني شفتني منام المنام حلم الحلم كاني كانني كان كنت كانت اني انني شفتها رايتها رايته شفته فيه فيها كذا ثم بعد يعني بس لقيت لقيتني حصل صار وش ايش تفسيره تفسيرها يعني ممكن').split(/\s+/).map((w) => normalize(w)));
+const GEN_STOP = new Set(('اشوف اظن اعتقد رايي ارى احس كلها كل الصحيح الواقع لها ليس هناك يوجد حكم يجوز جايز حلال حرام مباح مشروع مشروعيه بدعه يصح ينفع مكروه واجب جائز فرق الفرق مقارنه سبب ليش ليه لماذا هل كيف يكون تكون صحيح خطا غلط صح').split(/\s+/).map((w) => normalize(w)));
+const DOMAIN = /رويا|رؤي|حلم|احلام|منام|تعبير|تاويل|معبر|عبارات|فراسه|قيافه|مبشرات|اضغاث|اشتقاق|تفسير الاحلام|الاحلام|ابن سيرين|النابلسي|الوردي|منظومه|ارجوزه/;
 const OPEN_FIRST = /^(?:افتح|افتحه|افتحها|وريني|ورني|ابغى افتحه|فتح)(?:\s|$)/;
 
 const stems = (t: string): string[] => tokens(normalize(t)).filter((w) => w.length >= 2).map(queryStem);
@@ -155,12 +159,12 @@ const tocPlace = (b: BookMeta, e: BookMeta['card']['toc'][number]) => `${b.title
 
 // ---------- the answer ----------
 export class Assistant {
-  private mem: Memory | null = null; private texts = new Map<string, Promise<BookText | null>>();
-  constructor(private ctx: Ctx) {}
+  private mem: Memory | null = null; private texts = new Map<string, Promise<BookText | null>>(); private topics: Topic[];
+  constructor(private ctx: Ctx) { this.topics = parseTopics(ctx.phrases.topic ?? []); }
   private text(b: BookMeta): Promise<BookText | null> {
     if (!b.textFile) return Promise.resolve(null); let p = this.texts.get(b.id); if (!p) { p = this.ctx.loadBook(b).catch(() => null); this.texts.set(b.id, p); } return p;
   }
-  private reply(text: string, cards: Card[] = [], chips: string[] = []): Reply { return { text, cards, chips }; }
+  private reply(text: string, cards: Card[] = [], chips: string[] = [], after = ''): Reply { return { text, cards, chips, ...(after ? { after } : {}) }; }
   private say(cat: string, vars: Record<string, string | number> = {}) { return pick(this.ctx, cat, vars); }
 
   async ask(raw: string): Promise<Reply> {
@@ -176,7 +180,8 @@ export class Assistant {
     // follow-ups
     if (this.mem && MORE.test(flat)) return this.more();
     if (this.mem && OPEN_FIRST.test(flat) && this.mem.cards[0]) return this.reply(this.say('open_first'), this.mem.cards.slice(0, 1));
-    const books = [...ctx.books]; const named = namedBooks(q, books);
+    const books = [...ctx.books]; const it0 = classify(q.raw, flat); const keepBooks = /كتاب|كتب|مرجع|مؤلف|فهرس/.test(flat);
+    const named = (it0.narrate || (it0.challenge && this.mem) || (this.mem && q.toks.length <= 4 && tierOf(flat)) || matchTopic(flat, this.topics)) && !keepBooks ? [] : namedBooks(q, books);
     const hasStruct = q.toks.some((w) => STRUCT.has(w));
     // the library itself
     if (/كم (?:كتاب|مرجع)|وش (?:الكتب|المراجع)|ايش (?:الكتب|المراجع)|(?:قائمه|قايمه) (?:الكتب|المراجع)|الكتب (?:اللي|الي|الموجوده) عندك|وش عندك من كتب/.test(flat) && !named.length) return this.library();
@@ -186,6 +191,7 @@ export class Assistant {
     const who = /^(?:من|مين|منو|وش|ايش)\s+(?:هو\s+|هي\s+)?(.+)$/.exec(flat);
     if (who && ctx.people.length) { const r = this.person(who[1]); if (r) return r; }
     if (!named.length && OFFTOPIC.test(flat) && !dreamWords.test(flat)) return this.reply(this.say('nothing', { q: q.raw }));
+    if (!named.length) { const d = await this.discuss(q); if (d) return d; }
     return this.search(q, named);
   }
 
@@ -248,6 +254,154 @@ export class Assistant {
     m.shown += next.length; return this.reply(this.say('more_intro'), next, m.shown < m.cards.length ? ['زدني'] : []);
   }
 
+  // ---------- the discussion: proofs laid beside the asker's words (see lib/discuss.ts) ----------
+  private env() { return { engine: this.ctx.engine, lists: this.ctx.lists ?? {} }; }
+  private labelOf(id: string) { return this.topics.find((t) => t.id === id)?.label; }
+  private menu(): string[] { return ['aqsam', 'hukm', 'makruha', 'adab'].map((i) => this.labelOf(i)).filter((x): x is string => !!x); }
+  private follow(t?: Topic): string[] { return (t?.follow ?? []).map((i) => this.labelOf(i)).filter((x): x is string => !!x).slice(0, 3); }
+  private toCard(e: Evidence): Card { return { title: e.title, where: e.where, quote: e.quote, open: [], tier: e.tier }; }
+  /** the proofs of a topic, in the order of a scholar (Qur'an, Sunnah, the rules of the interpreters, the books); the same passage is never shown twice */
+  private async evidenceOf(t: Topic, q: Q, only?: Tier): Promise<Card[]> {
+    const out: Card[] = []; const seen = new Set<string>(); const user = q.content.join(' ');
+    for (const a of t.ask) {
+      if (only && a.tier !== only) continue;
+      let ev: Card[];
+      if (a.src === 'books') ev = await this.booksFor((a.q === '$' ? user : a.q ?? '').split(/\s+/).filter(Boolean), [], this.ctx.books.filter((b) => !a.list || b.list === a.list), 2, a.n ?? 2, false);
+      else ev = gather(this.env(), a, user).map((e) => this.toCard(e));
+      for (const c of ev) { const k = c.tier + '|' + c.title + '|' + c.quote.slice(0, 40); if (seen.has(k)) continue; seen.add(k); out.push(c); }
+    }
+    return out.sort((x, y) => TIER_ORDER.indexOf(x.tier!) - TIER_ORDER.indexOf(y.tier!));
+  }
+  private show(q: Q, cards: Card[], topic?: Topic, narrate?: string[]) { const first = cards.slice(0, 6); this.mem = { query: q.raw, cards, shown: first.length, topic, narrate }; return first; }
+
+  private async discuss(q: Q): Promise<Reply | null> {
+    const it = classify(q.raw, q.norm); const m = matchTopic(q.norm, this.topics); const topic = m?.topic;
+    if (this.mem?.narrate && !topic && !it.challenge && !it.objection && q.toks.length <= 16) { const r = await this.dreamerContext(q); if (r) return r; }
+    const tOnly = this.mem && q.toks.length <= 5 ? tierOf(q.norm) : null; if (tOnly && !it.challenge) return this.proof(q, { ...it, tier: tOnly }, topic);
+    if (it.challenge) return this.proof(q, it, topic);
+    if (it.objection && !topic && !it.ruling) return this.probe();
+    if (topic) return this.onTopic(q, it, topic);
+    if (it.narrate) return this.narrate(q);
+    if (it.claim && !it.ruling) return this.reply(this.say('disc_claim_open'), [], this.menu());
+    if (it.compare) { const ps = this.peopleIn(q); if (ps.length >= 2) return this.reply(this.say('person_intro', { name: ps.map((d) => d.ref).join(' و') }), ps.map((d) => ({ title: d.ref ?? '', where: d.source ?? 'المعبِّرون', quote: d.text.replace(/\s*\n\s*/g, '، '), open: [] as Open[] }))); }
+    if (it.ruling || it.why || it.compare) return DOMAIN.test(q.norm) ? this.generic(q, it) : this.reply(this.say('disc_outside'), [], this.menu());
+    return null;
+  }
+
+  /** the interpreters whose family name is in the message */
+  private peopleIn(q: Q): Doc[] {
+    const SKIP = new Set(['امام', 'بن', 'ابن', 'ابو', 'رضي', 'الله', 'عنه', 'عنهما', 'عليه', 'السلام', 'نبي', 'شيخ']); const have = new Set(q.toks.map(queryStem));
+    return this.ctx.people.filter((d) => { const ws = stems(d.ref ?? '').filter((w) => !SKIP.has(w) && w.length >= 3); const last = ws[ws.length - 1]; return !!last && have.has(last); });
+  }
+
+  private async onTopic(q: Q, it: Intent, t: Topic): Promise<Reply> {
+    const syms = it.narrate ? (await this.symbolCards(q)).cards : []; const ev = await this.evidenceOf(t, q);
+    const all = [...syms, ...ev]; if (!all.length) return this.reply(this.say('disc_none'), [], this.menu());
+    const cat = it.ruling ? 'disc_ruling' : it.objection ? 'disc_objection_topic' : it.claim ? 'disc_claim' : 'disc_topic';
+    const first = this.show(q, all, t); const more = all.length > first.length ? ['زدني'] : [];
+    return this.reply(this.say(cat, { topic: t.label }), first, [...more, ...this.follow(t)], it.claim || it.objection ? this.say('disc_claim_after') : '');
+  }
+
+  /** «وش الدليل؟»: the proofs of the topic in hand (all, or only those of the Qur'an / the Sunnah / the books when asked), else the sources of what was quoted before */
+  private async proof(q: Q, it: Intent, topic?: Topic): Promise<Reply> {
+    const t = topic ?? this.mem?.topic;
+    if (t) {
+      let cards = await this.evidenceOf(t, q, it.tier ?? undefined); let cat = it.tier ? 'disc_tier_only' : 'disc_challenge';
+      if (it.tier && !cards.length) { cards = await this.evidenceOf(t, q); cat = 'disc_tier_none'; }
+      if (!cards.length) return this.reply(this.say('disc_none'), [], this.menu());
+      const first = this.show(q, cards, t);
+      return this.reply(this.say(cat, { topic: t.label, tier: it.tier ? TIER_LABEL[it.tier] : '' }), first, [...(cards.length > first.length ? ['زدني'] : []), ...this.follow(t)]);
+    }
+    if (this.mem?.cards.length) {
+      if (it.tier) { const r = await this.generic(parseQuery(this.mem.query), { ...it, ruling: false }, it.tier); return r ?? this.reply(this.say('disc_tier_empty', { tier: TIER_LABEL[it.tier] }), [], ['الدليل من السنة', 'كلام أهل العلم في ذلك']); }
+      return this.reply(this.say('disc_challenge_prev'), this.mem.cards.slice(0, 4), ['زدني']);
+    }
+    return this.reply(this.say('disc_challenge_none'), [], this.menu());
+  }
+  private probe(): Reply {
+    if (this.mem?.cards.length) return this.reply(this.say('disc_probe'), [], ['الدليل من القرآن', 'الدليل من السنة', 'كلام أهل العلم في ذلك', ...(this.mem.cards.length > this.mem.shown ? ['زدني'] : [])]);
+    return this.reply(this.say('disc_probe_open'), [], this.menu());
+  }
+
+  /** a ruling / a why / a comparison / an opinion that no topic of the content names: what the Sunnah, the rules and the books hold for its words */
+  private async generic(q: Q, it: Intent, only?: Tier): Promise<Reply | null> {
+    const words = q.content.filter((w) => !GEN_STOP.has(w) && !GEN_STOP.has(queryStem(w))); if (!words.length) return null; const w = words.join(' ');
+    const want = (t: Tier) => !only || only === t; const cards: Card[] = [];
+    if (want('quran') && (only === 'quran' || /قران|ايه|ايات|سوره/.test(q.norm))) cards.push(...gather(this.env(), { tier: 'quran', src: 'quran', q: w, n: 3 }).map((e) => this.toCard(e)));
+    if (want('hadith')) cards.push(...gather(this.env(), { tier: 'hadith', src: 'ruyahadith', q: w, n: 3 }).map((e) => this.toCard(e)));
+    if (want('rules')) cards.push(...gather(this.env(), { tier: 'rules', src: 'qawaid', q: w, n: 2 }).map((e) => this.toCard(e)));
+    if (want('books')) cards.push(...await this.booksFor(words, q.exp, this.ctx.books, 1, 4, false));
+    if (!cards.length) return only ? null : (dreamWords.test(q.norm) || it.ruling ? this.reply(this.say('disc_none'), [], this.menu()) : null);
+    cards.sort((x, y) => TIER_ORDER.indexOf(x.tier!) - TIER_ORDER.indexOf(y.tier!));
+    const first = this.show(q, cards);
+    return this.reply(this.say(it.ruling ? 'disc_generic_ruling' : 'disc_generic'), first, cards.length > first.length ? ['زدني'] : this.menu().slice(0, 3), it.claim || it.objection ? this.say('disc_claim_after') : '');
+  }
+
+  /** a narrated dream: what the books say of each thing the dreamer names (the dictionary of the symbols), then the rule that the reading depends on the dreamer's state, and a question about it */
+  private async symbolCards(q: Q): Promise<{ cards: Card[]; syms: string[] }> {
+    const eng = this.ctx.engine; const cards: Card[] = []; const syms: string[] = []; if (!eng?.has('books')) return { cards, syms };
+    const ws = [...new Set(q.content.filter((w) => !NARR_STOP.has(w) && !NARR_STOP.has(queryStem(w)) && !dreamWords.test(w)))].sort((a, b) => b.length - a.length).slice(0, 7); const seen = new Set<string>();
+    for (const w of ws) {
+      if (cards.length >= 4) break;
+      try { let word = w; let r = w.length > 3 && w.startsWith('و') ? eng.lookup('books', w.slice(1)).results.find((x) => x.group === 'meaning') : undefined; if (r) word = w.slice(1); else r = eng.lookup('books', w).results.find((x) => x.group === 'meaning'); if (!r || seen.has(r.doc.id)) continue; seen.add(r.doc.id); syms.push(word); cards.push({ title: r.doc.ref || word, where: r.doc.source ?? 'الكتب', quote: snippet(r.doc.text, new Set(keysOf(word))), open: [], tier: 'books' }); } catch { /* nothing for this word */ }
+    }
+    return { cards, syms };
+  }
+  private async narrate(q: Q): Promise<Reply> {
+    const { cards, syms } = await this.symbolCards(q); const rule = gather(this.env(), { tier: 'rules', src: 'qawaid', q: 'الشيء الواحد يختلف باختلاف حال الرائي', n: 1 }).map((e) => this.toCard(e));
+    const first = this.show(q, [...cards, ...rule], undefined, q.content);
+    if (!cards.length) return this.reply(this.say(q.content.length ? 'narr_none' : 'narr_ask'), [], this.menu().slice(0, 2), '');
+    return this.reply(this.say('narr_intro', { syms: syms.map((x) => `«${x}»`).join(' و') }), first, [], this.say('narr_probe'));
+  }
+  /** after a narrated dream the dreamer tells his state: the books' rule that counts it is quoted (the assistant does not interpret) */
+  private async dreamerContext(q: Q): Promise<Reply | null> {
+    const f = q.norm; const asks: string[] = [];
+    if (/متزوج|اعزب|عزباء|متزوجه|مطلق|ارمل|حامل|صغير|كبير|شاب|بنت|ولد|اب |ام /.test(f)) asks.push('الشيء الواحد يختلف باختلاف حال الرائي');
+    if (/تاجر|معلم|طبيب|مهندس|جندي|عسكري|طالب|موظف|مزارع|اشتغل|وظيفتي|مهنتي|شغلي|نجار|حداد|سائق|محاسب|خياط|اعمل|اعمل في|عاطل/.test(f)) asks.push('اختلاف التأويل باختلاف الصنعة والمعيشة');
+    if (/مريض|مرض|تعبان|حمى|اشتكي|عليل/.test(f)) asks.push('اختلاف التأويل باختلاف المرض');
+    if (/صيف|شتاء|ربيع|خريف|الفجر|السحر|الليل|الظهر|العصر|المغرب|العشاء|الصبح|النهار|نهارا|ليلا/.test(f)) asks.push('اختلاف التأويل باختلاف الزمان والفصول', 'التعبير بالوقت');
+    if (/مسافر|غربه|بلدي|اهل بلدي|بالخارج/.test(f)) asks.push('اختلاف التأويل باختلاف المكان والبلد');
+    if (/مسلم|نصراني|مسيحي|يهودي|ديني|ملتزم/.test(f)) asks.push('اختلاف التأويل باختلاف الدين والعادة');
+    if (!asks.length) return null;
+    const cards = [...new Map(asks.flatMap((a) => gather(this.env(), { tier: 'rules', src: 'qawaid', q: a, n: 1 }).map((e) => this.toCard(e))).map((c) => [c.title, c])).values()].slice(0, 3);
+    if (!cards.length) return null;
+    return this.reply(this.say('disc_ctx'), cards, this.menu().slice(0, 2));
+  }
+
+  /** the passages of the books that hold the words (BM25 over the paragraphs of the books' texts, opened on first use); at most `per` of one book, `limit` in all */
+  private async booksFor(words: string[], exp: string[], pool: BookMeta[], per: number, limit: number, skipInApp: boolean): Promise<Card[]> {
+    const ctx = this.ctx; words = words.flatMap((w) => tokens(normalize(w))); exp = exp.flatMap((w) => tokens(normalize(w))); const fresh = pool.filter((b) => b.textFile && !this.texts.has(b.id)).length;
+    if (fresh > 3) ctx.onStatus?.(this.say('loading'));
+    const texts = await Promise.all(pool.map(async (b) => [b, await this.text(b)] as const));
+    const qk = words.map((w) => keysOf(w)); const ek = exp.map((w) => keysOf(w)); const keySet = new Set([...qk, ...ek].flat());
+    const cand: { b: BookMeta; t: BookText; i: number; s: number }[] = [];
+    if (!qk.length) return [];
+    for (const [b, t] of texts) {
+      if (!t) continue; if (skipInApp && b.card.inApp) continue;                    // the dictionary above already holds what the books of the tab say
+      const ix = indexOf(b, t); const N = ix.n; const score = new Map<number, { s: number; hit: number }>();
+      const add = (keys: string[], w: number, orig: boolean) => {
+        let best: Uint32Array | undefined; for (const k of keys) { const p = ix.post.get(k); if (p && (!best || p.length > best.length)) best = p; }
+        if (!best) return; const idf = Math.log(1 + (N - best.length + 0.5) / (best.length + 0.5));
+        for (const i of best) { const tf = 1; const norm = 1.2 * (0.25 + 0.75 * (ix.len[i] / ix.avg)); const sc = w * idf * (tf * 2.2) / (tf + norm); const o = score.get(i) ?? { s: 0, hit: 0 }; o.s += sc; if (orig) o.hit++; score.set(i, o); }
+      };
+      qk.forEach((k) => add(k, 1, true)); ek.forEach((k) => add(k, 0.45, false));
+      const need = qk.length <= 2 ? qk.length : Math.ceil(qk.length * 0.7);
+      for (const [i, o] of score) {
+        if (o.hit < need) continue; const len = ix.len[i]; if (len < 6) continue;
+        let s = o.s * (o.hit / qk.length) ** 1.5; if (len > 400) s *= 0.8;
+        if (normalize(t.p[i]).includes(words.join(' '))) s *= 1.35;                                                          // the words together, as asked
+        cand.push({ b, t, i, s });
+      }
+    }
+    cand.sort((a, b) => b.s - a.s);
+    const cnt = new Map<string, number>(); const picked: typeof cand = []; const seen = new Set<string>();
+    for (const c of cand) {
+      const n = cnt.get(c.b.id) ?? 0; if (n >= per) continue; const sig = normalize(c.t.p[c.i]).slice(0, 60); if (seen.has(sig)) continue;
+      seen.add(sig); cnt.set(c.b.id, n + 1); picked.push(c); if (picked.length >= limit) break;
+    }
+    return picked.map((c) => { const w = whereIs(c.b, c.t, c.i); return { title: c.b.title, where: [w.page, w.chapter && `باب/فصل: ${w.chapter}`].filter(Boolean).join(' — ') || 'نص الكتاب', quote: snippet(c.t.p[c.i], keySet), open: openFor(c.b, c.t, c.i), tier: 'books' as Tier }; });
+  }
+
   private async search(q: Q, named: BookMeta[]): Promise<Reply> {
     const ctx = this.ctx; const words = q.content; const flat = q.norm;
     if (!words.length) return this.reply(this.say('empty'));
@@ -266,39 +420,7 @@ export class Assistant {
     if (wantQuran && ctx.engine?.has('quran')) { try { const lk = ctx.engine.lookup('quran', sym); for (const r of lk.results.slice(0, 3)) cards.push({ title: `${r.doc.surahName ?? ''} — آية ${r.doc.ayah ?? ''}`, where: 'القرآن الكريم', quote: r.doc.text, open: [] }); } catch { /* none */ } }
     if (wantHadith && ctx.engine?.has('jami')) { try { const lk = ctx.engine.lookup('jami', sym); for (const r of lk.results.slice(0, 3)) cards.push({ title: 'حديث', where: `السنة النبوية${r.doc.grade ? ' — ' + r.doc.grade : ''}`, quote: snippet(r.doc.text, new Set(words.flatMap(keysOf))), open: [] }); } catch { /* none */ } }
     // 2) the full texts of the books of the lists (the named books only when the question names them)
-    const pool = named.length ? named : ctx.books; const fresh = pool.filter((b) => b.textFile && !this.texts.has(b.id)).length;
-    if (fresh > 3) ctx.onStatus?.(this.say('loading'));
-    const texts = await Promise.all(pool.map(async (b) => [b, await this.text(b)] as const));
-    const qk = words.map((w) => keysOf(w)); const ek = q.exp.map((w) => keysOf(w));
-    const keySet = new Set([...qk, ...ek].flat());
-    const cand: { b: BookMeta; t: BookText; i: number; s: number }[] = [];
-    for (const [b, t] of texts) {
-      if (!t) continue; if (!named.length && cards.length && b.card.inApp) continue;                    // the dictionary above already holds what the books of the tab say
-      const ix = indexOf(b, t); const N = ix.n; const score = new Map<number, { s: number; hit: number }>();
-      const add = (keys: string[], w: number, orig: boolean) => {
-        let best: Uint32Array | undefined; for (const k of keys) { const p = ix.post.get(k); if (p && (!best || p.length > best.length)) best = p; }
-        if (!best) return; const idf = Math.log(1 + (N - best.length + 0.5) / (best.length + 0.5));
-        for (const i of best) { const tf = 1; const norm = 1.2 * (0.25 + 0.75 * (ix.len[i] / ix.avg)); const sc = w * idf * (tf * 2.2) / (tf + norm); const o = score.get(i) ?? { s: 0, hit: 0 }; o.s += sc; if (orig) o.hit++; score.set(i, o); }
-      };
-      qk.forEach((k) => add(k, 1, true)); ek.forEach((k) => add(k, 0.45, false));
-      const need = qk.length <= 2 ? qk.length : Math.ceil(qk.length * 0.7);
-      for (const [i, o] of score) {
-        if (o.hit < need) continue; const len = ix.len[i]; if (len < 6) continue;
-        let s = o.s * (o.hit / qk.length) ** 1.5; if (len > 400) s *= 0.8;
-        if (normalize(t.p[i]).includes(words.join(' '))) s *= 1.35;                                                          // the words together, as asked
-        cand.push({ b, t, i, s });
-      }
-    }
-    cand.sort((a, b) => b.s - a.s);
-    const per = new Map<string, number>(); const picked: typeof cand = []; const seen = new Set<string>();
-    for (const c of cand) {
-      const n = per.get(c.b.id) ?? 0; if (n >= (named.length ? 6 : 2)) continue; const sig = normalize(c.t.p[c.i]).slice(0, 60); if (seen.has(sig)) continue;
-      seen.add(sig); per.set(c.b.id, n + 1); picked.push(c); if (picked.length >= 12) break;
-    }
-    for (const c of picked) {
-      const w = whereIs(c.b, c.t, c.i);
-      cards.push({ title: c.b.title, where: [w.page, w.chapter && `باب/فصل: ${w.chapter}`].filter(Boolean).join(' — ') || 'نص الكتاب', quote: snippet(c.t.p[c.i], keySet), open: openFor(c.b, c.t, c.i) });
-    }
+    cards.push(...await this.booksFor(words, q.exp, named.length ? named : ctx.books, named.length ? 6 : 2, 12, !named.length && cards.length > 0));
     if (!cards.length) { this.mem = null; return this.reply(this.say('nothing', { q: q.raw })); }
     const first = cards.slice(0, 4); this.mem = { query: q.raw, cards, shown: first.length };
     if (cards.length === 1) intro = 'found_one';

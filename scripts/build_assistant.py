@@ -7,6 +7,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content_lib as CL
 P = json.load(open('data/assistant/phrases.json', encoding='utf8'))
 rows = [[cat, ph, ''] for cat, lst in P.items() for ph in lst]
+# the topics of the discussions (data/assistant/topics.json): which words call each, and what to look for in which reference — quotations only, no text of knowledge
+TOPICS = json.load(open('data/assistant/topics.json', encoding='utf8'))
+assert len({t['id'] for t in TOPICS}) == len(TOPICS) and all(set(t.get('follow', [])) <= {x['id'] for x in TOPICS} for t in TOPICS)
+rows += [['topic', json.dumps(t, ensure_ascii=False, separators=(',', ':')), ''] for t in TOPICS]
 assert all('{' not in ph or ph.count('{') == ph.count('}') for _, ph, _ in rows)
 CL.publish('assistant', 'المساعد الذكي', 'generic', {'h': rows}, len(rows), extra={'drawer': True, 'card': 'assistant', 'menu': 'المساعد الذكي', 'sub': 'اسألني عن أي كتاب أو رمز، وأجاوبك من المراجع اللي في التطبيق بس.', 'placeholder': 'اكتب سؤالك'})
 p = 'content/manifest.json'; m = json.load(open(p, encoding='utf8'))

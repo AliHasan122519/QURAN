@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 475,
- "updated": "2026-11-25T05:57:32Z",
+ "version": 485,
+ "updated": "2026-11-25T11:04:37Z",
  "apk": {
   "versionCode": 29926452,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -69,8 +69,8 @@
    "label": "المساعد الذكي",
    "kind": "generic",
    "file": "assistant.json",
-   "sha256": "ce04671f754a9bc35330e86dfb9467628f6475a87fa1be81f06cc92f67bc05af",
-   "count": 67,
+   "sha256": "69e138b91d10d0fdf07cfe1cc0595a692c9af869b3ec1b959f35d8b674de8f34",
+   "count": 118,
    "drawer": true,
    "card": "assistant",
    "menu": "المساعد الذكي",

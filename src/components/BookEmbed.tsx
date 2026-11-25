@@ -24,7 +24,6 @@ export function BookEmbed({ title, id, toc, tocSrc, startLeaf, manuscript, onClo
           <h2 className="rd-title">{title}</h2>
           {toc.length > 0 && <div className="rd-tools"><button type="button" className="rd-tool" aria-label="فهرس الكتاب" aria-pressed={open} onClick={() => setOpen(!open)}><ListTree size={19} aria-hidden="true" /><span>الفهرس</span></button></div>}
         </div>
-        <p className="rd-ocr" role="note">{manuscript ? 'صور صفحات المخطوطة بخط كاتبها.' : 'صفحات الكتاب كما طُبعت (صور).'} تحتاج إلى اتصال بالإنترنت، ويمكنك التنقل بين الصفحات بأزرار العارض.</p>
         <iframe key={rev} className="rd-frame" title={`صفحات كتاب ${title}`} src={src} allowFullScreen loading="eager" referrerPolicy="no-referrer" />
         {open && (
           <div className="rd-sheet" role="dialog" aria-label="فهرس الكتاب">

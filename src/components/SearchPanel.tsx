@@ -37,7 +37,6 @@ export function SearchPanel({ tab, engine, state, retry }: { tab: Tab; engine: E
           <input id={`q-${src}`} ref={input} value={q} dir="rtl" enterKeyHint="search" inputMode="search" autoComplete="off" placeholder={cfg.placeholder} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="form-row">
-          <p className="hint">{cfg.hint}</p>
           <button type="submit" className="go" disabled={busy || !q.trim() || waiting || state !== 'ready'}>
             {busy ? <><Loader2 size={16} className="spin" />جارٍ البحث…</> : <><Search size={16} />ابحث</>}
           </button>
@@ -49,7 +48,6 @@ export function SearchPanel({ tab, engine, state, retry }: { tab: Tab; engine: E
       {state === 'absent' && <div className="soft" role="status"><cfg.Icon size={26} /><p>هذا القسم غير متاح حالياً.</p></div>}
       {(waiting || busy) && !res && <Skeleton />}
       {!busy && state === 'ready' && res && <Results res={res} kind={tab.kind} card={tab.card} empty={cfg.empty} />}
-      {!res && !busy && !waiting && state === 'ready' && <div className="soft"><cfg.Icon size={28} className="gold" /><p>ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.</p></div>}
     </div>
   );
 }
@@ -69,7 +67,7 @@ function Results({ res, kind, card, empty }: { res: Lookup; kind: Kind; card?: '
         <div><span>نتائج مطابقة نصياً: <b>{toAr(res.directCount)}</b></span>{res.semanticCount > 0 && <><span className="sep">•</span><span>نتائج دلالية إضافية: <b>{toAr(res.semanticCount)}</b></span></>}{res.capped && <><span className="sep">•</span><span>عُرضت أول {toAr(res.results.length)} نتيجة</span></>}</div>
         {res.expansion && <div className="badges">{res.expansion.root && <span className="badge-root">الجذر: {res.expansion.root}</span>}{res.expansion.terms.slice(0, 6).map((t) => <span className="badge-2" key={t}>{t}</span>)}</div>}
       </div>}
-      {res.dialect?.some((d) => d.kind === 'dialect') ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => d.kind === 'dialect' ? <div key={d.from + 'd'}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b> — وبُحث بها مع ما كتبتَ.</div> : null)}</div> : null}
+      {res.dialect?.some((d) => d.kind === 'dialect') ? <div className="stats dialect-note" role="note">{res.dialect.map((d) => d.kind === 'dialect' ? <div key={d.from + 'd'}>فُهمت «{d.from}» بالفصحى: <b>{d.to.join('، ')}</b></div> : null)}</div> : null}
       {res.results.map((r, idx) => {
         const head = r.group && (idx === 0 || res.results[idx - 1].group !== r.group)
           ? <h3 className="group-title" key={'g' + idx}>{r.group === 'meaning' ? `معاني «${res.symbol ?? res.query}» (${toAr(res.groups?.meaning ?? 0)})` : `ورد ذكره أيضاً في كلام المعبّرين (${toAr(res.groups?.mention ?? 0)})`}</h3> : null;

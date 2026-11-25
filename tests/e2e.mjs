@@ -26,11 +26,11 @@ await page.screenshot({ path: 'tests/screenshots/home.png' });
 
 // ---------- structure = the original ----------
 const h1 = await page.locator('h1').innerText(); log('مطابقة الأصل', 'العنوان «الباحث القرآني»', h1.trim() === 'الباحث القرآني');
-log('مطابقة الأصل', 'الشارة العلوية ونص التعريف كما في الأصل', (await page.locator('.badge-top').innerText()).includes('بحث نصّي دقيق مع توسعة دلالية اشتقاقية') && (await page.locator('.hero p').innerText()).includes('منصّة بحث شرعي في القرآن الكريم والسنة النبوية الصحيحة'));
+log('مطابقة الأصل', 'الصفحة الرئيسية: العنوان فقط، بلا شارة ولا فقرة تعريف', (await page.locator('.hero h1').count()) === 1 && (await page.locator('.badge-top').count()) === 0 && (await page.locator('.hero p').count()) === 0);
 log('مطابقة الأصل', 'ستة تبويبات: القرآن الكريم، السنة النبوية، الأمثال، النظم (الألفية الوردية والعبير)، الكتب، أبيات الإستشهاد', JSON.stringify(await page.locator('.tab').allInnerTexts()) === JSON.stringify(['القرآن الكريم', 'السنة النبوية', 'الأمثال', 'النظم', 'الكتب', 'أبيات الإستشهاد']));
-log('مطابقة الأصل', 'حقل البحث في القرآن يحمل «اكتب هنا» بلا أمثلة', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب هنا' && (await panel('quran').locator('.hint').innerText()).includes('البحث يبدأ مطابقاً لرسم المصحف'));
+log('مطابقة الأصل', 'حقل البحث في القرآن يحمل «اكتب هنا» بلا أمثلة ولا سطر توضيحي', (await panel('quran').locator('input').getAttribute('placeholder')) === 'اكتب هنا' && (await panel('quran').locator('.hint').count()) === 0);
 for (const id of ['quran', 'jami', 'amthal', 'alfiya', 'books', 'shawahid']) log('حقول البحث', `حقل «${id}» نصه «اكتب هنا» فقط`, (await panel(id).locator('input').getAttribute('placeholder')) === 'اكتب هنا');
-log('مطابقة الأصل', 'الحالة الأولى: «ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.»', (await panel('quran').locator('.soft').innerText()).includes('ابدأ بكتابة كلمة أو عبارة في الأعلى لعرض النتائج هنا.'));
+log('مطابقة الأصل', 'الحالة الأولى: لا رسالة توضيحية قبل البحث', (await panel('quran').locator('.soft').count()) === 0);
 const extras = await page.evaluate(() => ({ links: document.querySelectorAll('a[href]').length, checks: document.querySelectorAll('input[type=checkbox], select').length, nav: document.querySelectorAll('nav, header nav').length, fav: [...document.querySelectorAll('button:not(.theme-toggle)')].some((b) => /المفضلة|السجل|الفلاتر|للأعلى|مشاركة|^نسخ|تغيير الخلفية|الوضع/.test(b.innerText + (b.getAttribute('aria-label') || ''))) }));
 log('مطابقة الأصل', 'لا فلاتر ولا مفضلة ولا سجل ولا قوائم ولا روابط ولا أزرار إضافية (عدا زر الوضع الداكن/الفاتح المطلوب)', extras.links === 0 && extras.checks === 0 && extras.nav === 0 && !extras.fav, JSON.stringify(extras));
 const geo = await page.evaluate(() => { const g = (s) => document.querySelector(s).getBoundingClientRect(); const c = (s, p) => getComputedStyle(document.querySelector(s))[p]; return { inputH: g('#q-quran').height, inputR: c('#q-quran', 'borderRadius'), btnH: g('#panel-quran button.go').height, btnR: c('#panel-quran button.go', 'borderRadius'), tabR: c('.tab', 'borderRadius'), tabsR: c('.tabs', 'borderRadius') }; });
@@ -67,7 +67,7 @@ log('السنة النبوية', 'التوسعة الدلالية تُفعَّل
 await search('jami', 'الجار'); log('السنة النبوية', '«الجار» ← حتى ٨٠ نتيجة بلا ترقيم صفحات', (await cards('jami').count()) > 0 && (await cards('jami').count()) <= 80);
 await search('jami', 'قشطة'); log('الحالات', 'لا نتائج ← «لم نعثر على أحاديث تطابق بحثك.»', (await panel('jami').locator('.soft').innerText()).includes('لم نعثر على أحاديث تطابق بحثك.'));
 const allTxt = await page.evaluate(() => document.body.innerText);
-log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs, .foot, .hint').allInnerTexts().then((a) => a.join(' '))));
+log('المصادر', 'لا أثر لصحيح البخاري/مسلم في الواجهة', !/صحيح البخاري|صحيح مسلم/.test(await page.locator('.hero, .tabs').allInnerTexts().then((a) => a.join(' '))));
 const dataReq = [...new Set(requests.filter((u) => /\/content\//.test(u)).map((u) => u.split('/').pop()))];
 log('المصادر', 'لا تُحمَّل بيانات سوى مصادر الموقع', dataReq.length > 0 && dataReq.every((f) => /^(quran|jami|amthal|alfiya|books|shawahid|assistant|ruaa|anbiya|muabbirun|qawaid|ruyahadith|muqaranat|kutubtabir|nazm|kutubfiras|about|manifest)\./.test(f)), dataReq.join(', '));
 
@@ -155,7 +155,7 @@ await panel('amthal').locator('button.sharh').first().click(); log('الأمثا
 await search('amthal', 'xyzqq'); log('الحالات', 'لا نتائج في الأمثال ← «لم نعثر على نتائج تطابق بحثك.»', (await panel('amthal').locator('.soft').innerText()).includes('لم نعثر على نتائج تطابق بحثك.'));
 
 log('مطابقة الأصل', 'لا أمثلة ولا أزرار أمثلة تحت زر البحث', (await page.locator('.ex-chip, .examples').count()) === 0 && !(await page.locator('.sform').first().innerText()).includes('أمثلة:'));
-log('مطابقة الأصل', 'التذييل تعريف عام بسيط بلا أسماء كتب', (await page.locator('.foot').innerText()).trim() === 'منصّة بحث في القرآن الكريم والسنة النبوية. لا يُعرض أي تفسير أو رأي شخصي.');
+log('مطابقة الأصل', 'لا تذييل في الصفحة الرئيسية', (await page.locator('.foot').count()) === 0);
 
 await search('quran', 'الصبر'); log('البحث', 'المصطلح المبحوث عنه يُفرَّغ من حقل البحث تلقائياً بعد البحث', (await panel('quran').locator('input').inputValue()) === '' && (await cards('quran').count()) > 0);
 await search('jami', 'الماء البارد'); log('السنة النبوية', 'حديث «إذا حم أحدكم فليشن عليه الماء البارد» مصحَّح ويُعثر عليه', /فليشن عليه الماء البارد/.test(await cards('jami').first().innerText()) || (await panel('jami').innerText()).includes('فليشن عليه الماء البارد'));
@@ -203,11 +203,11 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'رؤى عبّرت' }).click(); await page.waitForSelector('.panel .dream-card');
   log('القائمة الجانبية', 'زر «رؤى عبّرت» يفتح القائمة الخاصة «رؤى وتعبيرها»', (await page.locator('.panel .panel-head h2').innerText()).includes('رؤى وتعبيرها'));
   const n0 = await page.locator('.dream-card').count();
-  const sub = await page.locator('.panel-sub').innerText();
+  const sub = '';
   log('رؤى وتعبيرها', 'تُعرض الرؤى بطاقات (٣٠ ثم «عرض المزيد»)', n0 === 30 && (await page.locator('button.more').count()) === 1, String(n0));
   log('رؤى وتعبيرها', 'كل بطاقة تذكر المرجع', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /المرجع: /.test(c.innerText)))));
   log('رؤى وتعبيرها', 'كل بطاقة فيها «الرؤيا» والتعبير', (await page.locator('.dream-card').evaluateAll((a) => a.every((c) => /الرؤيا/.test(c.innerText)))));
-  log('رؤى وتعبيرها', 'العدد المعلن أكثر من ٩٠٠ رؤيا ومن عدة مراجع', toNum(sub.split(' رؤيا')[0]) > 900 && /مرجعاً|مراجع/.test(sub), sub);
+  log('رؤى وتعبيرها', 'بلا سطر عدّادات تحت العنوان', (await page.locator('.panel-sub').count()) === 0);
   log('رؤى وتعبيرها', 'حقل البحث «اكتب هنا» فقط', (await page.locator('#q-dreams').getAttribute('placeholder')) === 'اكتب هنا');
   await page.fill('#q-dreams', 'سمك'); await page.click('.panel button.go'); await page.waitForTimeout(300);
   const found = await page.locator('.dream-card').count();
@@ -231,8 +231,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.drawer-item', { hasText: 'رؤى الأنبياء والصالحين' }).click(); await page.waitForSelector('.panel .dream-card');
   const first = await page.locator('.dream-card').first().innerText();
   log('رؤى الأنبياء والصالحين', 'أول بطاقة رؤيا يوسف من القرآن بنص المصحف ورقم الآية والمرجع', /صاحب الرؤيا: يوسف عليه السلام/.test(first) && /\[يوسف: 4\]/.test(first) && /المرجع: القرآن الكريم — سورة يوسف/.test(first) && (await page.locator('.dream-card').first().locator('.quran-inline').count()) > 0);
-  const sub = await page.locator('.panel-sub').innerText();
-  log('رؤى الأنبياء والصالحين', 'العدد المعلن أكثر من ٢٠٠ مع مراجع متعددة', toNum(sub.split(' ')[0]) > 200 && /مرجعاً|مراجع/.test(sub), sub);
+  const sub = '';
+  log('رؤى الأنبياء والصالحين', 'بلا سطر عدّادات تحت العنوان', (await page.locator('.panel-sub').count()) === 0);
   const opts = await page.locator('.panel select[aria-label="المرجع"] option').allInnerTexts();
   log('رؤى الأنبياء والصالحين', 'المراجع: القرآن والجامع الصغير وكتب التعبير والمنامات', ['القرآن الكريم', 'الجامع الصغير', 'المنامات', 'القادري'].every((k) => opts.some((o) => o.includes(k))), opts.length + ' مرجعاً');
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
@@ -252,8 +252,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // «قواعد علم التعبير»
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'قواعد علم التعبير' }).click(); await page.waitForSelector('.rule-card');
   const nRules = await page.locator('.rule-card').count();
-  const ruleSub = await page.locator('.panel-sub').innerText();
-  log('قواعد علم التعبير', 'تُفتح بقواعدها (٥٩) مع عدد الكتب في العنوان الفرعي', toNum(ruleSub.split(' ')[0]) === 59 && /كتب التعبير/.test(ruleSub), `${nRules} | ${ruleSub}`);
+  const ruleSub = '';
+  log('قواعد علم التعبير', 'تُفتح بقواعدها بلا سطر توضيحي', nRules >= 20 && (await page.locator('.panel-sub').count()) === 0, `${nRules}`);
   const sel = await page.locator('.panel select[aria-label="القسم"] option').allInnerTexts();
   log('قواعد علم التعبير', 'أقسام التصفية الأربعة', sel.length === 5 && sel[0] === 'كل الأقسام' && sel.some((x) => x.startsWith('آداب المعبِّر')), sel.join('|'));
   await page.locator('#q-rules').fill('التصحيف'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
@@ -275,8 +275,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('قواعد علم التعبير', 'Escape يغلق القائمة', (await page.locator('.panel-back').count()) === 0);
   // «أحاديث الرؤيا» (البخاري ومسلم)
   await page.click('button.menu-toggle'); await page.locator('.drawer-item', { hasText: 'أحاديث الرؤيا' }).click(); await page.waitForSelector('.rule-card');
-  const hSub = await page.locator('.panel-sub').innerText(); const hTxt = await page.locator('.rule-card').first().innerText();
-  log('أحاديث الرؤيا', 'تُفتح بـ١٧٠ حديثاً من البخاري ومسلم والترمذي وابن ماجه والموطأ، والكتاب مسمّى تحت كل نص', toNum(hSub.split(' ')[0]) === 170 && /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
+  const hSub = ''; const hTxt = await page.locator('.rule-card').first().innerText();
+  log('أحاديث الرؤيا', 'تُفتح بأحاديثها، والكتاب مسمّى تحت كل نص', /صحيح البخاري — كتاب التعبير — حديث 6982/.test(hTxt) && /الرؤيا الصادقة/.test(hTxt), hSub);
   await page.locator('#q-rules').fill('جزء من ستة وأربعين'); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
   log('أحاديث الرؤيا', 'البحث عن «جزء من ستة وأربعين» يجد أحاديث', (await page.locator('.rule-card').count()) > 3);
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
@@ -335,7 +335,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   // التحميل: يُسلَّم للتطبيق (في أندرويد DownloadManager) لا للمتصفح
   await page.evaluate(() => { window.__sv = []; window.__qsDownloader = { download: async (o) => { window.__sv.push({ k: 'pdf', ...o }); return { status: 'started', where: 'downloads' }; }, saveText: async (o) => { window.__sv.push({ k: 'txt', filename: o.filename, len: o.text.length, head: o.text.slice(0, 40) }); return { status: 'saved', where: 'downloads' }; } }; });
   await page.locator('.lib-dl:not(.lib-txt)').click(); await page.waitForFunction(() => window.__sv.length === 1); const sv1 = await page.evaluate(() => window.__sv[0]);
-  log('تحميل', 'زر «تحميل» يطلب من التطبيق نفسه تنزيل ملف PDF من أرشيف الإنترنت باسم الكتاب، ويُخبر المستخدم أنه سيصله إشعار ويجده في «التنزيلات»', sv1.k === 'pdf' && /^https:\/\/archive\.org\/download\/Heliopolis1957_gmail_20180617_2341\/.+\.pdf$/i.test(decodeURIComponent(sv1.url)) && /\.pdf$/.test(sv1.filename) && sv1.filename.includes('المنامات') && /بدأ التحميل في الخلفية/.test(await page.locator('.lib-status').innerText()) && /[0-9]\.[0-9] ميغابايت/.test(await page.locator('.lib-dl:not(.lib-txt)').innerText()), sv1.filename);
+  log('تحميل', 'زر «تحميل» يطلب من التطبيق نفسه تنزيل ملف PDF من أرشيف الإنترنت باسم الكتاب، ويُخبر المستخدم ببدء التحميل وحفظه في «التنزيلات»', sv1.k === 'pdf' && /^https:\/\/archive\.org\/download\/Heliopolis1957_gmail_20180617_2341\/.+\.pdf$/i.test(decodeURIComponent(sv1.url)) && /\.pdf$/.test(sv1.filename) && sv1.filename.includes('المنامات') && /بدأ التحميل/.test(await page.locator('.lib-status').innerText()) && /[0-9]\.[0-9] ميغابايت/.test(await page.locator('.lib-dl:not(.lib-txt)').innerText()), sv1.filename);
   await page.locator('.lib-txt').click(); await page.waitForFunction(() => window.__sv.length === 2); const sv2 = await page.evaluate(() => window.__sv[1]);
   log('تحميل', 'زر «تحميل الكتاب المفرَّغ» يحفظ نص الكتاب كاملاً على الجهاز (أكثر من ١٠٠ ألف حرف) باسمه', sv2.k === 'txt' && /\.txt$/.test(sv2.filename) && sv2.len > 100000 && sv2.head.startsWith('المنامات') && /تم حفظ الملف في مجلد «التنزيلات»/.test(await page.locator('.lib-status').innerText()), sv2.len + ' ' + sv2.filename);
   await page.evaluate(() => { delete window.__qsDownloader; });
@@ -398,7 +398,7 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('كتب الفراسة', 'النقر على «المقالة الثالثة» ينقل إلى صفحتها في النص (ص13)', /ص\s*١٣|ص\s*13/.test(await page.locator('.rd-text').innerText()) || (await page.locator('.rd-text').innerText()).includes('المقالة'));
   await page.keyboard.press('Escape'); await page.waitForTimeout(200);
   await page.locator('.lib-scan').first().click(); await page.waitForSelector('iframe.rd-frame');
-  log('كتب الفراسة', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بفهرس مواضعها)، والمطبوع المحقَّق للتحميل', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 1 && (await page.locator('.rd-ocr').innerText()).includes('المخطوطة'));
+  log('كتب الفراسة', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بفهرس مواضعها)، والمطبوع المحقَّق للتحميل', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 1 && (await page.locator('.rd-ocr').count()) === 0);
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // الرازي: كتاب مصوّر له نص مفرَّغ بفهرس يفتح مواضعه وصور صفحاته
   await page.locator('.lib-tile', { hasText: 'الفراسة (دليلك' }).click(); await page.waitForSelector('.lib-detail');
@@ -468,7 +468,20 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.locator('.as-input').fill('دور لي فصل مداواة النفوس في فهرس الأخلاق والسير'); await page.locator('.as-send').click(); await page.waitForFunction(() => document.querySelectorAll('.as-bot:not(.as-typing)').length >= 5, null, { timeout: 30000 });
   const open1 = page.locator('.as-bot:not(.as-typing)').last().locator('.as-link').first();
   log('المساعد الذكي', 'نتيجة الفهرس فيها زر يفتح الكتاب على الموضع نفسه', (await open1.count()) === 1 && (await page.locator('.as-bot:not(.as-typing)').last().locator('.as-link').count()) >= 1);
-  await open1.click(); await page.waitForSelector('.rd-text, iframe.rd-frame', { timeout: 20000 });
+  // لوحة المفاتيح: تضيق الشاشة المرئية، والمحادثة تنزل وحدها فيُرى آخر ما كُتب بلا إغلاق اللوحة
+  log('المساعد الذكي', 'لا عنوان فرعي تحت الاسم ولا سطر توضيحي أسفل المحادثة', (await page.locator('.as-panel .panel-sub').count()) === 0 && (await page.locator('.as-fine').count()) === 0);
+  await page.setViewportSize({ width: 390, height: 430 });
+  const seen = async (sel) => page.evaluate((q) => { const c = document.querySelector('.as-chat').getBoundingClientRect(); const e = [...document.querySelectorAll(q)].pop(); if (!e) return false; const r = e.getBoundingClientRect(); return r.top >= c.top - 2 && r.top <= c.bottom - 10; }, sel);
+  const inView = async () => page.evaluate(() => { const f = document.querySelector('.as-form').getBoundingClientRect(); return f.bottom <= window.innerHeight + 1 && f.top >= 0; });
+  await page.locator('.as-input').fill('ما حكم تعبير الرؤيا'); await page.locator('.as-send').click(); await page.waitForFunction(() => /مو مفتي|يرجع لأهل العلم/.test([...document.querySelectorAll('.as-bot:not(.as-typing) .as-text')].pop().innerText), null, { timeout: 30000 }); await page.waitForTimeout(900);
+  log('المساعد الذكي', 'بعد الإرسال والشاشة ضيقة (لوحة المفاتيح): يُرى أول جواب المساعد وصندوق الكتابة بلا تمرير يدوي', (await seen('.as-bot:not(.as-typing)')) && (await inView()));
+  await page.locator('.as-input').fill('الدليل من السنة'); await page.locator('.as-send').click(); await page.waitForFunction(() => /السنة النبوية/.test([...document.querySelectorAll('.as-bot:not(.as-typing) .as-text')].pop().innerText), null, { timeout: 30000 }); await page.waitForTimeout(900);
+  const tiersOk = await page.evaluate(() => [...document.querySelectorAll('.as-bot:not(.as-typing)')].pop().querySelectorAll('.as-tier').length === 1);
+  log('المساعد الذكي', 'متابعة «الدليل من السنة»: ترويسة واحدة للسنة وتُرى النتيجة الجديدة', tiersOk && (await seen('.as-bot:not(.as-typing)')) && (await inView()));
+  await page.locator('.as-input').fill('أنا أشوف أن الأحلام كلها ما لها معنى'); await page.locator('.as-send').click(); await page.waitForFunction(() => document.querySelectorAll('.as-after').length >= 1, null, { timeout: 30000 }); await page.waitForTimeout(900);
+  log('المساعد الذكي', 'نقاش الرأي: أدلة المسألة ثم سؤال للمتحدث، ويُرى الجواب الجديد', (await page.locator('.as-bot:not(.as-typing)').last().locator('.as-tier').count()) >= 2 && (await seen('.as-bot:not(.as-typing)')));
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.locator('.as-link').first().click(); await page.waitForSelector('.rd-text, iframe.rd-frame', { timeout: 20000 });
   log('المساعد الذكي', 'زر «افتح في الكتاب» يفتح القارئ داخل التطبيق', true);
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
 }

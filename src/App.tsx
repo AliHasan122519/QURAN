@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Sparkles, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { ICONS } from './components/icons';
 import { ThemeToggle } from './components/ThemeToggle';
 import { UpdateDialog } from './components/UpdateDialog';
@@ -108,14 +108,12 @@ export function App() {
           : <DreamsPanel title={opened.label} docs={lists[opened.id] ?? []} onClose={() => setPanel(null)} />)}
       <header className="hero">
         <div className="hero-in">
-          <div className="badge-top"><Sparkles size={14} />بحث نصّي دقيق مع توسعة دلالية اشتقاقية</div>
           <h1>الباحث القرآني</h1>
-          <p>منصّة بحث شرعي في القرآن الكريم والسنة النبوية الصحيحة، تبدأ من اللفظ المطابق ثم تتوسّع إلى الجذر اللغوي والألفاظ القريبة دون أي تفسير شخصي.</p>
           <div className="ornament-divider" />
         </div>
       </header>
 
-      {apkNotice && <button type="button" className="apk-notice" onClick={() => setDialog(true)}><Download size={16} />يتوفر إصدار جديد من التطبيق{apkNotice.notes ? ` — ${apkNotice.notes}` : ''}. اضغط للتحديث.</button>}
+      {apkNotice && <button type="button" className="apk-notice" onClick={() => setDialog(true)}><Download size={16} />يتوفر إصدار جديد من التطبيق{apkNotice.notes ? ` — ${apkNotice.notes}` : ''}</button>}
       {apkNotice && dialog && <UpdateDialog apk={apkNotice} onClose={() => setDialog(false)} />}
       {toast && <div className="toast" role="status">{toast}</div>}
 
@@ -134,9 +132,6 @@ export function App() {
         ))}
       </section>
 
-      <footer className="foot">
-        <p>منصّة بحث في القرآن الكريم والسنة النبوية. لا يُعرض أي تفسير أو رأي شخصي.</p>
-      </footer>
     </main>
   );
 }
