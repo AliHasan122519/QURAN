@@ -83,18 +83,31 @@ def paragraphs(lines, W, H, heading_ok):
     if cur: paras.append(' '.join(cur))
     return paras
 SRC_TEXT = 'قراءة آلية (OCR) لصور صفحات الكتاب نفسه بمحرك Tesseract (نموذجان للعربية) مع قراءة أرشيف الإنترنت، دُقِّقت بمقارنة القراءات الثلاث ولم يُغيَّر فيها كلمة إلا بإجماع قراءتين أو بكلمة معروفة'
+SRC_TEXT2 = 'قراءة آلية (OCR) لصور صفحات الكتاب نفسه بمحرك Tesseract (نموذجان للعربية)، دُقِّقت بمقارنة القراءتين ولم يُغيَّر فيها كلمة إلا باتفاق القراءتين على كلمة معروفة'
+SRC_PRINTED = 'قراءة آلية (OCR) لصور صفحات المطبوع المحقَّق نفسه (تحقيق محمد عبد الرحمن الشاغول) بمحرك Tesseract (نموذجان للعربية)، دُقِّقت بمقارنة القراءتين ولم يُغيَّر فيها كلمة إلا باتفاق القراءتين على كلمة معروفة؛ وفهرسها هو فهرس المطبوع. وهي غير مخطوطة الكتاب المعروضة مصوَّرةً'
+def lis(a):
+    """indices of a longest non-decreasing run of a (ties: earliest)"""
+    n = len(a); best = [1] * n; prev = [-1] * n
+    for i in range(n):
+        for j in range(i):
+            if a[j] <= a[i] and best[j] + 1 > best[i]: best[i] = best[j] + 1; prev[i] = j
+    if not n: return set()
+    i = max(range(n), key=lambda x: (best[x], -x)); out = set()
+    while i >= 0: out.add(i); i = prev[i]
+    return out
 def main():
     freq = lexicon(); print('lexicon', len(freq), 'forms,', sum(1 for c in freq.values() if c >= 3), 'known', flush=True)
     report = json.load(open(os.path.join(ROOT, 'data/booklists/transcribe_report.json'), encoding='utf8')) if os.path.exists(os.path.join(ROOT, 'data/booklists/transcribe_report.json')) else {}
     for b in B:
         k = b['key']
-        if b['reader']['mode'] != 'embed' or k == 'firasa-ansari' or (ONLY and k not in ONLY): continue
+        if b['reader']['mode'] != 'embed' or (ONLY and k not in ONLY): continue
+        printed = k == 'firasa-ansari'            # the reader shows the manuscript; the text is read from the printed edition (its own table of contents, no scan viewer)
         n = len(glob.glob(f'{OCR}/{k}/*.json'))
-        pc = json.load(open(os.path.join(ROOT, 'data/booklists/pagecounts.json'), encoding='utf8'))[k][0][1]
+        pc = len(glob.glob(f'{OCR}/{k}/*.json')) if printed else json.load(open(os.path.join(ROOT, 'data/booklists/pagecounts.json'), encoding='utf8'))[k][0][1]
         if n < pc: print(k, 'not finished', n, pc); continue
-        ab = abbyy(k); use_ab = ab is not None and len(ab) == pc
-        spec = json.load(open(os.path.join(ROOT, f'data/booklists/toc/{k}.json'), encoding='utf8'))
-        toc_in = [(lv, t, lf) for lv, t, lf in [(r[0], r[1], r[2]) for r in b['reader']['toc']]]
+        ab = None if printed else abbyy(k); use_ab = ab is not None and len(ab) == pc
+        if printed: toc_in = [(lv, t, p - 1) for lv, t, p in json.load(open(os.path.join(ROOT, 'data/booklists/toc/firasa-ansari-printed.json'), encoding='utf8'))['items']]
+        else: toc_in = [(lv, t, lf) for lv, t, lf in [(r[0], r[1], r[2]) for r in b['reader']['toc']] if lf is not None]
         title_at = collections.defaultdict(list)
         for lv, t, lf in toc_in: title_at[lf].append(t)
         P = []; pg = []; lfm = []; weak = []; changed = 0; words = 0; confs = []; blank = 0; heads = {}
@@ -130,14 +143,16 @@ def main():
                 if best[0] >= 0.62: heads[(lv, t, lf)] = best[1]
         # the table of contents of the text: the verified entries (heading = the paragraph found on the page; otherwise a jump to the page, flagged 1)
         first_of = {l: i for i, l in lfm}; leaves = sorted(first_of)
-        toc = []
-        for lv, t, lf in toc_in:
-            if (lv, t, lf) in heads: toc.append([lv, t, heads[(lv, t, lf)]])
+        toc = []; keep = lis([lf for _, _, lf in toc_in]); last = 0               # an entry whose page breaks the order of the verified list stays out of the text's table (the scan table still has it)
+        for n, (lv, t, lf) in enumerate(toc_in):
+            if n not in keep: continue
+            if (lv, t, lf) in heads: pos = heads[(lv, t, lf)]; fl = []
             else:
                 nx = next((x for x in leaves if x >= lf), None)
                 if nx is None: continue
-                toc.append([lv, t, first_of[nx], 1])
-        book = {'v': 1, 'key': k, 'ocr': True, 'scanText': True, 'src': SRC_TEXT, 'toc': toc, 'p': P, 'pg': pg, 'lf': lfm, 'weak': weak}
+                pos = first_of[nx]; fl = [1]
+            toc.append([lv, t, max(pos, last)] + fl); last = max(pos, last)           # two entries of one page: the later never points before the earlier
+        book = {'v': 1, 'key': k, 'ocr': True, 'scanText': True, 'src': SRC_PRINTED if printed else SRC_TEXT if use_ab else SRC_TEXT2, **({'noScan': True} if printed else {}), 'toc': toc, 'p': P, 'pg': pg, 'lf': lfm, 'weak': weak}
         CL.publish_file(f'books/{k}.json', book)
         report[k] = {'pages': pc, 'pagesWithText': len(lfm), 'blankOrImagePages': blank, 'paragraphs': len(P), 'words': words, 'meanConfidence': round(statistics.mean(confs), 1) if confs else 0,
                      'replacedByVote': changed, 'weakPages': len(weak), 'abbyyUsed': use_ab, 'tocHeadingsFound': len(heads), 'tocEntries': len(toc)}

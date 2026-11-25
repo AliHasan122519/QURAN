@@ -388,16 +388,28 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   const ftitles = await page.locator('.lib-title').allInnerTexts(); const fsub = await page.locator('.panel-sub').innerText();
   log('كتب الفراسة', '27 كتاباً في الفراسة وأنماط الشخصيات والطباع (لا «الطرق الحكمية» ولا «مدارج السالكين»)', ftitles.length === 27 && !ftitles.some((x) => x.includes('الطرق الحكمية') || x.includes('مدارج')) && ['علم الفراسة الحديث', 'السياسة في علم الفراسة', 'أنماط الشخصية: أسرار وخفايا', 'لغة الجسد النفسية', 'نظريات الشخصية'].every((k) => ftitles.includes(k)) && ftitles.some((x) => x.includes('الرازي')), ftitles.join(' | '));
   log('كتب الفراسة', 'تحت العنوان «عدد الكتب: 27» (بدل الوصف الطويل) وحقل بحث بالاسم', fsub.trim() === 'عدد الكتب: 27' && (await page.locator('.lib-find').count()) === 1, fsub);
-  await page.locator('.lib-tile', { hasText: 'السياسة في علم الفراسة' }).click(); await page.waitForSelector('.lib-detail'); await page.locator('.lib-read').click(); await page.waitForSelector('iframe.rd-frame');
-  log('كتب الفراسة', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بفهرس مواضعها)، والمطبوع المحقَّق للتحميل بلا زر قراءة مصوَّرة له (لا عارض له)', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 1 && (await page.locator('.rd-ocr').innerText()).includes('المخطوطة'));
+  await page.locator('.lib-tile', { hasText: 'السياسة في علم الفراسة' }).click(); await page.waitForSelector('.lib-detail');
+  await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(500);
+  const ansTxt = await page.locator('.rd-ocr').innerText();
+  log('كتب الفراسة', 'السياسة في علم الفراسة: «قراءة الكتاب المفرَّغ» تفتح نص المطبوع المحقَّق مقروءاً آلياً (مع التنبيه) بلا زر صور صفحات له (المطبوع لا عارض له)', /مقروء آلياً/.test(ansTxt) && (await page.locator('.rd-link').count()) === 0, ansTxt.slice(0, 80));
+  await page.locator('.rd-tool[aria-label="فهرس الكتاب"]').click(); const ansToc = await page.locator('.rd-toc li button').count();
+  log('كتب الفراسة', 'فهرس نص السياسة في علم الفراسة: ٤٧ مدخلاً من فهرس المطبوع', ansToc === 47, String(ansToc));
+  await page.locator('.rd-toc li button', { hasText: 'المقالة الثالثة' }).first().click(); await page.waitForTimeout(400);
+  log('كتب الفراسة', 'النقر على «المقالة الثالثة» ينقل إلى صفحتها في النص (ص13)', /ص\s*١٣|ص\s*13/.test(await page.locator('.rd-text').innerText()) || (await page.locator('.rd-text').innerText()).includes('المقالة'));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  await page.locator('.lib-scan').first().click(); await page.waitForSelector('iframe.rd-frame');
+  log('كتب الفراسة', 'السياسة في علم الفراسة: تُقرأ مخطوطتها المصورة داخل التطبيق (بفهرس مواضعها)، والمطبوع المحقَّق للتحميل', /archive\.org\/embed\/20261111_20261111_2212/.test(await page.locator('iframe.rd-frame').getAttribute('src')) && (await page.locator('.rd-tool', { hasText: 'الفهرس' }).count()) === 1 && (await page.locator('.rd-ocr').innerText()).includes('المخطوطة'));
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
-  // الرازي: كتاب مصوّر بفهرس يفتح صفحاته
+  // الرازي: كتاب مصوّر له نص مفرَّغ بفهرس يفتح مواضعه وصور صفحاته
   await page.locator('.lib-tile', { hasText: 'الفراسة (دليلك' }).click(); await page.waitForSelector('.lib-detail');
-  await page.locator('.lib-more').click(); await page.locator('.lib-detail .lib-toc li button', { hasText: 'المقالة الثانية' }).first().click(); await page.waitForSelector('.rd-frame');
-  const rsrc = await page.locator('.rd-frame').getAttribute('src');
-  log('كتب الفراسة', 'الرازي (مسح ضوئي): قراءته داخل التطبيق بعارض الصفحات، والنقر على «المقالة الثانية» في فهرسه يفتح صفحتها (n50)', rsrc === 'https://archive.org/embed/FakirlerinHizmetcisi_201508#page/n50/mode/1up', rsrc);
+  await page.locator('.lib-more').click(); await page.locator('.lib-detail .lib-toc li button', { hasText: 'المقالة الثانية' }).first().click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(400);
+  log('كتب الفراسة', 'الرازي: النقر على «المقالة الثانية» في فهرس البطاقة يفتح النص المفرَّغ عند موضعها', (await page.locator('.rd-text').innerText()).length > 200 && /مقروء آلياً/.test(await page.locator('.rd-ocr').innerText()));
+  await page.locator('.rd-link').click(); await page.waitForSelector('.rd-frame'); const rsrc = await page.locator('.rd-frame').getAttribute('src');
+  log('كتب الفراسة', 'الرازي: «اعرض صورة هذه الصفحة» ينقل إلى صفحة الصور نفسها في عارض أرشيف الإنترنت (داخل التطبيق)', /^https:\/\/archive\.org\/embed\/FakirlerinHizmetcisi_201508#page\/n\d+\/mode\/1up$/.test(rsrc), rsrc);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  await page.locator('.lib-scan').first().click(); await page.waitForSelector('.rd-frame');
   await page.locator('.rd-tool').click(); const rt = await page.locator('.rd-toc li button').count();
-  log('كتب الفراسة', 'فهرس الرازي داخل العارض: ٦٠ مدخلاً من فهرس المطبوع', rt === 60, String(rt));
+  log('كتب الفراسة', 'فهرس الرازي داخل عارض الصور: ٦٠ مدخلاً من فهرس المطبوع', rt === 60, String(rt));
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   // كتب الفراسة ليست من مراجع «الكتب»: لا تظهر في البحث ولا بين التبويبات
   await page.goto(URL_); await page.waitForTimeout(1500);

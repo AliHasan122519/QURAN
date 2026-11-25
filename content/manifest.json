@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 425,
- "updated": "2026-11-25T03:37:56Z",
+ "version": 469,
+ "updated": "2026-11-25T05:08:59Z",
  "apk": {
   "versionCode": 29926306,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -168,7 +168,7 @@
    "label": "كتب علم التعبير",
    "kind": "generic",
    "file": "kutubtabir.json",
-   "sha256": "f31663997585fcacc838e3630d4b41f8f9abb868775a5920863be31599371e48",
+   "sha256": "f6e250c1b7267f738818bfc47c3bc952cc022a3a4ced85b0a927a0b2a96d047d",
    "count": 12,
    "drawer": true,
    "card": "library",
@@ -196,7 +196,7 @@
    "label": "كتب الفراسة",
    "kind": "generic",
    "file": "kutubfiras.json",
-   "sha256": "7e7e484a794b32df3ea2be1fd3480ad7953f6a4259e663cccb27cd8f9512348f",
+   "sha256": "130bee73f7847a3c7650982f63ad20059455ddad565852bd120994c40da8fcb2",
    "count": 27,
    "drawer": true,
    "card": "library",
@@ -464,6 +464,156 @@
    "file": "books/abir.json",
    "sha256": "05eeeb745f31782e176da1c09ca56870404b998deeb610254f8d20334bc2dfdf",
    "size": 12309
+  },
+  {
+   "file": "books/firasa-razi.json",
+   "sha256": "48958975cbd6461bff8a94366dd8575927d241a23dfbe4640fc0c09fc478e049",
+   "size": 200391
+  },
+  {
+   "file": "books/firasa-murad.json",
+   "sha256": "36b27950c6f686adf6e7f205b484e1c425370b7e3e0ed14f17541c2e25d53dd1",
+   "size": 375146
+  },
+  {
+   "file": "books/pers-anmat.json",
+   "sha256": "45e418a8730473d6dfda6da75c32b5931504a9b9312322de699608df68623225",
+   "size": 334741
+  },
+  {
+   "file": "books/pers-farasa-jasad.json",
+   "sha256": "a8749a68780e286579ed3f4833cb931ba7237fc8cf368f85dc79946bc7f02b8d",
+   "size": 243794
+  },
+  {
+   "file": "books/pers-jasad-nafsiya.json",
+   "sha256": "68981d146f4d50df252a3577811f5cf332c6adbd93da9d4ea393590bdf82ff84",
+   "size": 856219
+  },
+  {
+   "file": "books/pers-wujuh-tickle.json",
+   "sha256": "e0f87532df6bcf3f315f02230ee61acfd9fa98b64e4a39c210d7f8907bcdf813",
+   "size": 570992
+  },
+  {
+   "file": "books/pers-600-simat.json",
+   "sha256": "f4eeedb6ef5d57ecbe8b7f2f2e40501cf931969f9563933085f77791f1b2d710",
+   "size": 364831
+  },
+  {
+   "file": "books/pers-lughat-wujuh.json",
+   "sha256": "2c3b0698548521089a0fb4eb5cfec5c31c33915d6300edce693d8db093e6648f",
+   "size": 56657
+  },
+  {
+   "file": "books/pers-dalil-sifat.json",
+   "sha256": "213e7cb38222d948f8f6f5efa35ff3222291eb6ada78c51a5cac32b0b4f85777",
+   "size": 94928
+  },
+  {
+   "file": "books/pers-nazariyat.json",
+   "sha256": "000b17d2996ead811883146af5deec7cf2730b9f8db1fdc3e8392e71efce29d1",
+   "size": 2146630
+  },
+  {
+   "file": "books/tabir-muraqiba.json",
+   "sha256": "3ce0f7a74c14793ef77c5bf33868ff5d9f8f89aaa4c96cad53cebca8c26701ad",
+   "size": 987736
+  },
+  {
+   "file": "books/tabir-qutayba-gheras.json",
+   "sha256": "3b86d37be6bbd51f65c277924d4b981356f5826a2b402a1029be5a454f65acee",
+   "size": 1286677
+  },
+  {
+   "file": "books/tabir-qutayba-bashair.json",
+   "sha256": "f71f28743ec52e4a3d650ee0d162280ba3eaabfee3f6028301b92460867cca31",
+   "size": 545826
+  },
+  {
+   "file": "books/tabir-madkhal.json",
+   "sha256": "6b3e8afd72228be8ed313169f995f914ac0323b32764b280c1a11d7f14ee1ecf",
+   "size": 519160
+  },
+  {
+   "file": "books/pers-tahlil-badran.json",
+   "sha256": "ce4eb981c048d7b1e304bb3c1689c35dd2de0127edd556deea76de117b438728",
+   "size": 91087
+  },
+  {
+   "file": "books/pers-shakhsiya-badran.json",
+   "sha256": "f306c8317d925171acc1a269c715df66e7113fca305dd4d8dc1d2d7ce493834f",
+   "size": 223379
+  },
+  {
+   "file": "books/pers-tahlil-barakat.json",
+   "sha256": "6bca06697e91ccfa37d33319ae73ef777a08ba5b0b24ed03b6f43656151f8913",
+   "size": 423549
+  },
+  {
+   "file": "books/pers-enneagram.json",
+   "sha256": "eb4c5ea11e80ba5de11fa13acaf89d4abd1206ab1cba67636c5ad59a8183989c",
+   "size": 520701
+  },
+  {
+   "file": "books/pers-koushi.json",
+   "sha256": "b8b47c069c99bc4ee821c30e8f931397585af9b73fefea28d0e7bcddb5ff0b7d",
+   "size": 417397
+  },
+  {
+   "file": "books/pers-akhlaq-sira.json",
+   "sha256": "ea33cc2679b09cb9e87a17bad0839fec8c464a8b720ae576c9315a5d1bdd2f7b",
+   "size": 369600
+  },
+  {
+   "file": "books/pers-pease-mufassal.json",
+   "sha256": "d18ea781326a621b5cafbcb828d36869cd5b9aaebe4936dd52d627711838b8a2",
+   "size": 993354
+  },
+  {
+   "file": "books/pers-pease-marji.json",
+   "sha256": "5c517e7a2cc6550374cffc33d69872e8f124832456ce9afafa252f15c319a715",
+   "size": 820792
+  },
+  {
+   "file": "books/pers-hagen.json",
+   "sha256": "c63af016a3b8c55145d9df2ef9640cf08d713769a196859b1559b770a57198ba",
+   "size": 792901
+  },
+  {
+   "file": "books/pers-musayhij.json",
+   "sha256": "7d33d20aba37908cc1ac7e7151464695ba736f77552ac523f55522579d70b515",
+   "size": 336647
+  },
+  {
+   "file": "books/pers-ghanem.json",
+   "sha256": "ece0625ba97344d01bb09d4ee93a7a0fbeec286a49df31ed2aeb585728c69c76",
+   "size": 406212
+  },
+  {
+   "file": "books/pers-aqeel.json",
+   "sha256": "e4d3e567e6ab02d5f6ea67c1b11815de1e34f9c4aacfaeeea3a559021421d81b",
+   "size": 1069901
+  },
+  {
+   "file": "books/pers-arabgroup.json",
+   "sha256": "fa409dec78213135d9b01041ae2f16fee49d45566c683f36574f140e03a55c13",
+   "size": 125664
+  },
+  {
+   "file": "books/pers-pervin.json",
+   "sha256": "815f9ebc1360677d8d0d76efb57d9135cab1f356e91ccb0a1fa398bf82d48785",
+   "size": 1297127
+  },
+  {
+   "file": "books/pers-hariri.json",
+   "sha256": "c9b56814466653da331e84d7234a3d2925ceacea77e29458f56b772a2f724cda",
+   "size": 910830
+  },
+  {
+   "file": "books/firasa-ansari.json",
+   "sha256": "011d71007fff19cf658571d6f2f05bfb3dc375e5a6c63041b74e155a7bc080f7",
+   "size": 192808
   }
  ]
 }

@@ -49,8 +49,13 @@ def card(b):
         if os.path.exists('content/' + tf):                                          # the text version of a scanned book (scripts/ocr_scans.py + build_scan_texts.py): read from the pictures of its pages, flagged as a machine reading
             bk = json.load(open('content/' + tf, encoding='utf8')); assert bk.get('ocr') is True, b['key']
             reader['text'] = {'file': tf, 'count': len(bk['p']), 'src': bk['src'], **({'scanId': ''} if bk.get('noScan') else {})}
-            if len(bk['toc']) == len(toc) and all(x[1] == y[1] for x, y in zip(bk['toc'], rd['toc'])):
-                toc = [t + [bk['toc'][n][2]] for n, t in enumerate(toc)]            # each entry also says where it is in the text
+            nt = []; j = 0
+            if bk.get('noScan'): bk = {**bk, 'toc': []}; nt = None         # the text of the printed edition has its own table (the card's table is the manuscript's)
+            for t in (toc if nt is not None else []):                                # in order: an entry out of the verified order (or with no page) is not in the text's table, so it keeps only its scan jump
+                if j < len(bk['toc']) and bk['toc'][j][1] == t[1]: nt.append(t + [bk['toc'][j][2]]); j += 1
+                else: nt.append(t)
+            assert j == len(bk['toc']), (b['key'], j, len(bk['toc']))
+            if nt is not None: toc = nt                                                                # each entry also says where it is in the text
     return {'reader': reader, 'toc': toc, 'tocSrc': tocSrc, 'kind': KINDS[b['kind']][2], 'era': b['era'], 'author': b['author'], 'authorFull': west(b['authorFull']), 'coverTitle': b['coverTitle'], 'cover': cv,
             'info': [[west(k), west(v)] for k, v in b['info']], 'infoSrc': b['infoSrc'], 'about': [{'t': a['t'], 's': a['s']} for a in b['about']], 'note': west(b.get('note', '')), 'inApp': b['inApp'],
             'read': b['read'], 'dls': d}
