@@ -432,7 +432,8 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   log('نظم علم التعبير', 'قائمة بمنظومتين: الألفية الوردية والعبير في التعبير (وأرجوزة ابن غنام لم يتوفر نصها فلا تُدرَج)', nz.length === 2 && nz.some((x) => /الألفية الوردية/.test(x)) && nz.some((x) => /العبير في التعبير/.test(x)), nz.join(' | '));
   await page.locator('.lib-tile', { hasText: 'العبير في التعبير' }).click(); await page.waitForSelector('.lib-detail');
   const nd = await page.locator('.lib-detail').innerText();
-  log('نظم علم التعبير', 'صفحة العبير: بلا زر PDF وهمي، وبقراءة وتحميل للنص، ومعها تصريح أن المتاح ١–١٠٣ من ٣١٦ بيتاً', (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && (await page.locator('.lib-txt').count()) === 1 && /103/.test(nd) && /316/.test(nd) && (await page.locator('.lib-detail a[href]').count()) === 0);
+  log('نظم علم التعبير', 'صفحة العبير: الصيغ الخمس (قراءة النص، قراءة المخطوطة المصوَّرة، قراءة المفرَّغ، تحميل المصوَّر، تحميل المفرَّغ)، ومعها تصريح أن المتاح نصاً ١–١٠٣ من ٣١٦ بيتاً', (await page.locator('.lib-read').count()) === 1 && (await page.locator('.lib-scan').count()) === 1 && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 1 && (await page.locator('.lib-txt').count()) === 1 && /103/.test(nd) && /316/.test(nd) && (await page.locator('.lib-detail a[href]').count()) === 0);
+  log('نظم علم التعبير', 'غلاف العبير صورة حقيقية (أول صفحة من نص المخطوطة) لا غلافاً مرسوماً', await page.waitForSelector('.lib-detail .lib-cover-big image', { timeout: 8000 }).then(() => true, () => false));
   log('نظم علم التعبير', 'فهرس العبير: المقدمة والفصول الثلاثة المتاحة', /فهرس الكتاب/.test(nd) && (await page.locator('.lib-toc li').count()) === 4 && /الفصل الثاني/.test(nd));
   await page.locator('.lib-read').click(); await page.waitForSelector('.rd-text'); await page.waitForTimeout(300);
   const nt = await page.locator('.rd-text').innerText();
@@ -440,7 +441,12 @@ log('الأخطاء', 'لا أخطاء JavaScript في وحدة التحكم', e
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
   await page.locator('.lib-tile', { hasText: 'الألفية الوردية' }).click(); await page.waitForSelector('.lib-detail');
   const ad = await page.locator('.lib-detail').innerText();
-  log('نظم علم التعبير', 'صفحة الألفية: فهرس بالأبواب (٧٦) ومصدر النقل المسمّى، بلا PDF وهمي', /فهرس الكتاب \(76\)/.test(ad) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 0 && /درة الأحلام/.test(ad));
+  log('نظم علم التعبير', 'صفحة الألفية: فهرس بالأبواب (٧٦) ومصدر النقل المسمّى، وتحميل مصوَّر (PDF من محتوى التطبيق) وتحميل مفرَّغ وقراءتان', /فهرس الكتاب \(76\)/.test(ad) && (await page.locator('.lib-dl:not(.lib-txt)').count()) === 1 && (await page.locator('.lib-txt').count()) === 1 && (await page.locator('.lib-scan').count()) === 1 && /درة الأحلام/.test(ad));
+  await page.locator('.lib-scan').click(); await page.waitForSelector('.own-pages .own-page img', { timeout: 30000 });
+  log('نظم علم التعبير', 'الألفية: القراءة المصوَّرة داخل التطبيق تفتح صور الطبعة (130 صفحة) من محتوى التطبيق بلا موقع خارجي', (await page.locator('.own-page').count()) === 130 && (await page.locator('iframe').count()) === 0);
+  await page.locator('.rd-tool').click(); await page.locator('.rd-toc li button', { hasText: 'الباب الثاني' }).first().click(); await page.waitForTimeout(900);
+  log('نظم علم التعبير', 'فهرس الصور: النقر على «الباب الثاني» ينتقل إلى صفحته ويفتحها', await page.evaluate(() => { const r = [...document.querySelectorAll('.own-page')].filter((e) => e.getBoundingClientRect().top > -10 && e.getBoundingClientRect().top < innerHeight); return r.length > 0 && Number((r[0]).dataset.page) >= 30; }));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200);
   await page.keyboard.press('Escape'); await page.waitForTimeout(100);
 }
 {

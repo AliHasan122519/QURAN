@@ -1,7 +1,7 @@
 {
  "schema": 1,
- "version": 469,
- "updated": "2026-11-25T05:08:59Z",
+ "version": 475,
+ "updated": "2026-11-25T05:57:32Z",
  "apk": {
   "versionCode": 29926407,
   "url": "https://github.com/AliHasan122519/QURAN/releases/download/apk-latest/alboheth-quran.apk",
@@ -182,7 +182,7 @@
    "label": "نظم علم التعبير",
    "kind": "generic",
    "file": "nazm.json",
-   "sha256": "cf015a047866564e9fcd98a3173c4cc023116def912f6b08be7062c270ed4e39",
+   "sha256": "6477468c8785e04a9b352f597e268bcd924354a383f6b599db854400950bba8e",
    "count": 2,
    "drawer": true,
    "card": "library",
@@ -614,6 +614,671 @@
    "file": "books/firasa-ansari.json",
    "sha256": "011d71007fff19cf658571d6f2f05bfb3dc375e5a6c63041b74e155a7bc080f7",
    "size": 192808
+  },
+  {
+   "file": "scans/alfiya-wardiyya/000.jpg",
+   "sha256": "283a737f4da663fe9bffd21dffbd19105a260bcb7c0be090ea9d8f305c180912",
+   "size": 95943
+  },
+  {
+   "file": "scans/alfiya-wardiyya/001.jpg",
+   "sha256": "3527606adf003c0eb55b757346b7054a0a49aa4e06a4aba0decadcf59465dd72",
+   "size": 49235
+  },
+  {
+   "file": "scans/alfiya-wardiyya/002.jpg",
+   "sha256": "90be213dc96e48ff6392a29bf30eedc776327160c2601e1dddf7b0c7230a407e",
+   "size": 69689
+  },
+  {
+   "file": "scans/alfiya-wardiyya/003.jpg",
+   "sha256": "b7ba89b0c1e056725f0ad937a16958ef2550ad37f143af8a54653eb676319e51",
+   "size": 72708
+  },
+  {
+   "file": "scans/alfiya-wardiyya/004.jpg",
+   "sha256": "f8a773579ebae151a5060a953f895ed0b59aa1cfb52dd06a1d91d19aaeb85771",
+   "size": 48867
+  },
+  {
+   "file": "scans/alfiya-wardiyya/005.jpg",
+   "sha256": "1e86564318c00dd9016cd7a1fc62afb42caa7497ae7335a83b5eeb01fb28144c",
+   "size": 125873
+  },
+  {
+   "file": "scans/alfiya-wardiyya/006.jpg",
+   "sha256": "a796ddd21dcea4aa257e4aff95dfec458a4de956a03bc2c19a5d15f380b32969",
+   "size": 144861
+  },
+  {
+   "file": "scans/alfiya-wardiyya/007.jpg",
+   "sha256": "0b02299623de2ee54a4c5309bbcc0653599817fdc533f8d1dc732f200f14126f",
+   "size": 127643
+  },
+  {
+   "file": "scans/alfiya-wardiyya/008.jpg",
+   "sha256": "28a76cda54dc9881878c52c6d4645aecd655579049bba01e1206444cb1514157",
+   "size": 121451
+  },
+  {
+   "file": "scans/alfiya-wardiyya/009.jpg",
+   "sha256": "c59e856b41a90e49c6d72715302f4e758831dea41d5b3274146e9c4178509928",
+   "size": 76289
+  },
+  {
+   "file": "scans/alfiya-wardiyya/010.jpg",
+   "sha256": "809658e807b97a1ffcddd14ee333bebd8d614541d76e792a5d9b1351a4e02586",
+   "size": 179431
+  },
+  {
+   "file": "scans/alfiya-wardiyya/011.jpg",
+   "sha256": "26465929908851684881c733756ea60af746fa5f8f917b7274ee98655edd50e8",
+   "size": 169625
+  },
+  {
+   "file": "scans/alfiya-wardiyya/012.jpg",
+   "sha256": "fd97508fdda4bf9f9dbe3689d3c04c9a205f18970fffcd569ed420125465b328",
+   "size": 120962
+  },
+  {
+   "file": "scans/alfiya-wardiyya/013.jpg",
+   "sha256": "889a1a0b04ea8b41422bd0a2141b173eacf2f79a03e13918badb376f1e1e3d54",
+   "size": 81490
+  },
+  {
+   "file": "scans/alfiya-wardiyya/014.jpg",
+   "sha256": "a1ec6858f2b93627b9eeec96317335b7855aaeaee0ba52ab95aa461ef673f4eb",
+   "size": 115089
+  },
+  {
+   "file": "scans/alfiya-wardiyya/015.jpg",
+   "sha256": "e08a7b877bca6ad1f7030226e428bba86853045a82846603db8f4c659a9e7a12",
+   "size": 160826
+  },
+  {
+   "file": "scans/alfiya-wardiyya/016.jpg",
+   "sha256": "88e70a4a6c9b12ddd9c6a84d8b7af9f492af463e5f21ebf787a0214cafa4abe9",
+   "size": 83584
+  },
+  {
+   "file": "scans/alfiya-wardiyya/017.jpg",
+   "sha256": "8d056baa50122b1a5c158925081a111935d1c6d3ca7f4d0fd38aeeaad34e200c",
+   "size": 84436
+  },
+  {
+   "file": "scans/alfiya-wardiyya/018.jpg",
+   "sha256": "15c3cd25c0e40b3249c2ed8ef7bfa5332170982aefa45783eb596fc053f12aaf",
+   "size": 40155
+  },
+  {
+   "file": "scans/alfiya-wardiyya/019.jpg",
+   "sha256": "852f223d14cda1e46914b596de386ea86ea725adaf8b10a8ea4fc47a32c42bcd",
+   "size": 90658
+  },
+  {
+   "file": "scans/alfiya-wardiyya/020.jpg",
+   "sha256": "68862ae2022852d743e03de9dad184dd76ab749b1ad3768e33bf109d96facedf",
+   "size": 61829
+  },
+  {
+   "file": "scans/alfiya-wardiyya/021.jpg",
+   "sha256": "b030ca697908aad5a22cdf4f4bb340aabf540c5f7a3b1a9451bdb36744fecec8",
+   "size": 36680
+  },
+  {
+   "file": "scans/alfiya-wardiyya/022.jpg",
+   "sha256": "8b2068f6888304d16fbbfdd6f3b7857a1c42a0e3854f6b7c22129c6f8b114762",
+   "size": 48641
+  },
+  {
+   "file": "scans/alfiya-wardiyya/023.jpg",
+   "sha256": "5c5beed0d79fc8ad8ad07529dc716bae45b46f55423fe607175a7bb73e3d6a78",
+   "size": 91900
+  },
+  {
+   "file": "scans/alfiya-wardiyya/024.jpg",
+   "sha256": "205ed786dc06e1f7837fb64dc825e6e786c1b65fa6c56339f84c4db331a0f8d5",
+   "size": 115291
+  },
+  {
+   "file": "scans/alfiya-wardiyya/025.jpg",
+   "sha256": "f615f7e7f1e4ca3989bf42427ff074116022163a47fc13dd83c14d0e8900ecde",
+   "size": 92374
+  },
+  {
+   "file": "scans/alfiya-wardiyya/026.jpg",
+   "sha256": "cfa658ecbcc1e1385682d21626e9aa23594380493c980a939d266872896444df",
+   "size": 139028
+  },
+  {
+   "file": "scans/alfiya-wardiyya/027.jpg",
+   "sha256": "e94bd8869f4dad2af251e6017f3117643f58befbba6c93f9664eff500c95868d",
+   "size": 121530
+  },
+  {
+   "file": "scans/alfiya-wardiyya/028.jpg",
+   "sha256": "a9b02f5c85de662463e1bd0439b4e9ef8fd76ffe1e3e4f9befe9198a1739e8a5",
+   "size": 147844
+  },
+  {
+   "file": "scans/alfiya-wardiyya/029.jpg",
+   "sha256": "c1a662488f02b1aadd0a99f4fc7ac481c5396edb7d71d20f2e61ac9771915b37",
+   "size": 47741
+  },
+  {
+   "file": "scans/alfiya-wardiyya/030.jpg",
+   "sha256": "85695252299fb24baf6809ae3b7fcedca57c80f885a12b67fe457af11cd0c871",
+   "size": 85468
+  },
+  {
+   "file": "scans/alfiya-wardiyya/031.jpg",
+   "sha256": "3f2dca5e980e636d47de70a711ab5888cfeac71630272a8b9e155388f038c39f",
+   "size": 60769
+  },
+  {
+   "file": "scans/alfiya-wardiyya/032.jpg",
+   "sha256": "c67a6e0266fb03ce3a534786120d53a86b327d455b4e145ea861cfcef03d7d1d",
+   "size": 88287
+  },
+  {
+   "file": "scans/alfiya-wardiyya/033.jpg",
+   "sha256": "99aa1581b98181efb13631ff8db59297982afc9b4d2e1d98f7753c4a4ffbb697",
+   "size": 46687
+  },
+  {
+   "file": "scans/alfiya-wardiyya/034.jpg",
+   "sha256": "6c2a0e0e07c7bf67fdd8afa5aea3ddf55e9e8d383317ef0913fea584e5821798",
+   "size": 81083
+  },
+  {
+   "file": "scans/alfiya-wardiyya/035.jpg",
+   "sha256": "8c4758e37292ba30d1d1d17d05ac553b74da7af11d32d5e2fe6d0f13e29c1cbf",
+   "size": 59787
+  },
+  {
+   "file": "scans/alfiya-wardiyya/036.jpg",
+   "sha256": "8269036a2ed4eb698b8f1d11e30429a20f1a105d5e06c7fa41cada0a7103daf0",
+   "size": 67916
+  },
+  {
+   "file": "scans/alfiya-wardiyya/037.jpg",
+   "sha256": "2ceee6fff08bfa302de733d6ab2781ac0662ea5e085d0aecd867782beafae590",
+   "size": 83982
+  },
+  {
+   "file": "scans/alfiya-wardiyya/038.jpg",
+   "sha256": "ba8dd221234505b08a27381739d2a0af4a8a9da491cb87c00f975727d4be718d",
+   "size": 40173
+  },
+  {
+   "file": "scans/alfiya-wardiyya/039.jpg",
+   "sha256": "2b663b3579e24b0e755aeff2b77fc1e5d46dcf27df6c97f17f5129bf5122fef1",
+   "size": 51401
+  },
+  {
+   "file": "scans/alfiya-wardiyya/040.jpg",
+   "sha256": "f22702fe5e9370270dbd1c5fdf731256f54b43da5d42ae321b6bac0cdb66d35b",
+   "size": 60478
+  },
+  {
+   "file": "scans/alfiya-wardiyya/041.jpg",
+   "sha256": "b4cfbd35facee8e43592e0358b7f2442d664596423a5c7c5f92dfaa36f07e284",
+   "size": 63706
+  },
+  {
+   "file": "scans/alfiya-wardiyya/042.jpg",
+   "sha256": "0c3f7ee00f9aa2e71a3b98dbf493ef70f71779e1a22bb542d7cb595c5977884e",
+   "size": 60685
+  },
+  {
+   "file": "scans/alfiya-wardiyya/043.jpg",
+   "sha256": "43377e9853731ab50a244f68a1213134d3998d41eecdc735e283330209fa49ab",
+   "size": 54785
+  },
+  {
+   "file": "scans/alfiya-wardiyya/044.jpg",
+   "sha256": "0d37408f0e5232b6a2eea146f0b428eb8921165072309f7486ee7c95e8c71259",
+   "size": 86037
+  },
+  {
+   "file": "scans/alfiya-wardiyya/045.jpg",
+   "sha256": "a602159cd4700f28fafa95596c98620d351d4c249688dbeec57e510061701a2d",
+   "size": 31956
+  },
+  {
+   "file": "scans/alfiya-wardiyya/046.jpg",
+   "sha256": "f4964f7cc56b16a32e3a4baab9ae745093114d1b5f36c4e7ca8ccfceb573683e",
+   "size": 53777
+  },
+  {
+   "file": "scans/alfiya-wardiyya/047.jpg",
+   "sha256": "928eac8c8516696589a83c03421548c85485c732b5d149c91fd3ed9160497f99",
+   "size": 88090
+  },
+  {
+   "file": "scans/alfiya-wardiyya/048.jpg",
+   "sha256": "8d23b36feb34234303755442c4dafbcf554df8ceb1a43236e3d2a4a62167801d",
+   "size": 109536
+  },
+  {
+   "file": "scans/alfiya-wardiyya/049.jpg",
+   "sha256": "8f46d8eea047056b193a81bb2f9fdcd2010c48ab533d60a2a750546b9f136446",
+   "size": 112424
+  },
+  {
+   "file": "scans/alfiya-wardiyya/050.jpg",
+   "sha256": "c4351805544d68726df0c587c5961f1c6bbe136705e529340dfbbe6967ec2671",
+   "size": 97870
+  },
+  {
+   "file": "scans/alfiya-wardiyya/051.jpg",
+   "sha256": "e36946ba15edd55bf0c78d472352a8efb2ee6a64ca68748102ab8724f6fa236f",
+   "size": 98963
+  },
+  {
+   "file": "scans/alfiya-wardiyya/052.jpg",
+   "sha256": "6ff82a9a85fa0f06ffc6a80a0be70f4b621577b8e028901c01f9c207398f6600",
+   "size": 32648
+  },
+  {
+   "file": "scans/alfiya-wardiyya/053.jpg",
+   "sha256": "293c190c2214137fb10cf90bce1b91f60ce8b64a9450c47b8a3f630af7206728",
+   "size": 65611
+  },
+  {
+   "file": "scans/alfiya-wardiyya/054.jpg",
+   "sha256": "0cd20b49c471c1f8f49d5f8265b62f774ac59dfeb626e5e42a824d8d658f1bd0",
+   "size": 52560
+  },
+  {
+   "file": "scans/alfiya-wardiyya/055.jpg",
+   "sha256": "2c7c914022ea3928c91acee6ec427d0baa730f7e400b6d515153e43bbc5f24e2",
+   "size": 86588
+  },
+  {
+   "file": "scans/alfiya-wardiyya/056.jpg",
+   "sha256": "07f005187763cd2a8223096ebcff3bf7465d9edd4c42301a3f0706a989d3ac9c",
+   "size": 94055
+  },
+  {
+   "file": "scans/alfiya-wardiyya/057.jpg",
+   "sha256": "15f7bc9adfc0971780435c25f5f2233475e1af9bb7e58705792b6f097d64eb44",
+   "size": 98826
+  },
+  {
+   "file": "scans/alfiya-wardiyya/058.jpg",
+   "sha256": "a597bd36f94ed9c7969dde67f15e3372aa36211bad3787b40f64323f71a425f7",
+   "size": 96087
+  },
+  {
+   "file": "scans/alfiya-wardiyya/059.jpg",
+   "sha256": "38225ca441f90333fa6f362ea2133a561309f456ebe71b9f09d3e079ba4380cf",
+   "size": 112823
+  },
+  {
+   "file": "scans/alfiya-wardiyya/060.jpg",
+   "sha256": "1324a691b15db145997dd05a02eaec5e75a20340dbe127cf2108c9ca101c7c96",
+   "size": 103534
+  },
+  {
+   "file": "scans/alfiya-wardiyya/061.jpg",
+   "sha256": "abc9d78818a90a6b6e58adbc14c207e4001ad56802396603ccfc431a80f802e5",
+   "size": 63105
+  },
+  {
+   "file": "scans/alfiya-wardiyya/062.jpg",
+   "sha256": "cff26e37310a0452a37108c23b6c25e7226980fd16ebe87c9424004368bdd481",
+   "size": 84776
+  },
+  {
+   "file": "scans/alfiya-wardiyya/063.jpg",
+   "sha256": "f7611a80b4cb107d341b3090e9886035cb969af21808cc998c300e1a892d4eea",
+   "size": 68741
+  },
+  {
+   "file": "scans/alfiya-wardiyya/064.jpg",
+   "sha256": "b146733d3d100079b3da0f8b9eb12e28cd0a81f24ac231e3fdb20e6f13ff40f8",
+   "size": 84768
+  },
+  {
+   "file": "scans/alfiya-wardiyya/065.jpg",
+   "sha256": "7676d26dd6005c15894f337a972bddaae3ab0f80b303e8c6258839f6cf16ed71",
+   "size": 95038
+  },
+  {
+   "file": "scans/alfiya-wardiyya/066.jpg",
+   "sha256": "bee28e00787a15f103ece8984f06cf695a763258d498f5f54bc7bf107985143f",
+   "size": 52021
+  },
+  {
+   "file": "scans/alfiya-wardiyya/067.jpg",
+   "sha256": "7a4c0327f2e42622921ae4b3060480751845c31856c45c667447ad497ac14804",
+   "size": 51470
+  },
+  {
+   "file": "scans/alfiya-wardiyya/068.jpg",
+   "sha256": "7f334c78bc4330e64180459f42d2c0dfcd0cc72a491ff13d2596827bb1cd4812",
+   "size": 91454
+  },
+  {
+   "file": "scans/alfiya-wardiyya/069.jpg",
+   "sha256": "add6f5c5e58da1cd6b555c342d8906f8e8fdb24a9be719e579bf1c1534ea4fdc",
+   "size": 38737
+  },
+  {
+   "file": "scans/alfiya-wardiyya/070.jpg",
+   "sha256": "cb963871ef9b416380f12a9670272dd0b436649418636e6dc1372170ef2fe50a",
+   "size": 70834
+  },
+  {
+   "file": "scans/alfiya-wardiyya/071.jpg",
+   "sha256": "f91f79c26e96c24b937cc369d68dd9ada81faa7d8601fad4e4d023dc6b9444c4",
+   "size": 36069
+  },
+  {
+   "file": "scans/alfiya-wardiyya/072.jpg",
+   "sha256": "23b36e3123b1d4c460e8751886d3e90098652a226c9c892aa563270db1420466",
+   "size": 60355
+  },
+  {
+   "file": "scans/alfiya-wardiyya/073.jpg",
+   "sha256": "3bb62f951a7ee6a5c7b5d87f5993dd2d6b88d4c303fb358c72367a81a32ded3c",
+   "size": 93473
+  },
+  {
+   "file": "scans/alfiya-wardiyya/074.jpg",
+   "sha256": "2b733622c4968ce318e94a407f10329131e71b105cc798c99454cb4255930885",
+   "size": 30953
+  },
+  {
+   "file": "scans/alfiya-wardiyya/075.jpg",
+   "sha256": "92783e8193dea5b6029e421262cc135c8bfa42724ef4eed1a808641188353e9c",
+   "size": 84274
+  },
+  {
+   "file": "scans/alfiya-wardiyya/076.jpg",
+   "sha256": "5e968df1a22591664f35b2fa743986f7314bcd0b68027148a9c1bf390d420782",
+   "size": 98602
+  },
+  {
+   "file": "scans/alfiya-wardiyya/077.jpg",
+   "sha256": "9a3bad76897dbdf26f7d531f2a6860e5e91f0cb8f7dc46b76af54837e40d11c7",
+   "size": 100800
+  },
+  {
+   "file": "scans/alfiya-wardiyya/078.jpg",
+   "sha256": "66abaacd2507c9cf5e19398d1158f04c56dfb1a9951ec9354ebb3d252629f4db",
+   "size": 72366
+  },
+  {
+   "file": "scans/alfiya-wardiyya/079.jpg",
+   "sha256": "2990ed1ef71c5cf77678e6769f5a7dde0ae38a3eccf127fcba94fb1e30949b8d",
+   "size": 34065
+  },
+  {
+   "file": "scans/alfiya-wardiyya/080.jpg",
+   "sha256": "0d3b4ead976a430fa35cec52f7d33fd5e978559f1649336dd82080ce91680714",
+   "size": 94117
+  },
+  {
+   "file": "scans/alfiya-wardiyya/081.jpg",
+   "sha256": "1eb63684379f9894f8308a2fbabdf3739296f4e77876d851b48c1f19dcbe640b",
+   "size": 42874
+  },
+  {
+   "file": "scans/alfiya-wardiyya/082.jpg",
+   "sha256": "e76e7ec78140812557c1c5628fce139920831ecdc62db63c5265265125b565d8",
+   "size": 67858
+  },
+  {
+   "file": "scans/alfiya-wardiyya/083.jpg",
+   "sha256": "becc2d646d9d2916b7e1852279c3e8aee7c63d88a7b6a2651445275444b655bb",
+   "size": 55709
+  },
+  {
+   "file": "scans/alfiya-wardiyya/084.jpg",
+   "sha256": "d3f0a00de3a6548c939cb94456aec3b6e839ab62458451a5e0a5dcfbf5e17719",
+   "size": 66456
+  },
+  {
+   "file": "scans/alfiya-wardiyya/085.jpg",
+   "sha256": "c425393cbd4e102b0a8426878d97abbdc97ab9ccbf6525466ff377b21c82069e",
+   "size": 100263
+  },
+  {
+   "file": "scans/alfiya-wardiyya/086.jpg",
+   "sha256": "fb24383e4cf2ddd1913e612bce111142847f2bf4918941fc372ef63853b1623b",
+   "size": 97083
+  },
+  {
+   "file": "scans/alfiya-wardiyya/087.jpg",
+   "sha256": "8143745a549186830c9a590c20594bdcaf36d534a47eca27152bf51e0de5cbc5",
+   "size": 54388
+  },
+  {
+   "file": "scans/alfiya-wardiyya/088.jpg",
+   "sha256": "f992e1914e712e9bda07772534377e92f852bae61f073cc6c4013d93b5a37138",
+   "size": 66262
+  },
+  {
+   "file": "scans/alfiya-wardiyya/089.jpg",
+   "sha256": "a827fc50e8741d9b1151b0a898b1961f82b1b8efacfd575956e561b0b0e3bba1",
+   "size": 92021
+  },
+  {
+   "file": "scans/alfiya-wardiyya/090.jpg",
+   "sha256": "dad8bbc02a84be6f67181afb47a269cc353165f7c84d8d8fa5d457d43c2135d0",
+   "size": 97132
+  },
+  {
+   "file": "scans/alfiya-wardiyya/091.jpg",
+   "sha256": "abd24f409dec026e3a68d1ece55e4730f6c291b66805e88bb297c202e247ab3b",
+   "size": 34543
+  },
+  {
+   "file": "scans/alfiya-wardiyya/092.jpg",
+   "sha256": "cfd08de0bbe6b0711e74a373479cd603feea57ede2710596376f5f3c5458250e",
+   "size": 67408
+  },
+  {
+   "file": "scans/alfiya-wardiyya/093.jpg",
+   "sha256": "9228cb19e6cb7aee27cb7967d3d3717f94004a0eccf71aae8bf428f9fdb58667",
+   "size": 96253
+  },
+  {
+   "file": "scans/alfiya-wardiyya/094.jpg",
+   "sha256": "df385b4b273b3cee971c3631cddb9b84ece6b9ffbec59ac18d57e467cc9318f5",
+   "size": 94329
+  },
+  {
+   "file": "scans/alfiya-wardiyya/095.jpg",
+   "sha256": "2a9ef8a929037a7ad52615ffe2d140561fafdc79817a0a65730d231a9f453f40",
+   "size": 60395
+  },
+  {
+   "file": "scans/alfiya-wardiyya/096.jpg",
+   "sha256": "be3de67b42fe849171145d292f1c7a7efa78cc811f732d968fc7de93a828c77e",
+   "size": 94645
+  },
+  {
+   "file": "scans/alfiya-wardiyya/097.jpg",
+   "sha256": "c69f38ce567225474d47d58b9c2e2b96f69494380eebbdaf8a2d5c7960cf6139",
+   "size": 101337
+  },
+  {
+   "file": "scans/alfiya-wardiyya/098.jpg",
+   "sha256": "db43e7da3e952df6ef05af26b1faff8a165fcc396e67e28c38b47b6d50f05a38",
+   "size": 97311
+  },
+  {
+   "file": "scans/alfiya-wardiyya/099.jpg",
+   "sha256": "eb1ba199d23588e2e84abab62cc3fc1922ad2b868fec1af35cbc6bb4fe8d94fa",
+   "size": 92001
+  },
+  {
+   "file": "scans/alfiya-wardiyya/100.jpg",
+   "sha256": "7471c8d51bc18a08a195322a472f5436197258c57e6acd6fa9c6f753272cf5a2",
+   "size": 94680
+  },
+  {
+   "file": "scans/alfiya-wardiyya/101.jpg",
+   "sha256": "b9b1d65157de7715237867765fa67a9a3d5eae773d559945678359b98f9ee8f6",
+   "size": 95253
+  },
+  {
+   "file": "scans/alfiya-wardiyya/102.jpg",
+   "sha256": "9cbe68bfca6a831bcaa72213afe41e1fd4b15c50e10485bd97ac37427aedcdd2",
+   "size": 57571
+  },
+  {
+   "file": "scans/alfiya-wardiyya/103.jpg",
+   "sha256": "734f45b343200ae64d80e604dc31e7538e1d00c31d04c0fb135d3e400bb17e55",
+   "size": 79134
+  },
+  {
+   "file": "scans/alfiya-wardiyya/104.jpg",
+   "sha256": "cf7aa26468eddae6d07b50ccbd75960aa178d50db0c2b9702b6a0155245b8d4c",
+   "size": 94294
+  },
+  {
+   "file": "scans/alfiya-wardiyya/105.jpg",
+   "sha256": "fae7eb7250f522c80e4c6a0ee0046d74a4a8bf948bdbe9c2d40e1510d19e5c71",
+   "size": 93381
+  },
+  {
+   "file": "scans/alfiya-wardiyya/106.jpg",
+   "sha256": "65674724d3bf1285cd6004ab220b4f48fa5f6e1324c03bf97e61b72cdd6ea1fd",
+   "size": 89918
+  },
+  {
+   "file": "scans/alfiya-wardiyya/107.jpg",
+   "sha256": "4a915425559014514ec079c1a979b299db25e1ad1fcee002fce3c9e1c0df3865",
+   "size": 86964
+  },
+  {
+   "file": "scans/alfiya-wardiyya/108.jpg",
+   "sha256": "5eba292e7228ceca0687427cf7340777536bce15e9534824c682fa4306f75954",
+   "size": 86523
+  },
+  {
+   "file": "scans/alfiya-wardiyya/109.jpg",
+   "sha256": "0432538949542367a00b2f7975b4cda477d0a840d7d5eea9c93650167bda1d93",
+   "size": 89713
+  },
+  {
+   "file": "scans/alfiya-wardiyya/110.jpg",
+   "sha256": "a8f0c8d153e109c4f800a2acc761377da07a462b97d61dc90dd759c89942eeb2",
+   "size": 89723
+  },
+  {
+   "file": "scans/alfiya-wardiyya/111.jpg",
+   "sha256": "9be023dbdf7f7ad8960e0f6ab47859200fb2838b49f1a32fd83f0d371fffeec7",
+   "size": 94040
+  },
+  {
+   "file": "scans/alfiya-wardiyya/112.jpg",
+   "sha256": "8014d27faebb7e4ad83eabf5a359acb9800f700d98c78d806e0531dfa2e24e9b",
+   "size": 92923
+  },
+  {
+   "file": "scans/alfiya-wardiyya/113.jpg",
+   "sha256": "2e059a08f3f0a997b7ac9f35e896ad677c37757c9d3c543c113b675d272025cb",
+   "size": 83300
+  },
+  {
+   "file": "scans/alfiya-wardiyya/114.jpg",
+   "sha256": "26f8c38b6dc990d2d6428f80c76e0c29a022fa8748b6b47a3852abb3fcbe1d6c",
+   "size": 79759
+  },
+  {
+   "file": "scans/alfiya-wardiyya/115.jpg",
+   "sha256": "cdec95b63fab6d4523c522faca684e5ed839a3d2ca742f590195b42474c8e111",
+   "size": 91674
+  },
+  {
+   "file": "scans/alfiya-wardiyya/116.jpg",
+   "sha256": "40255b1fa06a685bb57288856b3e50fa36a9e90c6ac7280efa48cc85b64989e0",
+   "size": 94536
+  },
+  {
+   "file": "scans/alfiya-wardiyya/117.jpg",
+   "sha256": "74ea7e43bf78e3c800709f580f67ae6f1c3a91ae52e5f5398e098963f41ef50d",
+   "size": 94395
+  },
+  {
+   "file": "scans/alfiya-wardiyya/118.jpg",
+   "sha256": "01202fa2f2fb82e25e07bea61510225f7697ae6ed8065210962f79379964c29c",
+   "size": 78014
+  },
+  {
+   "file": "scans/alfiya-wardiyya/119.jpg",
+   "sha256": "3f858479a631f780d0655602216c75f43773d0d5f89a235befd4e30ace464642",
+   "size": 92739
+  },
+  {
+   "file": "scans/alfiya-wardiyya/120.jpg",
+   "sha256": "44e353356d26258992c0df2fef3fa18aabdbf24cb8cf2f789306242de82ed272",
+   "size": 97423
+  },
+  {
+   "file": "scans/alfiya-wardiyya/121.jpg",
+   "sha256": "26d49b6b9339e54df0179cb3c179671dbe8b57da747c9e616bbb99e93e572eff",
+   "size": 96568
+  },
+  {
+   "file": "scans/alfiya-wardiyya/122.jpg",
+   "sha256": "5a7b0bfb42484f3d68200fb5d16a8036f3e62b05a4d73b3e4c760994c1e63588",
+   "size": 97483
+  },
+  {
+   "file": "scans/alfiya-wardiyya/123.jpg",
+   "sha256": "60e30e52ee1106fda890d5afd7159114de511bb59b396efb8e196dff56d1015e",
+   "size": 99802
+  },
+  {
+   "file": "scans/alfiya-wardiyya/124.jpg",
+   "sha256": "05967b65fe8683ecbbb0f281e067151721882f6fe5af1ba39b7eebb87bcf105c",
+   "size": 67447
+  },
+  {
+   "file": "scans/alfiya-wardiyya/125.jpg",
+   "sha256": "0232e2236ed9d2259ddec89e2a4fc738d60802e18379bc523ee1e192f56b266c",
+   "size": 97233
+  },
+  {
+   "file": "scans/alfiya-wardiyya/126.jpg",
+   "sha256": "2e7869879fd314d2106c4bfaf361172d3935a3b85b3f51a6b56d2925bfde91a8",
+   "size": 104229
+  },
+  {
+   "file": "scans/alfiya-wardiyya/127.jpg",
+   "sha256": "d3d08860fc4ba5b8429dc5a3e80806ed530f6463f345188b7c5d4908946398c2",
+   "size": 89418
+  },
+  {
+   "file": "scans/alfiya-wardiyya/128.jpg",
+   "sha256": "73e410094457d0022659c77e4a5083b79da13cd419e2111929328b5a6ab9497e",
+   "size": 89639
+  },
+  {
+   "file": "scans/alfiya-wardiyya/129.jpg",
+   "sha256": "e16166381778fc6c6193b1b6f39143131dcf4e68f2729a92bd03d62c38efcf6d",
+   "size": 39164
+  },
+  {
+   "file": "scans/alfiya-wardiyya.pdf",
+   "sha256": "ebbbc1a1a76060a28c655567c395f57bff28e82072444a7f9d2475d4816cad02",
+   "size": 11169824
+  },
+  {
+   "file": "covers/alfiya-wardiyya.jpg",
+   "sha256": "283a737f4da663fe9bffd21dffbd19105a260bcb7c0be090ea9d8f305c180912",
+   "size": 95943
+  },
+  {
+   "file": "covers/abir.jpg",
+   "sha256": "e88a179cdb1ccca621e25cef4793c179fcbbdc32bcf1e7c62390aa6f6fc78d2a",
+   "size": 127548
   }
  ]
 }

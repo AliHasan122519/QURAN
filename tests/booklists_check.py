@@ -5,6 +5,16 @@ import json, hashlib, os, re, sys, urllib.parse
 ok = True
 def check(name, cond, detail=''):
     global ok; ok &= bool(cond); print('PASS' if cond else 'FAIL', '|', name, detail)
+MF = {f['file']: f for f in json.load(open('content/manifest.json', encoding='utf8')).get('files', [])}
+def own_ok(d):
+    """a scan the owner supplied: its PDF is served from the app's own content, every page picture is a content file whose bytes match the manifest, and the viewer's table is inside the pages"""
+    o = d.get('own')
+    if not o or d['url'] != 'https://raw.githubusercontent.com/AliHasan122519/QURAN/main/content/' + o['dir'] + '.pdf': return False
+    fs = [o['dir'] + '.pdf'] + [f"{o['dir']}/{n:03d}.jpg" for n in range(o['n'])]
+    for f in fs:
+        e = MF.get(f)
+        if not e or not os.path.exists('content/' + f) or hashlib.sha256(open('content/' + f, 'rb').read()).hexdigest() != e['sha256']: return False
+    return len(o['toc']) >= 3 and all(0 <= t[2] < o['n'] for t in o['toc']) and [t[2] for t in o['toc']] == sorted(t[2] for t in o['toc'])
 B = json.load(open('data/booklists/books.json', encoding='utf8')); M = {t['id']: t for t in json.load(open('content/manifest.json', encoding='utf8'))['tabs']}
 for kind, tid in (('tabir', 'kutubtabir'), ('nazm', 'nazm'), ('firasa', 'kutubfiras')):
     t = M[tid]; rows = json.load(open(f'content/{t["file"]}', encoding='utf8'))['h']; mine = [b for b in B if b['kind'] == kind]
@@ -20,7 +30,7 @@ for kind, tid in (('tabir', 'kutubtabir'), ('nazm', 'nazm'), ('firasa', 'kutubfi
         # the rules every book of the two lists must meet (a new book is held to them too; see «إضافة كتاب جديد» in BOOKLISTS_NOTES.md)
         pcs = json.load(open('data/booklists/pagecounts.json', encoding='utf8')).get(b['key'], []) if os.path.exists('data/booklists/pagecounts.json') else []
         prow = [v for k, v in c['info'] if k.startswith('عدد الصفحات (الملف') or k.startswith('عدد صفحات')]
-        need = bool(b['dls']) and not b.get('pagesSkip')
+        need = bool(b['dls']) and not b.get('pagesSkip') and not b.get('own')
         check(f'{b["key"]}: «عدد الصفحات» is in the book information (the scan\'s pages from archive.org, scripts/page_counts.py) unless the book has no scan / is printed in another\'s margin (pagesSkip)', (not need) or (len(pcs) >= 1 and len(prow) >= 1 and all(str(n) in ' '.join(prow) for _, n in pcs if len(b['dls']) == 1 or len(prow) == 1 or True)), f'{prow}')
         check(f'{b["key"]}: it has a table of contents of at least 3 entries (a scan: scripts/apply_tocs.py from data/booklists/toc/{b["key"]}.json; a text: build_bookreader.py) and every page-count row uses the digits 0-9', len(c['toc']) >= 3 and not re.search(r'[٠-٩]', ' '.join(prow)))
         rd = c['reader']
@@ -30,7 +40,7 @@ for kind, tid in (('tabir', 'kutubtabir'), ('nazm', 'nazm'), ('firasa', 'kutubfi
         else:
             check(f'{b["key"]}: scan viewer of archive.org with a table of contents (title, scan leaf or none, printed page)', re.match(r'^[\w.\-]+$', rd['id']) is not None and len(c['toc']) >= 3 and all(len(t) in (4, 5) and t[0] in (1, 2, 3) and t[1].strip() and (t[2] is None or 0 <= t[2] < 800) and (len(t) == 4 or (rd.get('text') and 0 <= t[4] < rd['text']['count'])) for t in c['toc']), f'{len(c["toc"])} entries')
         check(f'{b["key"]}: numbers the app writes itself use the digits 0-9 (authorFull, info, toc titles, sizes)', not re.search(r'[٠-٩]', c['authorFull'] + ''.join(k + v for k, v in c['info']) + ''.join(t[1] for t in c['toc']) + ''.join(d['size'] for d in c['dls'])))
-        check(f'{b["key"]}: every download is an archive.org/download link with a size', all(re.match(r'^https://archive\.org/download/[\w.\-]+/[^/\s]+\.pdf$', d['url'], re.I) and re.match(r'^\d+\.\d ميغابايت$', d['size']) and d['label'] for d in c['dls']), f'{len(c["dls"])} files')
+        check(f'{b["key"]}: every download is an archive.org/download link with a size', all((re.match(r'^https://archive\.org/download/[\w.\-]+/[^/\s]+\.pdf$', d['url'], re.I) or own_ok(d)) and re.match(r'^\d+\.\d ميغابايت$', d['size']) and d['label'] for d in c['dls']), f'{len(c["dls"])} files')
         check(f'{b["key"]}: every quoted passage names its source', all(a['t'] and a['s'] for a in c['about']))
         if not c['dls']: check(f'{b["key"]}: a book with no PDF says why, and has a text to save', bool(c['note']) and c['reader']['mode'] == 'text')
 # the books of both lists are not references of the «الكتب» tab

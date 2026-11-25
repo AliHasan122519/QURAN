@@ -16,6 +16,7 @@ def with_pages(b):
     A count the book's own card gives (the printed edition) stays as it is, and the scan's count is added beside it.  A book that has no scan (no downloads) or
     that is printed in the margin of another (`pagesSkip`) has none."""
     info = [list(r) for r in b['info']]; rows = PC.get(b['key']) or []
+    if b.get('own'): return info + [['عدد صفحات الملف المصوَّر', str(b['own']['pages'])]]          # the scan the owner supplied (his own file of page pictures)
     if b.get('pagesSkip') or not rows: return info
     label = {x['name']: x['label'] for x in b['dls']}
     printed = any(k.startswith('عدد الصفحات') for k, _ in info)
@@ -26,6 +27,7 @@ def with_pages(b):
     at = max([i for i, (k, _) in enumerate(info) if k.startswith('عدد الصفحات')] + [len(info) - 1]) + 1 if printed else len(info)
     return info[:at] + new + info[at:]
 for _b in B: _b['info'] = with_pages(_b)
+OWN_RAW = 'https://raw.githubusercontent.com/AliHasan122519/QURAN/main/content/'          # where the app's own content files are served (the same place the apps update from)
 W = str.maketrans('٠١٢٣٤٥٦٧٨٩٫', '0123456789.')
 def west(t): return t.translate(W) if isinstance(t, str) else t          # numbers the app writes itself use the digits 0-9 (quoted passages stay word for word)
 def mb(n): return ('%.1f' % (n / 1e6)) + ' ميغابايت'
@@ -39,6 +41,13 @@ def card(b):
     d = [dict({'label': x['label'], 'url': 'https://archive.org/download/%s/%s' % (x['id'], urllib.parse.quote(x['name'])), 'size': mb(x['size']), 'id': x['id']},
               **({'sub': urllib.parse.quote(os.path.splitext(x['name'])[0])} if same(x['id']) else {}), **({'view': False} if x.get('view') is False else {})) for x in b['dls']]
     for x in b['dls']: assert x.get('size'), b['key'] + ': run verify_booklinks.py --write'
+    if b.get('own'):                                                                      # a scan the owner supplied: its pages and its PDF are content files (scripts/build_own_scans.py), the viewer is the app's own
+        o = b['own']; m = json.load(open('content/manifest.json', encoding='utf8')); fl = {f['file']: f for f in m['files']}
+        assert o['pdf'] in fl and all(f"{o['dir']}/{n:03d}.jpg" in fl for n in range(o['pages'])), b['key'] + ': run scripts/build_own_scans.py'
+        bk = json.load(open('content/' + b['reader']['file'], encoding='utf8')); marks = [(i, int(re.sub(r'\D', '', l))) for i, l in bk['pg']]
+        leaf = lambda para: next((pg for i, pg in reversed(marks) if i <= para), marks[0][1]) + o.get('offset', 0)
+        otoc = [[0, 'غلاف الكتاب', 0]] + [[a, west(t), leaf(i)] for a, t, i in bk['toc']]
+        d.append({'label': o['label'], 'url': OWN_RAW + o['pdf'], 'size': mb(fl[o['pdf']]['size']), 'id': '', 'own': {'dir': o['dir'], 'n': o['pages'], 'toc': otoc}})
     rd = b['reader']; assert rd['mode'] in ('text', 'embed'), b['key']
     if rd['mode'] == 'text':
         bk = json.load(open('content/' + rd['file'], encoding='utf8'))              # the table of contents of the reader's text (scripts/build_bookreader.py)

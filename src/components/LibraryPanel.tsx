@@ -8,13 +8,14 @@ import { BookCover } from './BookCover';
 import { BookReader, type BookData } from './BookReader';
 import { BookEmbed, type ScanToc } from './BookEmbed';
 import { topmost } from './DreamsPanel';
+import { ScanPages, type OwnToc } from './ScanPages';
 
 interface BookCard {
   kind: string; era: string; author: string; authorFull: string; coverTitle: string; cover: { p: number; m: number; img?: string };
   info: [string, string][]; infoSrc: string; about: { t: string; s: string }[]; note: string; inApp: boolean;
   reader: { mode: 'text'; file: string; src: string; ocr: boolean; scan: string; count: number } | { mode: 'embed'; id: string; src: string; manuscript?: boolean; text?: { file: string; count: number; src: string; scanId?: string } };
   toc: [number, string, number | null, (number | null)?, number?][]; tocSrc: string;
-  dls: { label: string; url: string; size: string; id: string; sub?: string; view?: boolean }[];
+  dls: { label: string; url: string; size: string; id: string; sub?: string; view?: boolean; own?: { dir: string; n: number; toc: OwnToc } }[];
 }
 interface Book { id: string; title: string; card: BookCard; }
 export type LoadFile = (rel: string) => Promise<ArrayBuffer | null>;
@@ -102,7 +103,8 @@ function BookDetail({ book, load, onClose }: { book: Book; load: LoadFile; onClo
         </section>
         <p className="lib-fine" dir="rtl">«تحميل الكتاب المصوَّر» ملف PDF من أرشيف الإنترنت، و«تحميل الكتاب المفرَّغ» ملف نصي (TXT) من النص الذي يُقرأ هنا؛ وقد تختلف طبعة الملف المصوَّر عن طبعة النص.</p>
         {read && textFile && <BookReader title={book.title} file={textFile} load={load} scan={c.reader.mode === 'text' ? c.reader.scan || undefined : (c.reader.text?.scanId ?? c.reader.id) || undefined} startAt={read.at ?? undefined} onClose={() => setRead(null)} />}
-        {scan !== null && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? (c.toc as ScanToc) : []} tocSrc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? c.tocSrc : ''} manuscript={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id && !!c.reader.manuscript} onClose={() => setScan(null)} />}
+        {scan !== null && c.dls[scan].own && <ScanPages title={`${book.title} — ${c.dls[scan].label}`} dir={c.dls[scan].own!.dir} n={c.dls[scan].own!.n} toc={c.dls[scan].own!.toc} tocSrc="مواضع أبواب المنظومة في صفحات الطبعة (من أرقام صفحاتها المطبوعة)" load={load} onClose={() => setScan(null)} />}
+        {scan !== null && !c.dls[scan].own && <BookEmbed title={`${book.title} — ${c.dls[scan].label.replace(/\s*\(PDF\)/, '')}`} id={c.dls[scan].sub ? `${c.dls[scan].id}/${c.dls[scan].sub}` : c.dls[scan].id} toc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? (c.toc as ScanToc) : []} tocSrc={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id ? c.tocSrc : ''} manuscript={c.reader.mode === 'embed' && c.reader.id === c.dls[scan].id && !!c.reader.manuscript} onClose={() => setScan(null)} />}
         {read && c.reader.mode === 'embed' && !c.reader.text && <BookEmbed title={book.title} id={c.reader.id} toc={c.toc as ScanToc} tocSrc={c.tocSrc} startLeaf={read.at} manuscript={!!c.reader.manuscript} onClose={() => setRead(null)} />}
       </div>
     </div>
